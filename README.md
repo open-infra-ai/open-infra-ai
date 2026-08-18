@@ -48,10 +48,29 @@
 - [`docs/organization-audit/`](docs/organization-audit/) — 组织审计归档
   （范围/架构/风险/跨仓契约/验证策略/工程治理/执行路线）
 
+## Interview Evidence
+
+Phase 3 把冻结成果收成可查证的面试包（**不再开发新功能**）。入口：
+
+| 文件 | 用途 |
+|------|------|
+| [`interview/FREEZE_AUDIT.md`](interview/FREEZE_AUDIT.md) | 六仓状态 + 本次重跑测试快照 |
+| [`interview/EVIDENCE_MATRIX.md`](interview/EVIDENCE_MATRIX.md) | 30 条声明 → 文件/commit/命令 |
+| [`interview/NUMBERS_CARD.md`](interview/NUMBERS_CARD.md) | 全部数字 + 口径 + 五个首选数 |
+| [`interview/talks/00-master-narrative.md`](interview/talks/00-master-narrative.md) | 30 秒电梯 + 四层叙事 |
+| [`interview/talks/`](interview/talks/) | 五仓各 10 分钟讲述稿 |
+| [`interview/cross-cutting.md`](interview/cross-cutting.md) | 三个必答题 |
+| [`interview/QA_BANK.md`](interview/QA_BANK.md) | 60 问 |
+| [`interview/MOCK_INTERVIEW.md`](interview/MOCK_INTERVIEW.md) | 45 分钟模拟 + 红灯清单 |
+| [`interview/resume-bullets.zh.md`](interview/resume-bullets.zh.md) / [`.en.md`](interview/resume-bullets.en.md) | 简历 STAR 条目 |
+| [`interview/PRESENTATION_CHECKLIST.md`](interview/PRESENTATION_CHECKLIST.md) | GitHub pinned、面试前 24h、demo 顺序 |
+
 ## 面试冻结声明
 
 E 阶段完成后，五仓进入"**面试就绪冻结**"：不再扩新功能；只修正确性 bug 与文档
 漂移；新想法记入各仓 ROADMAP 的"不做什么"清单。这是作品集交付纪律，不是降低标准。
+
+Phase 3 面试包已写入本仓 `interview/`。GitHub 上的 `phase-3-interview` tag 在 **push 之后** 才存在；未 push 前不要在简历里写该 tag。
 
 ## License
 
