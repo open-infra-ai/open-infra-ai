@@ -4,8 +4,8 @@
 > **上游**：`MASTER_PLAN.md`（Phase 1 已由低成本模型执行完毕，报告见其第 7 节勾选状态）
 > **目标读者**：低成本 AI 编程模型（一次性只给一个任务执行）
 > **本阶段核心问题**：① 项目命名统一；② 五仓边界与代码所有权收口；③ 补完两个旗舰缺口（tiny-llm decode 性能、paged KV 端到端）；④ 作品集在 GitHub 上可见且可复现。
-> **执行状态**：A0–B5 ✅（五仓改名/推送完成）；C0–C3 ✅（TPOT 6.09ms，比值 1.65×）；D0–D5 ✅（分页 KV 策略 1 + 3 并发 llama.cpp 对齐，`phase-2-d` tag）。
-> **当前批次任务**：见 [`PHASE2_NEXT_E.md`](PHASE2_NEXT_E.md)（E0 → E4 作品集收尾：llama fixture、Triton SGEMM+torch.library、cuflash grid.y 修复与 causal 优化、landing repo、release 终检）。
+> **执行状态**：A0–B5 ✅（五仓改名/推送完成）；C0–C3 ✅（TPOT 6.09ms，比值 1.65×）；D0–D5 ✅（分页 KV 策略 1 + 3 并发 llama.cpp 对齐，`phase-2-d` tag）；**E0–E4 ✅**（llama.cpp 诚实分歧 fixture、Triton SGEMM + torch.library、cuflash grid.y 修复 + causal 优化、`aicl-lab` landing 仓、五仓 `phase-2-e` tag 推送完成）。
+> **当前状态**：五仓进入"面试就绪冻结"态（不再扩功能，只修正确性 bug 与文档漂移），详见 [`PHASE2_NEXT_E.md`](PHASE2_NEXT_E.md) 的面试冻结声明。
 
 ---
 
@@ -576,42 +576,62 @@ TINY_LLM_DIR=... TINY_LLM_MODEL=... cargo test --features tiny-llm --test concur
 
 ## 8. 阶段 E 任务明细（P2 收尾，按剩余时间选做）
 
+> **状态**：E0–E4 ✅ 全部完成（2026-08-18）。可执行版见 [`PHASE2_NEXT_E.md`](PHASE2_NEXT_E.md)。
+
+### E0 paged-infer：llama.cpp 诚实分歧 fixture（D4 请求 2 补真）
+
+- ✅ D4 请求 2（`What is 2+2?`）改为"前缀一致 + EOS 终止 + 分歧注释"：
+  llama.cpp `[17,10,17,16819,220,19,13,151645]` vs tiny-llm `[17,10,17,374,220,19,13,151645]`，
+  第 4 个 token 为 W8A16 vs Q4_K_M 的 argmax 边界翻转（量化分歧），不伪装全序列一致。
+- 提交：`test(e2e): honest llama.cpp divergence fixture for 2+2 prompt`
+
 ### E1 triton-fused-ops：Triton SGEMM + torch.library（补 MASTER_PLAN C3）
 
-- 新增 `triton_ops/kernels/sgemm.py`：tiled GEMM，`tl.dot` 实现，与 `torch.mm` 差分测试（容差 1e-2，覆盖 M/N/K 非 2 幂边界）。
-- 新增 `triton_ops/ops.py`：用 `torch.library.custom_op` 注册 `fused_rmsnorm_rope`、`fused_gated_mlp`、`sgemm` 三个自定义 op；含 meta 信息与 device guard。
-- README 增加"CUDA SGEMM vs Triton SGEMM"对比表（引用 cuda-foundations 01 模块数字）。
-- 验收：`pytest -q` 全绿 + `python -c "import torch, triton_ops; ..."` 可调用 custom op。
+- ✅ 新增 `triton_ops/kernels/sgemm.py`：tiled GEMM，`tl.dot` 实现（fp32 用 `input_precision="ieee"`），
+  与 `torch.mm` 差分测试（容差 1e-2，覆盖 M/N/K 非 2 幂边界），tests/test_sgemm.py 24 项全绿。
+- ✅ 新增 `triton_ops/ops.py`：`torch.library.triton_op` 注册
+  `triton_ops::sgemm` / `triton_ops::fused_rmsnorm_rope` / `triton_ops::fused_gated_mlp`；
+  不可用时 fallback 到 `custom_op + register_fake`（两种路径均过测试）。
+- ✅ README 增加"torch.library 自定义算子"小节（含与 vLLM/SGLang custom op 的对应关系）。
+- 提交：`feat(triton): SGEMM kernel with differential tests` / `feat(torch): register custom ops via torch.library`
 
 ### E2 cuflash-attn：一轮有数字的优化（补 MASTER_PLAN C2）
 
-- 从 ROADMAP 阶段 2 选 1 项（cp.async 双缓冲 或 causal 边界块特化）；
-- before/after benchmark + ncu；若 2 次尝试无改善，写负结果文档后收工。
-- 验收：benchmark 表新增一行优化前后对比，ctest 69/69 不回归。
+- ✅ E2a 修复 forward/backward `grid.y = batch*heads` 在 B*H > 65535 时 launch 非法：
+  grid 展平到 x 维；回归测试 `ForwardTest.GridYOverflowSmoke`（B*H=65536）。
+- ✅ E2b causal 边界块跳过：`q_last = min(q_start + BLOCK_M - 1, seq_len - 1)`，
+  整块"未来"KV 块 break；`CausalNonTileAlignedSeqLen`（seq_len=257）验证。
+- ✅ before/after 表写入 `docs/performance/causal-boundary-skip.md`：增益 ±2% 内（低于噪声，
+  <10% 阈值），保留改动（数值不回归），主要价值是减少无效访存。
+- 提交：`fix(forward): flatten grid.y batch*heads for >65535 launches` /
+  `perf(forward): skip fully-future KV blocks in causal path`
 
 ### E3 组织级 landing README（可选）
 
-- 新建 GitHub 仓库 `AICL-Lab/aicl-lab`（README 一页：五仓地图 + 学习路径 + 快速链接 + 本计划链接）；把根目录 `MASTER_PLAN.md`、`PHASE2_PLAN.md`、`docs/organization-audit/` 迁入或链接过去。
-- 本任务需要你手动建仓；模型只负责写内容。
+- ✅ 新建 GitHub 仓库 `aicl-lab/aicl-lab`（public）：五仓地图（四层能力表）+ 阅读顺序 +
+  Phase 2 证据摘要（TPOT 6.1ms、分页 KV 3 并发、改名 cuda-foundations）+ 计划归档副本
+  （MASTER_PLAN / PHASE2_PLAN / PHASE2_NEXT*.md / docs/organization-audit）。
+- ✅ 五仓 README 顶部各加一行 `📚 Portfolio map: https://github.com/aicl-lab/aicl-lab`。
 
 ### E4 release tag 与 badge 校验
 
-- 每个仓库打 `v` 语义化 tag 并 push；
-- 逐仓检查 README 徽章（CI/Pages/License）都指向新仓库名；
-- GitHub 上点一遍五个 README 的所有跨仓链接，确认无 404。
+- ✅ 五仓打并推送 `phase-2-e` tag（cuda-foundations / triton-fused-ops / cuflash-attn /
+  tiny-llm / paged-infer）。
+- ✅ 终检：旧名 `cuda-kernel-academy` 在实时内容 0 命中（计划文档与审计归档除外）；
+  六仓 GitHub 可见无 MISSING；五个 README 链接全 200。
 
 ---
 
 ## 9. 阶段出口门槛（Phase 2 Definition of Done）
 
 - [x] 五个仓库 `git status` 全部干净，`origin/master` 领先 0。
-- [ ] `cuda-foundations` 在 GitHub 可见；全组织源码 `cuda-foundations` 旧名 0 命中（审计归档除外）。
+- [x] `cuda-foundations` 在 GitHub 可见；全组织源码 `cuda-foundations` 旧名 0 命中（审计归档除外）。
 - [x] tiny-llm 构建/测试恢复全绿（157 passed / 8 skipped 基线）。
-- [ ] tiny-llm TPOT ≤ 12ms（或写出有 ncu 证据的不可达分析），README 性能表更新。
+- [x] tiny-llm TPOT ≤ 12ms（或写出有 ncu 证据的不可达分析），README 性能表更新。
 - [x] `TLLM_PAGED_KV=1` 与 `TLLM_PAGED_KV=0` 输出逐 token 一致。
 - [x] paged-infer 策略 1 通过 3 并发 e2e，与 llama.cpp 对齐，资源守恒测试全绿。
 - [x] 五个 README 的"策略 2 忽略 block_tables"等过期描述清零。
-- [ ] 每个任务一个 commit，commit message 可审计。
+- [x] 每个任务一个 commit，commit message 可审计。
 
 ---
 

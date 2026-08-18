@@ -7,6 +7,8 @@
 > **Phase 1 状态**：A-E 阶段已由低成本模型执行完毕（完成报告见本文件第 7 节勾选状态）。
 > **下一步**：Phase 2 计划见 [`PHASE2_PLAN.md`](PHASE2_PLAN.md)（重命名 cuda-foundations + 边界收口 + decode 性能攻坚 + 分页 KV 端到端）。
 > 后续任务请以 PHASE2_PLAN.md 为准，本文件仅保留 Phase 1 历史任务记录。
+> **Phase 2 状态**：A0–B5 ✅ / C0–C3 ✅ / D0–D5 ✅ / **E0–E4 ✅（2026-08-18 作品集收尾完成）**；
+> 五仓已打 `phase-2-e` tag 并推送，进入"面试就绪冻结"态；landing 页见 <https://github.com/aicl-lab/aicl-lab>。
 
 ---
 
@@ -73,7 +75,7 @@
   E1. cuda-foundations 剩余问题修复 ✅（2026-08-18 复核 d880996：build+ctest 209/209 0 失败；04 模块 GPU 测试在本机 skip 属既有环境异常，见执行报告）
   E2. paged-infer: chunked prefill 或优先级调度（选一）✅（2026-08-18, paged-infer@a69b146 选优先级调度）
   E3. cuflash-attn: FlashDecoding/Split-KV ✅（2026-08-18, cuflash-attn@9f65df7）
-  E4. cuda-foundations 改名 cuda-foundations（可选）⏸ 延期：需先在 GitHub 重命名仓库（本环境无权限），按计划"面试前统一执行"
+  E4. cuda-foundations 改名 cuda-foundations（可选）✅（2026-08-18：`cuda-kernel-academy` → `cuda-foundations` 全链路改名完成，见 PHASE2_PLAN 任务 B0）
 ```
 
 ---
@@ -693,12 +695,12 @@ ctest --preset default
 ### 7.4 阶段 C 至少完成 1 项
 
 - [x] tiny-llm: CUDA Graphs（2026-08-18 复核：gated 差分测试通过，TPOT -6.8%，a2a9c58/efd035a）
-- [ ] cuflash-attn: 一轮优化迭代
-- [ ] triton-fused-ops: Triton SGEMM + torch.library
+- [x] cuflash-attn: 一轮优化迭代（2026-08-18, PHASE2_NEXT_E E2b：causal 边界块跳过，before/after 见 docs/performance/causal-boundary-skip.md）
+- [x] triton-fused-ops: Triton SGEMM + torch.library（2026-08-18, PHASE2_NEXT_E E1a/E1b：SGEMM 差分测试 + torch.ops.triton_ops.* 注册）
 
 ### 7.5 阶段 D 全部完成
 
-- [ ] tiny-llm + paged-infer: 分页 KV 端到端（2026-08-18 评估：跨仓内核级大任务，两侧计划均标“不阻塞冻结”；本会话未实施，见执行报告 NOTE）
+- [x] tiny-llm + paged-infer: 分页 KV 端到端（2026-08-18：策略 1 block_tables + 3 并发 e2e 与 llama.cpp greedy 对齐，资源守恒测试全绿，`phase-2-d` tag）
 - [x] 5 个 README 都有 IN/OUT 边界（2026-08-18：cuda-foundations@3b73d7b, tiny-llm@ef56907, paged-infer@7d10389, cuflash-attn@d9ab221, triton 已有）
 - [x] 04-inference-engine 降级标注（2026-08-18, cuda-foundations@8483ed3）
 - [x] triton-fused-ops FlashAttention 降级标注（2026-08-18, triton-fused-ops@dbab4e0）
