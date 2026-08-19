@@ -274,9 +274,9 @@ done
 ### 任务 B0（人工）：GitHub 重命名仓库
 
 **执行人：你（用户），不是模型。**
-1. 打开 `https://github.com/AICL-Lab/cuda-foundations/settings`
+1. 打开 `https://github.com/aicl-lab/cuda-foundations/settings`
 2. Repository name 改为 `cuda-foundations`
-3. GitHub 会自动重定向旧 URL；确认 `https://github.com/AICL-Lab/cuda-foundations` 可访问。
+3. GitHub 会自动重定向旧 URL；确认 `https://github.com/aicl-lab/cuda-foundations` 可访问。
 4. 完成后把"重命名已完成"告诉模型，再继续 B1。
 
 > 若你有 `gh` CLI 且有权限，等效命令：`gh repo rename AICL-Lab/cuda-foundations cuda-foundations`
@@ -288,7 +288,7 @@ done
 **文件**：本地目录、`.git/config`
 
 1. `mv cuda-foundations cuda-foundations`
-2. `cd cuda-foundations && git remote set-url origin git@github.com:AICL-Lab/cuda-foundations.git`（HTTPS 则用 `https://github.com/AICL-Lab/cuda-foundations.git`）
+2. `cd cuda-foundations && git remote set-url origin git@github.com:AICL-Lab/cuda-foundations.git`（HTTPS 则用 `https://github.com/aicl-lab/cuda-foundations.git`）
 3. `git fetch && git status -sb` 确认 tracking 正常。
 
 **验收**：
@@ -318,7 +318,7 @@ git -C cuda-foundations remote -v
    ```
 3. **人工核对的特殊项**（sed 后逐个确认）：
    - `common/CMakeLists.txt`：`add_library(cuda_foundations_common INTERFACE)` + `add_library(CUDAFoundations::common ALIAS ...)` + `EXPORT CUDAFoundationsTargets`；
-   - 根 `CMakeLists.txt`：`project(CUDAFoundations ...)`、`HOMEPAGE_URL "https://github.com/AICL-Lab/cuda-foundations"`、顶部注释；
+   - 根 `CMakeLists.txt`：`project(CUDAFoundations ...)`、`HOMEPAGE_URL "https://github.com/aicl-lab/cuda-foundations"`、顶部注释；
    - `02-tensorcraft-core/include/tensorcraft/core/cuda_check.hpp`：`using CudaError = cuda_foundations::core::CudaError;` 及宏内命名空间；
    - `common/include/cuda_foundations/core/*.hpp`：namespace 开闭注释；
    - 宏 `CA_CUDA_CHECK` 保留原宏名（宏名是公共 API，本次只改命名空间限定，不改宏名）。
@@ -365,7 +365,7 @@ cd docs && npm run build 2>/dev/null || npm run docs:build   # 按仓库 package
 **范围（已核实）**：`paged-infer/README.md`、`tiny-llm/README.md`、`cuflash-attn/README.md`、`triton-fused-ops/README.md`、`triton-fused-ops/triton_fused_ops.egg-info/PKG-INFO`、根 `MASTER_PLAN.md`、`docs/organization-audit/**`。
 
 **规则**：
-1. 把所有 `github.com/AICL-Lab/cuda-foundations` 替换为 `github.com/AICL-Lab/cuda-foundations`。
+1. 把所有 `github.com/aicl-lab/cuda-foundations` 替换为 `github.com/aicl-lab/cuda-foundations`。
 2. `docs/organization-audit/` 是历史审计记录：正文替换 URL，但审计文档标题/文件名（`repos/cuda-foundations.md`）**保留原名**，并在其文件头加一行"（本审计归档于仓库改名 cuda-foundations 之前，下同）"。
 3. `triton_fused_ops.egg-info/PKG-INFO` 是构建产物，若被 git 跟踪则同步替换；若未跟踪，忽略。
 4. 每个被改仓库独立提交 `docs: point links to cuda-foundations`，并跑各自快速验证（triton pytest 不必须全跑，grep 即可；tiny-llm/paged-infer README 改动不跑测试）。

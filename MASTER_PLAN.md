@@ -9,6 +9,8 @@
 > 后续任务请以 PHASE2_PLAN.md 为准，本文件仅保留 Phase 1 历史任务记录。
 > **Phase 3 状态**：✅ T1–T10 完成（aicl-lab@phase-3-interview）；五仓 `phase-3-docs` tag 已推送。
 > **当前唯一执行入口**：[`PLAN_v3.md`](PLAN_v3.md)（PLAN v3：仓库完成状况分析 + 阶段 K 收尾 / 阶段 I 面试执行 / 阶段 D 可选深度增量）。
+> **阶段 K 状态**：✅ K1–K4 完成，六仓 ahead 0，tag 链 `phase-2-e → phase-3-docs → phase-3-interview` 完整。
+> **阶段 I 状态**：✅ I0–I7 完成（aicl-lab@phase-i-ready）；见 [`PLAN_I.md`](PLAN_I.md)。
 > **Phase 2 状态**：A0–B5 ✅ / C0–C3 ✅ / D0–D5 ✅ / **E0–E4 ✅（2026-08-18 作品集收尾完成）**；
 > 五仓已打 `phase-2-e` tag 并推送，进入"面试就绪冻结"态；landing 页见 <https://github.com/aicl-lab/aicl-lab>。
 
@@ -504,7 +506,7 @@ grep -l "Out of Scope\|OUT\|不负责\|明确不做" */README.md
 1. 在 `04-inference-engine/README.md` 顶部添加：
    ```markdown
    > ⚠️ **教学预览**：本模块是 tiny-llm 的简化预习版，用于展示 kernel/内存/流如何
-   > 组装成小系统。**真实推理运行时见 [tiny-llm](https://github.com/AICL-Lab/tiny-llm)**。
+   > 组装成小系统。**真实推理运行时见 [tiny-llm](https://github.com/aicl-lab/tiny-llm)**。
    > 本模块不追求模型兼容性、量化精度或推理性能。
    ```
 2. 在 `LEARNING_PATH.md` 的阶段 4 描述中，将 04-inference-engine 标注为"教学预览，非独立作品"。
@@ -532,7 +534,7 @@ grep -r "教学预览\|tutorial preview\|简化预习" cuda-foundations/04-infer
 
 1. 在 `README.md` 的快速示例和功能描述中，将 FlashAttention 标注为：
    ```markdown
-   > ℹ️ **定位**：Triton FlashAttention 是 [cuflash-attn](https://github.com/AICL-Lab/cuflash-attn)
+   > ℹ️ **定位**：Triton FlashAttention 是 [cuflash-attn](https://github.com/aicl-lab/cuflash-attn)
    > 的独立参考实现，用于验证 CUDA C++ 版本的正确性。完整 FlashAttention 前后向 +
    > 优化叙事见 cuflash-attn。
    ```

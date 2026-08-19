@@ -38,15 +38,17 @@
 
 ## 执行计划归档
 
-本 meta 仓库同时归档各阶段执行计划（只读副本，权威版本在各仓库/根目录）：
+本仓库是计划与面试材料的**唯一权威源**。本地 `aicl/` 工作区根目录只放指针，不再保留正文副本。
 
-- [`MASTER_PLAN.md`](MASTER_PLAN.md) — 总计划
-- [`PHASE2_PLAN.md`](PHASE2_PLAN.md) — Phase 2 总计划
-- [`PHASE2_NEXT.md`](PHASE2_NEXT.md) / [`PHASE2_NEXT_C.md`](PHASE2_NEXT_C.md) /
-  [`PHASE2_NEXT_D.md`](PHASE2_NEXT_D.md) / [`PHASE2_NEXT_E.md`](PHASE2_NEXT_E.md) —
-  各批次可执行细化（A→E）
-- [`docs/organization-audit/`](docs/organization-audit/) — 组织审计归档
-  （范围/架构/风险/跨仓契约/验证策略/工程治理/执行路线）
+- [`PLAN_v3.md`](PLAN_v3.md) — 当前执行入口（阶段 K / I / 可选 D）
+- [`PLAN_I.md`](PLAN_I.md) — 面试执行期支持材料（I0–I7）
+- [`MASTER_PLAN.md`](MASTER_PLAN.md) — Phase 1 历史总计划
+- [`PHASE2_PLAN.md`](PHASE2_PLAN.md) / [`PHASE2_NEXT.md`](PHASE2_NEXT.md) /
+  [`PHASE2_NEXT_C.md`](PHASE2_NEXT_C.md) / [`PHASE2_NEXT_D.md`](PHASE2_NEXT_D.md) /
+  [`PHASE2_NEXT_E.md`](PHASE2_NEXT_E.md) — Phase 2 各批次
+- [`PHASE3_PLAN.md`](PHASE3_PLAN.md) — 面试证据包任务
+- [`docs/organization-audit/`](docs/organization-audit/) — 2026-08-13 组织审计快照
+  （历史文件名仍写 `cuda-kernel-academy`，不是当前仓名）
 
 ## Interview Evidence & Phase-I Support Pack
 

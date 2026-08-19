@@ -196,7 +196,7 @@ git -C /home/shane/github/aicl/cuda-foundations remote -v
    ```
 4. **人工核对 5 个特殊点**（sed 之后逐个 `grep -n` 确认）：
    - `common/CMakeLists.txt`：`add_library(cuda_foundations_common INTERFACE)`、`add_library(CUDAFoundations::common ALIAS ...)`、`EXPORT CUDAFoundationsTargets`
-   - 根 `CMakeLists.txt`：`project(CUDAFoundations ...)`、`HOMEPAGE_URL "https://github.com/AICL-Lab/cuda-foundations"`、文件顶部注释同步
+   - 根 `CMakeLists.txt`：`project(CUDAFoundations ...)`、`HOMEPAGE_URL "https://github.com/aicl-lab/cuda-foundations"`、文件顶部注释同步
    - `02-tensorcraft-core/include/tensorcraft/core/cuda_check.hpp`：`using CudaError = cuda_foundations::core::CudaError;`
    - `common/include/cuda_foundations/core/*.hpp`：namespace 开闭注释
    - 宏 `CA_CUDA_CHECK` 等**宏名保持不变**，只改宏展开里的命名空间限定
@@ -221,7 +221,7 @@ refactor: rename namespace/CMake to cuda_foundations (mechanical, no behavior ch
 
 **执行步骤**：
 1. `docs/.vitepress/config.ts`：
-   - `repoUrl` → `https://github.com/AICL-Lab/cuda-foundations`
+   - `repoUrl` → `https://github.com/aicl-lab/cuda-foundations`
    - `pagesUrl` → `https://aicl-lab.github.io/cuda-foundations/`
    - `base:` → `'/cuda-foundations/'`
 2. `docs/package.json` 与根 `package.json`：`"name"` 中 `cuda-kernel-academy` → `cuda-foundations`。
@@ -259,7 +259,7 @@ docs: rename site and links to cuda-foundations
 - `/home/shane/github/aicl/docs/organization-audit/**`（正文 URL 替换；归档文件名 `repos/cuda-kernel-academy.md` 保留原名）
 
 **执行步骤**：
-1. 全部把 `github.com/AICL-Lab/cuda-kernel-academy` / `github.com/aicl-lab/cuda-kernel-academy` 替换为 `github.com/AICL-Lab/cuda-foundations`（保持大小写与原文一致即可，主 URL 用 AICL-Lab）。
+1. 全部把 `github.com/aicl-lab/cuda-kernel-academy` / `github.com/aicl-lab/cuda-kernel-academy` 替换为 `github.com/aicl-lab/cuda-foundations`（保持大小写与原文一致即可，主 URL 用 AICL-Lab）。
 2. `docs/organization-audit/2026-08-13/repos/cuda-kernel-academy.md` **文件名不改**，在其标题下加一行：
    ```markdown
    > 归档说明：本审计完成于仓库改名 cuda-foundations 之前，文件名保留历史名称。
