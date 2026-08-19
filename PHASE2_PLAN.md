@@ -5,7 +5,7 @@
 > **目标读者**：低成本 AI 编程模型（一次性只给一个任务执行）
 > **本阶段核心问题**：① 项目命名统一；② 五仓边界与代码所有权收口；③ 补完两个旗舰缺口（tiny-llm decode 性能、paged KV 端到端）；④ 作品集在 GitHub 上可见且可复现。
 > **执行状态**：A0–B5 ✅（五仓改名/推送完成）；C0–C3 ✅（TPOT 6.09ms，比值 1.65×）；D0–D5 ✅（分页 KV 策略 1 + 3 并发 llama.cpp 对齐，`phase-2-d` tag）；**E0–E4 ✅**（llama.cpp 诚实分歧 fixture、Triton SGEMM + torch.library、cuflash grid.y 修复 + causal 优化、`aicl-lab` landing 仓、五仓 `phase-2-e` tag 推送完成）。
-> **当前状态**：五仓进入"面试就绪冻结"态（不再扩功能，只修正确性 bug 与文档漂移），详见 [`PHASE2_NEXT_E.md`](PHASE2_NEXT_E.md) 的面试冻结声明。Phase 3 面试包见 [`interview/`](interview/)（本地已写完；`phase-3-interview` tag 待 push）。
+> **当前批次任务**：Phase 2 已冻结，后续见 [`PLAN_v3.md`](PLAN_v3.md)（阶段 K 收尾 / 阶段 I 面试执行 / 阶段 D 可选深度增量）。
 
 ---
 

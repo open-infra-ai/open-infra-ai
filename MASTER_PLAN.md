@@ -7,6 +7,8 @@
 > **Phase 1 状态**：A-E 阶段已由低成本模型执行完毕（完成报告见本文件第 7 节勾选状态）。
 > **下一步**：Phase 2 计划见 [`PHASE2_PLAN.md`](PHASE2_PLAN.md)（重命名 cuda-foundations + 边界收口 + decode 性能攻坚 + 分页 KV 端到端）。
 > 后续任务请以 PHASE2_PLAN.md 为准，本文件仅保留 Phase 1 历史任务记录。
+> **Phase 3 状态**：✅ T1–T10 完成（aicl-lab@phase-3-interview）；五仓 `phase-3-docs` tag 已推送。
+> **当前唯一执行入口**：[`PLAN_v3.md`](PLAN_v3.md)（PLAN v3：仓库完成状况分析 + 阶段 K 收尾 / 阶段 I 面试执行 / 阶段 D 可选深度增量）。
 > **Phase 2 状态**：A0–B5 ✅ / C0–C3 ✅ / D0–D5 ✅ / **E0–E4 ✅（2026-08-18 作品集收尾完成）**；
 > 五仓已打 `phase-2-e` tag 并推送，进入"面试就绪冻结"态；landing 页见 <https://github.com/aicl-lab/aicl-lab>。
 
