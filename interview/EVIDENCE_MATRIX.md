@@ -312,4 +312,4 @@ gh api repos/aicl-lab/aicl-lab --jq .full_name
 # 本 freeze：六个 full_name 均返回 aicl-lab/<name>
 git -C tiny-llm tag --list 'phase-*'
 ```
-- 口径/限制：`aicl-lab` 本身无 `phase-2-e` / `phase-3-interview` tag。五仓本轮 docs 超前 origin 1–2 commit，tag 仍钉在 docs 之前的 freeze 点。
+- 口径/限制：K 阶段后六仓 ahead 0；五仓 tag = `phase-3-docs`，meta tag = `phase-3-interview`（`9e0b4f7`）。tag 链：`phase-2-e` → `phase-3-docs`（五仓）→ `phase-3-interview`（meta）。

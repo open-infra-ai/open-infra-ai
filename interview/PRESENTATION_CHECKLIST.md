@@ -1,6 +1,6 @@
 # 面试呈现清单
 
-Phase 3 本地交付核对。**推送与 `phase-3-interview` tag 需你明确说 push 后再做**（本清单不代替推送）。
+Phase 3 本地交付核对。`phase-3-interview` tag 已推送（meta = `9e0b4f7`），五仓 `phase-3-docs`，六仓 ahead 0。本清单用于面试前核对，不代替实际操作。
 
 ## GitHub profile 建议
 
@@ -24,7 +24,7 @@ Landing 一句话：四层学习链，不是迷你 vLLM。
 | cuflash-attn | grid.y 修复；causal skip **负结果**；FlashDecoding | ±2% 当加速成功；LogicalHBM=物理带宽 |
 | triton-fused-ops | 三 op + torch.library；TRIT-001 | 假 FP8 E4M3；compile skip 当 pass |
 | cuda-foundations | 冻结；阶梯含更慢的 padding 步；04 预览 | 209/209 全执行；旧 slug 当现名 |
-| aicl-lab | 五仓地图 + Interview Evidence 链接 | 声称已 push `phase-3-interview`（未 push 前） |
+| aicl-lab | 五仓地图 + Interview Evidence 链接 + tag 链 | 把五仓源码改动混入 meta、或把 `phase-3-docs`/`phase-3-interview` 链说反 |
 
 ## 面试前 24h 检查
 

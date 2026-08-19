@@ -70,7 +70,7 @@ Phase 3 把冻结成果收成可查证的面试包（**不再开发新功能**�
 E 阶段完成后，五仓进入"**面试就绪冻结**"：不再扩新功能；只修正确性 bug 与文档
 漂移；新想法记入各仓 ROADMAP 的"不做什么"清单。这是作品集交付纪律，不是降低标准。
 
-Phase 3 面试包已写入本仓 `interview/`。GitHub 上的 `phase-3-interview` tag 在 **push 之后** 才存在；未 push 前不要在简历里写该 tag。
+Phase 3 面试包已写入本仓 `interview/` 并推送。当前 tag 链：`phase-2-e` → `phase-3-docs`（五仓）→ `phase-3-interview`（meta = `9e0b4f7`）；六仓 ahead 0。
 
 ## License
 

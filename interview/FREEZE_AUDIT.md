@@ -111,3 +111,7 @@ cargo fmt --all -- --check && cargo clippy --all-targets -- -D warnings && cargo
 - 五仓相对 origin **ahead 1 或 2**（本轮 docs）；**尚未 push**。
 - meta 仓 `aicl-lab` 无 phase tag。
 - 下一步：T2 证据矩阵、T3 数字卡；本文件不发明性能数字。
+
+## 5. K 阶段后补记（2026-08-18）
+- 本审计撰写时的 ahead/无 tag 状态已由 PLAN_v3 阶段 K 清零；
+- 当前 tag 链：phase-2-e → phase-3-docs（五仓）→ phase-3-interview（meta=9e0b4f7）。
