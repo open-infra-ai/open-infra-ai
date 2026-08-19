@@ -128,6 +128,10 @@ git tag phase-3-interview && git push origin phase-3-interview
 
 ### 阶段 I：面试执行期（默认不开发，模型提供支持材料）
 
+> 执行状态：I0–I7 ✅（aicl-lab@phase-i-ready，2026-08-18）。执行细节见 PLAN_I.md；
+
+> **细化计划**：见 [`PLAN_I.md`](PLAN_I.md)（I0 文档漂移清理 → I1 防御手册 → I2 白板公式卡 → I3 快问训练卡 → I4 demo 脚本 → I5 复盘模板 → I6 岗位手册 → I7 推送 tag）。
+
 > 这是给"你"的阶段，不是给模型刷代码的阶段。模型只做材料维护与模拟题生成。
 
 | ID | 任务 | 产出 | 触发条件 |

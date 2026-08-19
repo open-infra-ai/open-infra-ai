@@ -1,7 +1,7 @@
 # PHASE 3 执行计划：面试证据包与讲述能力（开发冻结后）
 
 > 执行状态：T1–T10 全部完成（2026-08-18）。产物在 interview/；冻结核验见 FREEZE_AUDIT.md；
-> 收尾推送与 tag 见 PLAN v3 阶段 K。
+> 收尾推送与 tag 见 PLAN v3 阶段 K。阶段 I 支持包已完成：I0–I7 ✅（aicl-lab@phase-i-ready），见 PLAN_I.md。
 
 > **版本**：2026-08-18
 > **上游**：`MASTER_PLAN.md` + `PHASE2_PLAN.md`（A–E 全部完成，五仓 + meta 仓 `phase-2-e` tag）

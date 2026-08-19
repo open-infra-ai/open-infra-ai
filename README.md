@@ -48,9 +48,12 @@
 - [`docs/organization-audit/`](docs/organization-audit/) — 组织审计归档
   （范围/架构/风险/跨仓契约/验证策略/工程治理/执行路线）
 
-## Interview Evidence
+## Interview Evidence & Phase-I Support Pack
 
-Phase 3 把冻结成果收成可查证的面试包（**不再开发新功能**）。入口：
+Phase 3 把冻结成果收成可查证的面试包（**不再开发新功能**）；Phase I 在面试包里加
+“可直接排练”的支持材料。入口：
+
+**证据与讲述（Phase 3）**
 
 | 文件 | 用途 |
 |------|------|
@@ -63,7 +66,18 @@ Phase 3 把冻结成果收成可查证的面试包（**不再开发新功能**�
 | [`interview/QA_BANK.md`](interview/QA_BANK.md) | 60 问 |
 | [`interview/MOCK_INTERVIEW.md`](interview/MOCK_INTERVIEW.md) | 45 分钟模拟 + 红灯清单 |
 | [`interview/resume-bullets.zh.md`](interview/resume-bullets.zh.md) / [`.en.md`](interview/resume-bullets.en.md) | 简历 STAR 条目 |
-| [`interview/PRESENTATION_CHECKLIST.md`](interview/PRESENTATION_CHECKLIST.md) | GitHub pinned、面试前 24h、demo 顺序 |
+
+**排练支持（Phase I I0–I6）**
+
+| 文件 | 用途 |
+|------|------|
+| [`interview/PRESENTATION_CHECKLIST.md`](interview/PRESENTATION_CHECKLIST.md) | GitHub pinned、面试前 24h、demo 顺序（已按 K 阶段清零） |
+| [`interview/DEFENSE_PLAYBOOK.md`](interview/DEFENSE_PLAYBOOK.md) | 8 个弱项防御剧本 |
+| [`interview/WHITEBOARD_CHEATSHEET.md`](interview/WHITEBOARD_CHEATSHEET.md) | 12 节白板公式卡 |
+| [`interview/drill-sets/`](interview/drill-sets/) | 三套 10 分钟快问卡 |
+| [`interview/LIVE_DEMO_SCRIPT.md`](interview/LIVE_DEMO_SCRIPT.md) | 线上面试 demo 脚本（三场景 + 失败恢复树） |
+| [`interview/MOCK_DEBRIEF_TEMPLATE.md`](interview/MOCK_DEBRIEF_TEMPLATE.md) | 模拟/真实面试复盘模板 |
+| [`interview/ROLE_PLAYBOOKS/`](interview/ROLE_PLAYBOOKS/) | kernel / runtime / serving 三份岗位手册 |
 
 ## 面试冻结声明
 
