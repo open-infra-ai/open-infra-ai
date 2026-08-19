@@ -23,7 +23,7 @@ L4 Serving         paged-infer          调度 / BlockPool / OpenAI API；经 C 
 Meta               aicl-lab             landing + 本面试证据包
 ```
 
-Landing：<https://github.com/aicl-lab/aicl-lab>。五仓 `phase-2-e` 钉在「link portfolio」提交；其后有 ROADMAP 对齐的 docs commit。
+Landing：<https://github.com/open-infra-ai/aicl-lab>。五仓 `phase-2-e` 钉在「link portfolio」提交；其后有 ROADMAP 对齐的 docs commit。
 
 **切仓原则（会被追问）**：一个算法一个 owner。FlashAttention → cuflash-attn；量化 GEMM → tiny-llm；分页控制面 → paged-infer。跨仓只走窄 ABI（`tiny-llm/include/tiny_llm/ffi.h` ↔ `paged-infer/src/tiny_llm_ffi.rs`），不互相 include。教学仓不得被 runtime 依赖。
 

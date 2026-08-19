@@ -218,13 +218,13 @@ ctest --preset release --output-on-failure
    - `README.md`：五仓地图（四层能力表）、阅读顺序、各仓定位与状态链接、Phase 2 完成证据摘要（TPOT 6.09ms、paged KV 3 并发、改名 cuda-foundations）；
    - `MASTER_PLAN.md`、`PHASE2_PLAN.md`、`PHASE2_NEXT.md`、`PHASE2_NEXT_C.md`、`PHASE2_NEXT_D.md`、`PHASE2_NEXT_E.md` 的副本；
    - `docs/organization-audit/` 归档副本。
-3. `git init && git add ... && git commit`，`git remote add origin https://github.com/aicl-lab/aicl-lab.git`，`git push -u origin master`。
-4. 回改五仓 README 顶部加一行 `> 📚 Portfolio map: https://github.com/aicl-lab/aicl-lab`（各仓一个 docs commit，本任务可合并成 5 个小提交）。
+3. `git init && git add ... && git commit`，`git remote add origin https://github.com/open-infra-ai/aicl-lab.git`，`git push -u origin master`。
+4. 回改五仓 README 顶部加一行 `> 📚 Portfolio map: https://github.com/open-infra-ai/aicl-lab`（各仓一个 docs commit，本任务可合并成 5 个小提交）。
 
 **验收**：
 ```bash
 gh repo view aicl-lab/aicl-lab --json name,url
-curl -sI https://github.com/aicl-lab/aicl-lab | head -1   # 200
+curl -sI https://github.com/open-infra-ai/aicl-lab | head -1   # 200
 ```
 
 **提交**：meta 仓一个初始 commit；五仓各 `docs: link portfolio landing repo`。
@@ -253,7 +253,7 @@ curl -sI https://github.com/aicl-lab/aicl-lab | head -1   # 200
    done
    # 每个 README 的 badge 链接 curl -I 返回 200/301/302
    for r in cuda-foundations triton-fused-ops cuflash-attn tiny-llm paged-infer; do
-     echo "== $r =="; curl -sI https://github.com/aicl-lab/$r | head -1
+     echo "== $r =="; curl -sI https://github.com/open-infra-ai/$r | head -1
    done
    ```
 3. 若发现死链/旧名，直接修复对应 README 并 push（`docs: fix stale links`）。

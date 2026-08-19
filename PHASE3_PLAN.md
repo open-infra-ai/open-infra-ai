@@ -7,7 +7,7 @@
 > **上游**：`MASTER_PLAN.md` + `PHASE2_PLAN.md`（A–E 全部完成，五仓 + meta 仓 `phase-2-e` tag）
 > **执行方**：DeepSeek Flash / 其他低成本模型
 > **本阶段目标**：**不再开发新功能**。把六个仓库的真实成果转化为可复述、可查证、能扛追问的面试材料。
-> **工作目录**：`/home/shane/github/aicl/aicl-lab`（meta 仓，已 clone 到本地，origin = `https://github.com/aicl-lab/aicl-lab.git`）
+> **工作目录**：`/home/shane/github/aicl/aicl-lab`（meta 仓，已 clone 到本地，origin = `https://github.com/open-infra-ai/aicl-lab.git`）
 > **交付物目录**：meta 仓 `interview/`；全部任务完成后 push 到 meta 仓并打 `phase-3-interview` tag。
 
 ---

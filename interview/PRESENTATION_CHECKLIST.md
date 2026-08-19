@@ -6,12 +6,12 @@ Phase 3 本地交付核对。`phase-3-interview` tag 已推送（meta = `9e0b4f7
 
 Pinned 顺序（与讲述优先级一致）：
 
-1. [tiny-llm](https://github.com/aicl-lab/tiny-llm) — 旗舰 runtime
-2. [cuflash-attn](https://github.com/aicl-lab/cuflash-attn) — kernel 深度
-3. [paged-infer](https://github.com/aicl-lab/paged-infer) — serving 控制面
-4. [cuda-foundations](https://github.com/aicl-lab/cuda-foundations) — L1 教学
-5. [triton-fused-ops](https://github.com/aicl-lab/triton-fused-ops) — 同题异构 / torch.library
-6. [aicl-lab](https://github.com/aicl-lab/aicl-lab) — landing + 本面试包
+1. [tiny-llm](https://github.com/open-infra-ai/tiny-llm) — 旗舰 runtime
+2. [cuflash-attn](https://github.com/open-infra-ai/cuflash-attn) — kernel 深度
+3. [paged-infer](https://github.com/open-infra-ai/paged-infer) — serving 控制面
+4. [cuda-foundations](https://github.com/open-infra-ai/cuda-foundations) — L1 教学
+5. [triton-fused-ops](https://github.com/open-infra-ai/triton-fused-ops) — 同题异构 / torch.library
+6. [aicl-lab](https://github.com/open-infra-ai/aicl-lab) — landing + 本面试包
 
 Landing 一句话：四层学习链，不是迷你 vLLM。
 

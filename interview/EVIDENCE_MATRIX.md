@@ -304,7 +304,7 @@ grep -rn "cuda-kernel-academy" --exclude-dir=.git --exclude-dir=build \
 
 ### E30. 六仓 GitHub 可见 + phase tag + landing repo
 - 证据类型：git tag + GitHub API
-- 位置：landing `https://github.com/aicl-lab/aicl-lab`；五仓 `phase-2-e`（在「link portfolio」提交上，不是本轮 ROADMAP HEAD）
+- 位置：landing `https://github.com/open-infra-ai/aicl-lab`；五仓 `phase-2-e`（在「link portfolio」提交上，不是本轮 ROADMAP HEAD）
 - 关键 commit：五仓 `docs: link portfolio landing repo`；aicl-lab `1ab3e66` / `42fad33`
 - 复现命令：
 ```bash

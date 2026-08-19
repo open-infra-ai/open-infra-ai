@@ -7,11 +7,11 @@
 
 | 层 | 仓库 | 一句话定位 | 状态 | 链接 |
 |----|------|-----------|------|------|
-| L1 CUDA 基础 | [cuda-foundations](https://github.com/aicl-lab/cuda-foundations) | 从 SGEMM 到可复用推理组件的系统性 CUDA 算子工程学习路径（原 cuda-kernel-academy，已改名） | ✅ 冻结 | [README](https://github.com/aicl-lab/cuda-foundations) |
-| L2 Triton 算子 | [triton-fused-ops](https://github.com/aicl-lab/triton-fused-ops) | 精简 Triton 算子库（RMSNorm+RoPE / SwiGLU / FlashAttention / SGEMM）+ torch.library 注册 | ✅ 冻结 | [README](https://github.com/aicl-lab/triton-fused-ops) |
-| L3 Attention | [cuflash-attn](https://github.com/aicl-lab/cuflash-attn) | 从零实现的 CUDA C++ FlashAttention 前后向（FP16/BF16 WMMA） | ✅ 冻结 | [README](https://github.com/aicl-lab/cuflash-attn) |
-| L4 推理引擎 | [tiny-llm](https://github.com/aicl-lab/tiny-llm) | CUDA 原生 C++ 推理引擎（GGUF / W8A16 / 分页 KV 策略 1） | ✅ 冻结 | [README](https://github.com/aicl-lab/tiny-llm) |
-| L4 控制面 | [paged-infer](https://github.com/aicl-lab/paged-infer) | PagedAttention 分页 KV + Continuous Batching 的推理控制面（Rust） | ✅ 冻结 | [README](https://github.com/aicl-lab/paged-infer) |
+| L1 CUDA 基础 | [cuda-foundations](https://github.com/open-infra-ai/cuda-foundations) | 从 SGEMM 到可复用推理组件的系统性 CUDA 算子工程学习路径（原 cuda-kernel-academy，已改名） | ✅ 冻结 | [README](https://github.com/open-infra-ai/cuda-foundations) |
+| L2 Triton 算子 | [triton-fused-ops](https://github.com/open-infra-ai/triton-fused-ops) | 精简 Triton 算子库（RMSNorm+RoPE / SwiGLU / FlashAttention / SGEMM）+ torch.library 注册 | ✅ 冻结 | [README](https://github.com/open-infra-ai/triton-fused-ops) |
+| L3 Attention | [cuflash-attn](https://github.com/open-infra-ai/cuflash-attn) | 从零实现的 CUDA C++ FlashAttention 前后向（FP16/BF16 WMMA） | ✅ 冻结 | [README](https://github.com/open-infra-ai/cuflash-attn) |
+| L4 推理引擎 | [tiny-llm](https://github.com/open-infra-ai/tiny-llm) | CUDA 原生 C++ 推理引擎（GGUF / W8A16 / 分页 KV 策略 1） | ✅ 冻结 | [README](https://github.com/open-infra-ai/tiny-llm) |
+| L4 控制面 | [paged-infer](https://github.com/open-infra-ai/paged-infer) | PagedAttention 分页 KV + Continuous Batching 的推理控制面（Rust） | ✅ 冻结 | [README](https://github.com/open-infra-ai/paged-infer) |
 
 ## 阅读顺序
 
