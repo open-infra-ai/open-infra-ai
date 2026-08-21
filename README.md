@@ -1,17 +1,22 @@
-# AICL-Lab · AI Infra Learning Portfolio
+# open-infra-ai · AI Infra 学习作品集
 
-> **五仓作品集 landing 页**：一份把「从 CUDA 算子到推理引擎」的学习路径收口到
-> 五个可独立验证仓库的元仓库。Phase 2（E 阶段）完成后五仓进入"面试就绪冻结"态。
+> **AI Infra 工程学习作品集**：从 CUDA 内核到推理 serving 的完整能力链，
+> 每个作品都有独立参考实现与差分验证。本仓是组织的 meta 仓：
+> landing 页 + 学习路径 + 跨仓契约 + 计划档案 + 面试材料归档。
 
-## 五仓地图（四层能力）
+## 仓库地图（四层能力）
 
-| 层 | 仓库 | 一句话定位 | 状态 | 链接 |
-|----|------|-----------|------|------|
-| L1 CUDA 基础 | [cuda-foundations](https://github.com/open-infra-ai/cuda-foundations) | 从 SGEMM 到可复用推理组件的系统性 CUDA 算子工程学习路径（原 cuda-kernel-academy，已改名） | ✅ 冻结 | [README](https://github.com/open-infra-ai/cuda-foundations) |
-| L2 Triton 算子 | [triton-fused-ops](https://github.com/open-infra-ai/triton-fused-ops) | 精简 Triton 算子库（RMSNorm+RoPE / SwiGLU / FlashAttention / SGEMM）+ torch.library 注册 | ✅ 冻结 | [README](https://github.com/open-infra-ai/triton-fused-ops) |
-| L3 Attention | [cuflash-attn](https://github.com/open-infra-ai/cuflash-attn) | 从零实现的 CUDA C++ FlashAttention 前后向（FP16/BF16 WMMA） | ✅ 冻结 | [README](https://github.com/open-infra-ai/cuflash-attn) |
-| L4 推理引擎 | [tiny-llm](https://github.com/open-infra-ai/tiny-llm) | CUDA 原生 C++ 推理引擎（GGUF / W8A16 / 分页 KV 策略 1） | ✅ 冻结 | [README](https://github.com/open-infra-ai/tiny-llm) |
-| L4 控制面 | [paged-infer](https://github.com/open-infra-ai/paged-infer) | PagedAttention 分页 KV + Continuous Batching 的推理控制面（Rust） | ✅ 冻结 | [README](https://github.com/open-infra-ai/paged-infer) |
+| 层 | 仓库 | 一句话定位 | 状态 |
+|----|------|-----------|------|
+| L1 CUDA 基础 | [cuda-foundations](https://github.com/open-infra-ai/cuda-foundations) | 从 SGEMM 到可复用推理组件的系统性 CUDA 算子工程学习路径 | active |
+| L1 Triton 算子 | [triton-fused-ops](https://github.com/open-infra-ai/triton-fused-ops) | 精简 Triton 算子库（RMSNorm+RoPE / SwiGLU / FlashAttention / SGEMM）+ torch.library 注册 | stable |
+| L1 Attention | [cuflash-attn](https://github.com/open-infra-ai/cuflash-attn) | 从零实现的 CUDA C++ FlashAttention 前后向（FP16/BF16 WMMA + FlashDecoding） | stable |
+| L2 推理引擎 | [tiny-llm](https://github.com/open-infra-ai/tiny-llm) | CUDA 原生 C++ 推理引擎（GGUF / W8A16 / 分页 KV 策略 1），导出 C ABI | active |
+| L3 控制面 | [paged-infer](https://github.com/open-infra-ai/paged-infer) | PagedAttention 分页 KV + Continuous Batching 的推理控制面（Rust），经 C ABI 接 tiny-llm | active |
+
+**状态语义**：`active` = 学习/演进中；`stable` = 作品完成，只修正确性 bug 与文档；
+`archived` = 不再维护。状态以本表为唯一权威注册表，与各仓 README 状态行、
+GitHub topics 三处同步。
 
 ## 阅读顺序
 
@@ -20,9 +25,18 @@
    4. **tiny-llm**（模型加载 + 推理内核 + 分页 KV 策略 1）→
    5. **paged-infer**（分页调度 / continuous batching / HTTP 控制面，接 tiny-llm 真实后端）。
 
-推荐路径：`cuda-foundations → triton-fused-ops → cuflash-attn → tiny-llm → paged-infer`。
+完整方法论（优化循环、不变量测试、阶段完成标准）见本仓
+[`LEARNING_PATH.md`](LEARNING_PATH.md)——组织级导航的唯一权威入口。
 
-## Phase 2 完成证据摘要
+## 跨仓契约
+
+- **ABI 契约（代码双源）**：[`tiny-llm/include/tiny_llm/ffi.h`](https://github.com/open-infra-ai/tiny-llm/blob/master/include/tiny_llm/ffi.h)
+  ⇄ [`paged-infer/src/tiny_llm_ffi.rs`](https://github.com/open-infra-ai/paged-infer/blob/master/src/tiny_llm_ffi.rs)
+  （repr(C) 布局守卫测试即一致性检查）。
+- **语义契约（12 条）**：维度命名 / 布局 / GQA / RoPE / KV 事务语义 / 采样顺序等，
+  live 版见 [`docs/cross-repo-contracts.md`](docs/cross-repo-contracts.md)。
+
+## 完成证据摘要
 
 - **tiny-llm**：W8A16 推理端到端可用；**TPOT ≈ 6.1 ms/token**（本机实测，
   `tiny_llm_bench`）；170 tests；分页 KV（策略 1）与连续 KV 逐 token 差分一致。
@@ -30,63 +44,25 @@
   严格一致；请求 2 的 `equals`/`is` 为 W8A16 vs Q4_K_M 量化 argmax 边界翻转，
   已诚实记录为"前缀一致 + EOS 终止 + 分歧注释"，不伪造全序列一致）。
 - **cuflash-attn**：FlashAttention 前后向 FP32/FP16/BF16，FP16/BF16 前向接 WMMA；
-  E 阶段修复 grid.y 65535 越界（B*H>65535 回归测试）并加入 causal 边界块跳过优化。
+  修复 grid.y 65535 越界（B*H>65535 回归测试）并加入 causal 边界块跳过优化。
 - **triton-fused-ops**：Triton SGEMM + `torch.library`（`torch.ops.triton_ops.*`）
   注册三个自定义算子，与 vLLM/SGLang 的 custom op 接入模式一致。
-- **cuda-foundations**：仓库由旧名 `cuda-kernel-academy` 正式改名为
-  `cuda-foundations`，审计归档见 `docs/organization-audit/`。
+- **cuda-foundations**：仓库由旧名 `cuda-kernel-academy` 改名为 `cuda-foundations`，
+  审计归档见 `docs/organization-audit/`。
 
-## 执行计划归档
+## 档案区
 
-本仓库是计划与面试材料的**唯一权威源**。本地 `aicl/` 工作区根目录只放指针，不再保留正文副本。
+以下内容是历史记录，**只读存档，不再更新**；文中旧组织名（AICL-Lab / aicl-lab）
+与旧工作区路径是当时事实的忠实记录，不改写。
 
-- [`PLAN_v3.md`](PLAN_v3.md) — 当前执行入口（阶段 K / I / 可选 D）
-- [`PLAN_I.md`](PLAN_I.md) — 面试执行期支持材料（I0–I7）
-- [`MASTER_PLAN.md`](MASTER_PLAN.md) — Phase 1 历史总计划
-- [`PHASE2_PLAN.md`](PHASE2_PLAN.md) / [`PHASE2_NEXT.md`](PHASE2_NEXT.md) /
-  [`PHASE2_NEXT_C.md`](PHASE2_NEXT_C.md) / [`PHASE2_NEXT_D.md`](PHASE2_NEXT_D.md) /
-  [`PHASE2_NEXT_E.md`](PHASE2_NEXT_E.md) — Phase 2 各批次
-- [`PHASE3_PLAN.md`](PHASE3_PLAN.md) — 面试证据包任务
-- [`docs/organization-audit/`](docs/organization-audit/) — 2026-08-13 组织审计快照
-  （历史文件名仍写 `cuda-kernel-academy`，不是当前仓名）
-
-## Interview Evidence & Phase-I Support Pack
-
-Phase 3 把冻结成果收成可查证的面试包（**不再开发新功能**）；Phase I 在面试包里加
-“可直接排练”的支持材料。入口：
-
-**证据与讲述（Phase 3）**
-
-| 文件 | 用途 |
-|------|------|
-| [`interview/FREEZE_AUDIT.md`](interview/FREEZE_AUDIT.md) | 六仓状态 + 本次重跑测试快照 |
-| [`interview/EVIDENCE_MATRIX.md`](interview/EVIDENCE_MATRIX.md) | 30 条声明 → 文件/commit/命令 |
-| [`interview/NUMBERS_CARD.md`](interview/NUMBERS_CARD.md) | 全部数字 + 口径 + 五个首选数 |
-| [`interview/talks/00-master-narrative.md`](interview/talks/00-master-narrative.md) | 30 秒电梯 + 四层叙事 |
-| [`interview/talks/`](interview/talks/) | 五仓各 10 分钟讲述稿 |
-| [`interview/cross-cutting.md`](interview/cross-cutting.md) | 三个必答题 |
-| [`interview/QA_BANK.md`](interview/QA_BANK.md) | 60 问 |
-| [`interview/MOCK_INTERVIEW.md`](interview/MOCK_INTERVIEW.md) | 45 分钟模拟 + 红灯清单 |
-| [`interview/resume-bullets.zh.md`](interview/resume-bullets.zh.md) / [`.en.md`](interview/resume-bullets.en.md) | 简历 STAR 条目 |
-
-**排练支持（Phase I I0–I6）**
-
-| 文件 | 用途 |
-|------|------|
-| [`interview/PRESENTATION_CHECKLIST.md`](interview/PRESENTATION_CHECKLIST.md) | GitHub pinned、面试前 24h、demo 顺序（已按 K 阶段清零） |
-| [`interview/DEFENSE_PLAYBOOK.md`](interview/DEFENSE_PLAYBOOK.md) | 8 个弱项防御剧本 |
-| [`interview/WHITEBOARD_CHEATSHEET.md`](interview/WHITEBOARD_CHEATSHEET.md) | 12 节白板公式卡 |
-| [`interview/drill-sets/`](interview/drill-sets/) | 三套 10 分钟快问卡 |
-| [`interview/LIVE_DEMO_SCRIPT.md`](interview/LIVE_DEMO_SCRIPT.md) | 线上面试 demo 脚本（三场景 + 失败恢复树） |
-| [`interview/MOCK_DEBRIEF_TEMPLATE.md`](interview/MOCK_DEBRIEF_TEMPLATE.md) | 模拟/真实面试复盘模板 |
-| [`interview/ROLE_PLAYBOOKS/`](interview/ROLE_PLAYBOOKS/) | kernel / runtime / serving 三份岗位手册 |
-
-## 面试冻结声明
-
-E 阶段完成后，五仓进入"**面试就绪冻结**"：不再扩新功能；只修正确性 bug 与文档
-漂移；新想法记入各仓 ROADMAP 的"不做什么"清单。这是作品集交付纪律，不是降低标准。
-
-Phase 3 面试包已写入本仓 `interview/` 并推送。当前 tag 链：`phase-2-e` → `phase-3-docs`（五仓）→ `phase-3-interview`（meta = `9e0b4f7`）；六仓 ahead 0。
+- [`LEARNING_PATH.md`](LEARNING_PATH.md) 之外的计划文档（`MASTER_PLAN.md` /
+  `PHASE2_*.md` / `PHASE3_PLAN.md` / `PLAN_v3.md` / `PLAN_I.md`）——
+  Phase 1–3 与面试执行期的历史执行计划。
+- [`interview/`](interview/) —— 面试证据包与排练材料（Phase 3 / Phase I 产物）：
+  证据矩阵、数字卡、讲述稿、QA 库、模拟面试、简历条目等。
+- [`docs/organization-audit/2026-08-13/`](docs/organization-audit/2026-08-13/) ——
+  组织审计只读快照（当时教学仓还叫 `cuda-kernel-academy`，不是当前事实）。
+- [`changelog/`](changelog/) —— 工作区治理变更记录。
 
 ## License
 
