@@ -50,6 +50,17 @@ GitHub topics 三处同步。
 - **cuda-foundations**：仓库由旧名 `cuda-kernel-academy` 改名为 `cuda-foundations`，
   审计归档见 `docs/organization-audit/`。
 
+## 求职执行区（active）
+
+求职执行材料是**活跃区**，随求职进程持续更新；下方档案区仍为只读证据包，
+求职用到的简历条目与数字以档案区证据矩阵为准。
+
+- [`job-hunting/resume.zh.md`](job-hunting/resume.zh.md) —— 一页中文简历草稿
+  （serving 岗重排序，`【】`为待填真实信息，bullet 保留 → E<n> 证据尾注）。
+- [`job-hunting/companies.md`](job-hunting/companies.md) —— 目标公司清单
+  （大模型公司 / 大厂 AI Infra / 推理基础设施三类 + 推理栈线索 + 匹配度）。
+- [`job-hunting/tracking.md`](job-hunting/tracking.md) —— 投递追踪表 + 每周节奏检查 + 渠道说明。
+
 ## 档案区
 
 以下内容是历史记录，**只读存档，不再更新**；文中旧组织名（AICL-Lab / aicl-lab）
