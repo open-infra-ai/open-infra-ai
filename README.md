@@ -41,9 +41,11 @@ GitHub topics 三处同步。
 
 ## 完成证据摘要
 
-- **tiny-llm**：W8A16 推理端到端可用；历史 clean schema v1 的
-  **TPOT ≈ 6.1 ms/token** 用于优化沿革，schema v2 clean rerun 待完成；当前
-  **193 项测试通过**；分页 KV（策略 1）与连续 KV
+- **tiny-llm**：W8A16 推理端到端可用；clean commit `565da79` 的 schema v2
+  五组配对 CUDA Graph A/B 中，TPOT 8.322→**5.225 ms/token**（-37.2%），decode
+  吞吐 120.168→**191.384 tok/s**（+59.3%）；10 个进程原始 JSONL、模型哈希和
+  [完整限制](https://github.com/open-infra-ai/tiny-llm/blob/master/docs/performance/results/2026-08-23-cuda-graphs-ab.md)
+  已归档，TTFT 不作改善声明。当前 **193 项测试通过**；分页 KV（策略 1）与连续 KV
   逐 token 差分一致。
 - **paged-infer**：**3 并发分页请求 e2e 与 llama.cpp greedy 对齐**（请求 1 全序列
   严格一致；请求 2 的 `equals`/`is` 为 W8A16 vs Q4_K_M 量化 argmax 边界翻转，
