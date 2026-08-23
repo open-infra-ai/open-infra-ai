@@ -2,7 +2,10 @@
 
 > **AI Infra 工程学习作品集**：从 CUDA 内核到推理 serving 的完整能力链，
 > 每个作品都有独立参考实现与差分验证。本仓是组织的 meta 仓：
-> landing 页 + 学习路径 + 跨仓契约 + 计划档案 + 面试材料归档。
+> landing 页 + 状态注册表 + 学习路径 + 跨仓契约 + 历史档案。
+
+仓库职责与私人求职材料的边界见
+[`docs/repository-boundaries.md`](docs/repository-boundaries.md)。
 
 ## 仓库地图（四层能力）
 
@@ -38,28 +41,42 @@ GitHub topics 三处同步。
 
 ## 完成证据摘要
 
-- **tiny-llm**：W8A16 推理端到端可用；**TPOT ≈ 6.1 ms/token**（本机实测，
-  `tiny_llm_bench`）；170 tests；分页 KV（策略 1）与连续 KV 逐 token 差分一致。
+- **tiny-llm**：W8A16 推理端到端可用；历史 clean schema v1 的
+  **TPOT ≈ 6.1 ms/token** 用于优化沿革，schema v2 clean rerun 待完成；当前
+  **193 项测试通过**；分页 KV（策略 1）与连续 KV
+  逐 token 差分一致。
 - **paged-infer**：**3 并发分页请求 e2e 与 llama.cpp greedy 对齐**（请求 1 全序列
   严格一致；请求 2 的 `equals`/`is` 为 W8A16 vs Q4_K_M 量化 argmax 边界翻转，
-  已诚实记录为"前缀一致 + EOS 终止 + 分歧注释"，不伪造全序列一致）。
+  已诚实记录为"前缀一致 + EOS 终止 + 分歧注释"，不伪造全序列一致）；
+  默认测试当前 **232 项通过**。真实 GPU serving 吞吐报告仍是待补证据，不用 CPU
+  参考后端数字冒充 GPU 性能。
 - **cuflash-attn**：FlashAttention 前后向 FP32/FP16/BF16，FP16/BF16 前向接 WMMA；
-  修复 grid.y 65535 越界（B*H>65535 回归测试）并加入 causal 边界块跳过优化。
+  修复 grid.y 65535 越界（B*H>65535 回归测试）并加入 causal 边界块跳过优化；
+  RTX 3060 Laptop 当前 **81/81 项测试通过**（可选 PyTorch 集成 1 项跳过）。
 - **triton-fused-ops**：Triton SGEMM + `torch.library`（`torch.ops.triton_ops.*`）
-  注册三个自定义算子，与 vLLM/SGLang 的 custom op 接入模式一致。
-- **cuda-foundations**：仓库由旧名 `cuda-kernel-academy` 改名为 `cuda-foundations`，
-  审计归档见 `docs/organization-audit/`。
+  注册三个自定义算子；CPU-only **57 passed / 66 skipped**，RTX 3060 Laptop
+  **123/123 passed**。
+- **cuda-foundations**：SGEMM 与推理组件教学阶梯；RTX 3060 Laptop 当前
+  **261/261 项测试通过**。旧名审计快照见 `docs/organization-audit/`。
 
-## 求职执行区（active）
+> 以上是 **2026-08-23 本地验证快照**。性能数字仍以各技术仓的结果文件、硬件、
+> commit 与复现命令为准；测试数量只表示当前验证面，不直接等价于项目质量。
 
-求职执行材料是**活跃区**，随求职进程持续更新；下方档案区仍为只读证据包，
-求职用到的简历条目与数字以档案区证据矩阵为准。
+## 面试展示优先级
 
-- [`job-hunting/resume.zh.md`](job-hunting/resume.zh.md) —— 一页中文简历草稿
-  （serving 岗重排序，`【】`为待填真实信息，bullet 保留 → E<n> 证据尾注）。
-- [`job-hunting/companies.md`](job-hunting/companies.md) —— 目标公司清单
-  （大模型公司 / 大厂 AI Infra / 推理基础设施三类 + 推理栈线索 + 匹配度）。
-- [`job-hunting/tracking.md`](job-hunting/tracking.md) —— 投递追踪表 + 每周节奏检查 + 渠道说明。
+1. **主项目：tiny-llm** —— 推理加速岗位先讲真实模型链路、W8A16、decode、
+   M==1 GEMM、CUDA Graphs 与可复现的端到端指标。
+2. **专项深挖：cuflash-attn** —— 用来证明 CUDA kernel、online softmax、
+   Tensor Core、数值正确性和 profiling 深度。
+3. **系统扩展：paged-infer** —— 用来证明 Paged KV、continuous batching、
+   调度不变量、HTTP/SSE 与服务评测方法；不把它包装成低层 kernel 加速项目。
+4. `cuda-foundations` 与 `triton-fused-ops` 是基础与横向对照证据，不与主项目争夺叙事中心。
+
+## 求职与面试执行
+
+活跃的 12 周计划、简历草稿、岗位清单、投递模板与上游贡献练习已迁到个人执行仓
+[`holtwood/ai-infra-interview-prep`](https://github.com/holtwood/ai-infra-interview-prep)。
+本组织只承载可复现的公开技术作品和跨仓契约，不再混入随求职进程频繁变化的私人材料。
 
 ## 档案区
 

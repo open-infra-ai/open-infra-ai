@@ -197,6 +197,11 @@ tiny-llm（数据面）与 paged-infer（控制面）采用**同进程 C ABI 静
   `max_num_blocks == 0` 表示策略 2。
 - KV 生命周期语义：后端管理序列分配/释放（`tinyllm_allocate_sequence` /
   `tinyllm_free_sequence`），调度侧驱动。
+- `tinyllm_step` 的 `next_tokens` 至少容纳 `num_sequences` 个 `int`。当
+  `logprobs_k == 0` 时 `logprobs` 可为空；当 `logprobs_k > 0` 时调用方必须提供
+  至少 `num_sequences * logprobs_k * 2` 个 `float`。第 `s` 个序列、第 `j` 个候选
+  从 `((s * logprobs_k + j) * 2)` 开始，依次存储以 `float` 表示的 `token_id` 与
+  `logprob`。`logprobs_k < 0`、超过词表大小或请求输出但缓冲区为空均为参数错误。
 - 差分验证：`tiny-llm/tests/test_ffi.cpp`（策略 1 vs 策略 2 逐 token 差分）、
   `paged-infer/tests/tiny_llm_backend.rs`、`paged-infer/tests/tiny_llm_text_e2e.rs`。
 
