@@ -1,7 +1,7 @@
 # Kernel 岗位角色手册
 
 > Phase I6。目标岗位偏 **kernel / CUDA / Triton** 时的讲述顺序与重点。
-> 同一份材料重排：主推 cuflash + triton-fused-ops + cuda-foundations；tiny-llm 只讲转置优化与 microbench；paged-infer 一分钟带过。
+> 同一份材料重排：主推 cuflash + triton-fused-ops + cuda-foundations；tiny-llm 只讲转置优化与 microbench；paged-serving 一分钟带过。
 
 ## 一句话定位
 
@@ -16,7 +16,7 @@
 | 6–11 | Triton：block 抽象、RoPE half-split 契约、TRIT-001 怎么发现、什么时候 Triton 什么时候 CUDA | Q11/Q16/Q17/Q19 |
 | 11–17 | FlashAttention：online softmax、grid.y 65535、causal skip 负结果、FlashDecoding、LogicalHBM 口径 | Q21/Q25/Q26/Q27/Q30；±2% 表格 |
 | 17–18 | tiny-llm 只讲转置优化与 microbench：为什么 M==1 GEMM 卡在访存 | Q41；lm_head 10.0002→0.9794 ms |
-| 18–19 | paged-infer 一分钟带过：只给“控制面在另一师傅手上，我不管调度” | Q57（一句话，不展开） |
+| 18–19 | paged-serving 一分钟带过：只给“控制面在另一师傅手上，我不管调度” | Q57（一句话，不展开） |
 | 19–20 | 反问 + 边界声明：“FA 没接到 runtime generate；Triton 是参考不是生产选型” | Q23/Q28 的 OUT |
 
 ## 推荐的 QA_BANK 题号子集（28 题）

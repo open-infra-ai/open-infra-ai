@@ -34,7 +34,7 @@
 2. tokenizer 与 HF 逐 id 对齐：30 例共 417 token。→ E11
 3. CUDA Graphs 默认捕获 decode，on/off greedy 逐 token 一致。→ E16
 
-## paged-infer（3）
+## paged-serving（3）
 
 1. C ABI v2 九整型布局，Rust `sizeof==36` 守卫防漂移。→ E19
 2. 属性测试锁定 `used+free==total`，取消与失败必须归还块。→ E23

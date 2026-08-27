@@ -127,7 +127,7 @@ git -C /home/shane/github/aicl/aicl-lab status --short   # 干净
 
 **内容**：生成 `01.md`、`02.md`、`03.md`。每套：
 - 从 `QA_BANK.md` 抽 10 题：4 易 / 4 中 / 2 难；
-- 套 01：总叙事 + tiny-llm 侧重；套 02：cuflash + CUDA/Triton 侧重；套 03：paged-infer + 跨仓边界侧重；
+- 套 01：总叙事 + tiny-llm 侧重；套 02：cuflash + CUDA/Triton 侧重；套 03：paged-serving + 跨仓边界侧重；
 - 每题只写：编号、题目、一句话 cue（不复制答案）、答案所在 QA_BANK 小节号、对应 EVIDENCE 编号；
 - 文末"10 分钟计时规则"：每题 60 秒，超时标记，答案页供复盘。
 
@@ -140,7 +140,7 @@ git -C /home/shane/github/aicl/aicl-lab status --short   # 干净
 ### I4：`interview/LIVE_DEMO_SCRIPT.md` 线上面试 demo 脚本
 
 **内容**：
-1. **场景 A（有 GPU）**：tiny-llm bench → paged-infer 3 并发 → triton op schema，每步给出：完整命令、预期关键输出（TPOT 6.09/6.1、请求 1 的 24+EOS 序列、schema 三行）、15 秒口播词、失败时切换的下一句。
+1. **场景 A（有 GPU）**：tiny-llm bench → paged-serving 3 并发 → triton op schema，每步给出：完整命令、预期关键输出（TPOT 6.09/6.1、请求 1 的 24+EOS 序列、schema 三行）、15 秒口播词、失败时切换的下一句。
 2. **场景 B（无 GPU/共享屏幕）**：打开 `NUMBERS_CARD.md` 第 9 节五数 + `FREEZE_AUDIT.md` 测试表；给出 3 句口播词。
 3. **场景 C（面试官自己跑命令）**：给出可直接粘贴到对方终端的 3 条命令与预计耗时（标注 skip 门控）。
 4. **Preflight 检查**（demo 前 10 分钟）：六仓 `git status -sb` + tag 检查一条命令。
@@ -170,9 +170,9 @@ git -C /home/shane/github/aicl/aicl-lab status --short   # 干净
 ### I6：`interview/ROLE_PLAYBOOKS/` 岗位角色手册（三份）
 
 **背景**：同一份材料，不同岗位的讲述顺序和重点应不同。生成：
-- `kernel.md`：主推 cuflash + triton-fused-ops + cuda-foundations；tiny-llm 只讲转置优化与 microbench；paged-infer 一分钟带过。
+- `kernel.md`：主推 cuflash + triton-fused-ops + cuda-foundations；tiny-llm 只讲转置优化与 microbench；paged-serving 一分钟带过。
 - `runtime.md`：主推 tiny-llm（decode 优化、graphs、FFI、paged KV）+ cuflash 集成点；serving 讲边界。
-- `serving.md`：主推 paged-infer（调度/资源不变量/3 并发）+ tiny-llm 作为后端；kernel 只讲"为什么控制面不需要写 kernel"。
+- `serving.md`：主推 paged-serving（调度/资源不变量/3 并发）+ tiny-llm 作为后端；kernel 只讲"为什么控制面不需要写 kernel"。
 
 每份包含：20 分钟讲述时间轴、推荐的 QA_BANK 题号子集（≥15 题）、简历条目重排顺序、反问问题清单（≥3 个）。
 

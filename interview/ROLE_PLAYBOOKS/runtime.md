@@ -29,7 +29,7 @@
 2. `tiny-llm › 2`：tokenizer 与 HF 逐 id 对齐 30 例 417 token（E11）——证明正确性。
 3. `tiny-llm › 3`：CUDA Graphs 默认捕获 decode、on/off greedy 一致（E16）——证明性能路径。
 4. `总览 › 2`：转置 M==1 GEMM，TPOT 24.348→6.087 ms、相对 llama.cpp 1.65×（E15）——旗舰数字。
-5. `paged-infer › 1`：C ABI v2 九整型布局、Rust `sizeof==36` 守卫（E19）——证明跨语言边界由我定义。
+5. `paged-serving › 1`：C ABI v2 九整型布局、Rust `sizeof==36` 守卫（E19）——证明跨语言边界由我定义。
 6. `总览 › 3`：3 并发与 llama.cpp greedy 对齐、量化分歧如实记录（E21）——作为后端正确性的收尾。
 
 ## 反问问题清单（≥3）

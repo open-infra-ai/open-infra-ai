@@ -1,7 +1,7 @@
 # Serving 岗位角色手册
 
 > Phase I6。目标岗位偏 **serving / 推理基础设施 / 调度** 时的讲述顺序与重点。
-> 同一份材料重排：主推 paged-infer（调度/资源不变量/3 并发）+ tiny-llm 作为后端；kernel 只讲“为什么控制面不需要写 kernel”。
+> 同一份材料重排：主推 paged-serving（调度/资源不变量/3 并发）+ tiny-llm 作为后端；kernel 只讲“为什么控制面不需要写 kernel”。
 
 ## 一句话定位
 
@@ -25,9 +25,9 @@
 
 ## 简历条目重排顺序
 
-1. `paged-infer › 1`：C ABI v2 九整型布局、Rust `sizeof==36` 守卫（E19）——先证明跨语言边界严谨。
-2. `paged-infer › 2`：属性测试锁定 `used+free==total`（E23）——证明不变量文化。
-3. `paged-infer › 3`：OpenAI 兼容 API/SSE/`paged_*` metrics 集成 37 项（E25）——证明对外契约可测。
+1. `paged-serving › 1`：C ABI v2 九整型布局、Rust `sizeof==36` 守卫（E19）——先证明跨语言边界严谨。
+2. `paged-serving › 2`：属性测试锁定 `used+free==total`（E23）——证明不变量文化。
+3. `paged-serving › 3`：OpenAI 兼容 API/SSE/`paged_*` metrics 集成 37 项（E25）——证明对外契约可测。
 4. `总览 › 3`：3 并发分页请求与 llama.cpp greedy 对齐、量化分歧如实记录（E21）——证明后端对接正确性。
 5. `总览 › 1`：四层五仓可验证学习链（E30）——证明我知道全局边界。
 

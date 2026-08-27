@@ -57,7 +57,7 @@
 1. 对六个仓库依次记录：
    ```bash
    cd /home/shane/github/aicl
-   for d in cuda-foundations triton-fused-ops cuflash tiny-llm paged-infer aicl-lab; do
+   for d in cuda-foundations triton-fused-ops cuflash tiny-llm paged-serving aicl-lab; do
      (cd $d && echo "== $d ==" && git status -sb && git log --oneline -1 && git tag --points-at HEAD)
    done
    ```
@@ -66,7 +66,7 @@
    - triton-fused-ops：`.venv/bin/python -m pytest -q`
    - cuflash：`cmake --preset release && cmake --build --preset release && ctest --preset release --output-on-failure`
    - tiny-llm：`cmake --build build -j$(nproc) && ./build/tiny_llm_tests`
-   - paged-infer：`cargo fmt --all -- --check && cargo clippy --all-targets -- -D warnings && cargo test`
+   - paged-serving：`cargo fmt --all -- --check && cargo clippy --all-targets -- -D warnings && cargo test`
 3. 输出文件 `interview/FREEZE_AUDIT.md`：六仓状态表 + 测试结果 + 执行时间 + 环境（GPU/driver/CUDA）。
 
 **验收**：所有测试通过（skip 数与各仓 README 声明一致）；`FREEZE_AUDIT.md` 提交到 meta 仓。
@@ -107,11 +107,11 @@
 18. "2+2 is/equals"量化分歧案例被诚实记录为前缀一致 + EOS 断言。
 19. FFI C ABI v2：9-int 布局 + num_blocks，Rust 布局守卫测试。
 20. paged KV 策略 1 与连续 KV 策略 2 真模型逐 token 差分一致。
-21. paged-infer 3 并发 e2e 与 llama.cpp 参考对齐（请求 1 24+EOS）。
+21. paged-serving 3 并发 e2e 与 llama.cpp 参考对齐（请求 1 24+EOS）。
 22. 分页 KV 显存 3030MiB vs 连续 KV 5118MiB（同机实测）。
-23. paged-infer 调度器资源守恒不变量（used+free==total）有属性测试。
-24. paged-infer 内存水位线/HOL/优先级调度/NaN/Unicode 修复各有回归测试。
-25. paged-infer OpenAI 兼容 API + SSE + metrics 有 server integration 测试。
+23. paged-serving 调度器资源守恒不变量（used+free==total）有属性测试。
+24. paged-serving 内存水位线/HOL/优先级调度/NaN/Unicode 修复各有回归测试。
+25. paged-serving OpenAI 兼容 API + SSE + metrics 有 server integration 测试。
 26. 五仓 IN/OUT 边界声明齐全；04-inference-engine 已降级教学预览。
 27. 组织级改名 cuda-kernel-academy → cuda-foundations，旧名 0 命中。
 28. ncu/nsys 在本机不可用的替代证据链（kernel microbench + 方法论文档）。
@@ -177,9 +177,9 @@
 - `02-triton-fused-ops.md`
 - `03-cuflash.md`
 - `04-tiny-llm.md`
-- `05-paged-infer.md`
+- `05-paged-serving.md`
 
-**特别要求**：tiny-llm 稿的"优化故事"必须用 microbench 表与 TPOT 24.35→6.56→6.09ms；paged-infer 稿的"验证故事"必须用 3 并发 e2e 与资源守恒；cuflash 稿必须诚实讲 causal ±2% 负结果。
+**特别要求**：tiny-llm 稿的"优化故事"必须用 microbench 表与 TPOT 24.35→6.56→6.09ms；paged-serving 稿的"验证故事"必须用 3 并发 e2e 与资源守恒；cuflash 稿必须诚实讲 causal ±2% 负结果。
 
 **验收**：每份稿中的所有数字都能在 `NUMBERS_CARD.md` 找到对应行。
 
@@ -217,7 +217,7 @@
 - Triton（10 问）：block 抽象、mask、tl.dot、autotuner、RMSNorm+RoPE 融合收益、half-split vs interleaved、TRIT-001 怎么发现的、torch.library 注册、Triton vs CUDA、Triton 3.x dtype 兼容。
 - FlashAttention（12 问）：online softmax 推导、O(N) 内存、fwd/bwd 关系、causal mask、grid.y 65535、causal skip 为什么只有 ±2%、FlashDecoding、与 FA2/FA3 差距、FP16/BF16 数值、logical HBM 口径、ctypes vs torch.library、反向数值稳定性。
 - tiny-llm（14 问）：GGUF 结构、Q4_K/Q5_0 反量化、W8A16 含义、per-group scale、GQA 映射、RoPE 位置、KV append/advance 两段式、`append_kv_at` bug、转置权重优化原理、CUDA Graphs 捕获范围与 device 参数化、TTFT/TPOT 口径、量化分歧"is vs equals"、FFI ABI v2、与 llama.cpp 差距还剩多少。
-- paged-infer / serving（14 问）：PagedAttention 碎片问题、block table、CB vs static batching、状态机、三层准入、内存水位线+decode reserve、HOL 修复、优先级调度、无抢占边界、swap/recompute、分页 KV 策略 1 数据流、3 并发验证、SSE token 级流式的边界、Rust 后端 trait 设计。
+- paged-serving / serving（14 问）：PagedAttention 碎片问题、block table、CB vs static batching、状态机、三层准入、内存水位线+decode reserve、HOL 修复、优先级调度、无抢占边界、swap/recompute、分页 KV 策略 1 数据流、3 并发验证、SSE token 级流式的边界、Rust 后端 trait 设计。
 
 **验收**：60 问全部有"证据"与"追问"字段；`grep -c 'TODO'` 为 0。
 
@@ -257,10 +257,10 @@
 
 1. `aicl-lab/README.md` 增加 `## Interview Evidence` 小节，链接 `interview/` 全部文件。
 2. 新增 `interview/PRESENTATION_CHECKLIST.md`：
-   - GitHub profile 建议（pinned 仓库顺序：tiny-llm、cuflash、paged-infer、cuda-foundations、triton-fused-ops、aicl-lab）；
+   - GitHub profile 建议（pinned 仓库顺序：tiny-llm、cuflash、paged-serving、cuda-foundations、triton-fused-ops、aicl-lab）；
    - 每个仓库 README 状态表复查要点；
    - 面试前 24h 检查命令（一条 `git status` 六仓 + 一条测试命令）；
-   - 线上面试 demo 顺序（先 tiny-llm bench，再 paged-infer 3 并发测试，再 triton op schema）。
+   - 线上面试 demo 顺序（先 tiny-llm bench，再 paged-serving 3 并发测试，再 triton op schema）。
 3. 推送 meta 仓并打 tag：
    ```bash
    cd /home/shane/github/aicl/aicl-lab

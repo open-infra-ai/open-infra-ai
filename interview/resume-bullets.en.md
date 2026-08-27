@@ -34,7 +34,7 @@ Numbers only from [`NUMBERS_CARD.md`](NUMBERS_CARD.md). Each bullet ≤25 words,
 2. Tokenizer matches HuggingFace token-by-token on 30 cases / 417 tokens. → E11
 3. CUDA Graphs on by default; greedy tokens match graphs-off. → E16
 
-## paged-infer (3)
+## paged-serving (3)
 
 1. C ABI v2 is nine ints; Rust guards `sizeof(TinyLlmConfig)==36`. → E19
 2. Property tests lock `used+free==total` across cancel and failure. → E23

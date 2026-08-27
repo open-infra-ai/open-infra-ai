@@ -102,7 +102,7 @@
   - 旧 slug `cuda-kernel-academy` 在五仓源码 0 命中（E27）；教学品牌名仍可用。
   - freeze：0 failed / 209 collected / **78 skipped**，不能说 209 全执行（数字卡 §6）。
 - 证据：E26、E27；`cuda-foundations/04-inference-engine/README.md`
-- 追问 1：面试只讲教学仓够不够？ → 不够。旗舰是 tiny-llm + paged-infer。
+- 追问 1：面试只讲教学仓够不够？ → 不够。旗舰是 tiny-llm + paged-serving。
 
 ---
 
@@ -447,7 +447,7 @@
 
 ---
 
-## paged-infer / serving（Q47–Q60）
+## paged-serving / serving（Q47–Q60）
 
 ### Q47. PagedAttention 要解决什么碎片问题？
 - 一句话答案：为 max_seq 预留连续 KV 会把显存钉死在峰值；块化按需分配，用 block table 做逻辑连续。
@@ -455,11 +455,11 @@
   - 控制面持有映射；计算面按块读写。
   - 本仓正确性证据是策略 1 vs 2 逐 token 一致（E20），**不是** 3030 vs 5118 MiB（E22）。
   - 策略 1 仍有 scatter/gather 往返代价。
-- 证据：E20、E22；paged-infer README
+- 证据：E20、E22；paged-serving README
 - 追问 1：碎片和内部碎片是一回事吗？ → 块内最后一块会浪费不到 block_size 的槽；本仓用属性测试锁块计数，不锁「浪费 <5%」宣传句。
 
 ### Q48. block table 存在哪一侧？
-- 一句话答案：paged-infer 控制面持有；策略 1 经 FFI 上传扁平表和每序列 `num_blocks`。
+- 一句话答案：paged-serving 控制面持有；策略 1 经 FFI 上传扁平表和每序列 `num_blocks`。
 - 展开（3–5 点）：
   - tiny-llm 按表 scatter/gather，不自己做调度。
   - 策略 2：`PAGED_INFER_TINY_LLM_STRATEGY=2`，`max_num_blocks=0`。
@@ -473,7 +473,7 @@
   - decode 优先，避免新 prefill 饿死在途 token。
   - 3 并发 e2e 是正确性 fixture，不是 QPS 曲线（E21）。
   - 无 chunked prefill。
-- 证据：`paged-infer/src/scheduler.rs`；E21
+- 证据：`paged-serving/src/scheduler.rs`；E21
 - 追问 1：和动态 batching 营销词有何不同？ → 这里有状态机 + 块池 + 水位线；不是「凑满 8 条再跑」。
 
 ### Q50. 请求状态机有哪些状态？
@@ -490,7 +490,7 @@
   - 水位线：预估占用后利用率 ≤ threshold。
   - 给在途 decode 预留增长，否则不接新 prefill。
   - TinyLlm 适配器还把最大并发 clamp 到 4（6GB 卡）。
-- 证据：E24；`paged-infer/src/tiny_llm_executor.rs`；讲述稿 `05-paged-infer.md`
+- 证据：E24；`paged-serving/src/tiny_llm_executor.rs`；讲述稿 `05-paged-serving.md`
 - 追问 1：clamp 4 是算法上限吗？ → 不是。是本机显存保护，写在 Rust 适配器。
 
 ### Q52. 内存水位线和 decode reserve 为什么要绑在一起？
@@ -525,7 +525,7 @@
   - README/ROADMAP「明确不做」。
   - 这是和 vLLM 的边界，主动讲。
   - 高优先级到达不能踢人。
-- 证据：`paged-infer/README.md` 无抢占节；E24
+- 证据：`paged-serving/README.md` 无抢占节；E24
 - 追问 1：那水位线是不是抢占的替代？ → 是准入控制，不是抢占。已占用的 KV 不会被换出。
 
 ### Q56. swap / recompute 你们做到哪一步？
@@ -533,7 +533,7 @@
 - 展开（3–5 点）：
   - `test_multilayer_incremental_vs_full_recompute` 锁的是计算正确性，不是调度换出。
   - 不要把这条测试说成 vLLM recompute 抢占。
-- 证据：`paged-infer/src/cpu_executor.rs`；README 无抢占
+- 证据：`paged-serving/src/cpu_executor.rs`；README 无抢占
 - 追问 1：OOM 时会 recompute 吗？ → 不会。失败/拒绝。
 
 ### Q57. 分页 KV 策略 1 的数据流是什么？
@@ -561,7 +561,7 @@
   - 曾经假流式（切 32 字符）已删除。
   - 测的是 CPU 参考后端 HTTP 契约，37 项，不是 GPU QPS（E25）。
   - 引擎循环必须 yield，否则首 token 卡到整批结束。
-- 证据：E25；`paged-infer/ROADMAP.md`；CHANGELOG 流式诚实化
+- 证据：E25；`paged-serving/ROADMAP.md`；CHANGELOG 流式诚实化
 - 追问 1：线上 demo 能看流式吗？ → 取决于 tokenizer 后端。HF 路径不要吹 token-level。
 
 ### Q60. Rust 后端 trait / capabilities 怎么体现边界？
@@ -570,5 +570,5 @@
   - 布局守卫 + 属性测试 + 无 GPU 也能测调度。
   - 计算面仍是 C++/CUDA。
   - 把标题说成「Rust 比 C++ 更适合 AI Infra」减分。
-- 证据：E19、E23；`paged-infer/src/tiny_llm_executor.rs`；`interview/cross-cutting.md` §3
+- 证据：E19、E23；`paged-serving/src/tiny_llm_executor.rs`；`interview/cross-cutting.md` §3
 - 追问 1：会改成 Python 控制面对标 vLLM 吗？ → 能讲对照，但会失去 `repr(C)` 守卫和 cargo 不变量；不是本作品下一步。

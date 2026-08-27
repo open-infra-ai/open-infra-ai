@@ -56,7 +56,7 @@ Triton 3.x 的坑要主动提。TRIT-001 不是性能 bug，是 RoPE 排列。`r
 
 一句话：不是因为 Rust 更快，而是因为控制面的故障模式是「不变量被破坏」和「ABI 对不齐」。这两种错误在 CUDA 工程里很难测，在 Rust 里可以变成默认 CI。
 
-先划边界。计算面是 tiny-llm：kernel、量化、CUDA Graphs、显存、真实 token。控制面是 paged-infer：请求状态机、BlockPool、continuous batching、水位线、OpenAI 兼容 HTTP。如果把调度写进同一个 C++ 仓库，HOL 修复和 attention 数值会缠在一次 GPU 测试里，失败时你不知道该怀疑哪一层。拆开之后，默认 `cargo test` 就能覆盖调度、属性测试和 server integration。本次 freeze 是 **218 passed**（E25 相关的 server 测试 37 项在内）。真实 GPU 上的 3 并发 e2e 用 `--features tiny-llm` 门控，T1 按计划没开这个 feature，所以面试时要主动说：token 对齐证据在 `9c3700b` 和 `9c974d3`，不是今天这 218。分层的价值正在这里：控制面正确性和计算面正确性可以分开变红。
+先划边界。计算面是 tiny-llm：kernel、量化、CUDA Graphs、显存、真实 token。控制面是 paged-serving：请求状态机、BlockPool、continuous batching、水位线、OpenAI 兼容 HTTP。如果把调度写进同一个 C++ 仓库，HOL 修复和 attention 数值会缠在一次 GPU 测试里，失败时你不知道该怀疑哪一层。拆开之后，默认 `cargo test` 就能覆盖调度、属性测试和 server integration。本次 freeze 是 **218 passed**（E25 相关的 server 测试 37 项在内）。真实 GPU 上的 3 并发 e2e 用 `--features tiny-llm` 门控，T1 按计划没开这个 feature，所以面试时要主动说：token 对齐证据在 `9c3700b` 和 `9c974d3`，不是今天这 218。分层的价值正在这里：控制面正确性和计算面正确性可以分开变红。
 
 跨语言边界是 Rust 的第一笔账。`TinyLlmConfig` 必须是 9 个 C `int`，顺序与 `tiny-llm/include/tiny_llm/ffi.h` 一致：hidden、layers、heads、kv_heads、head_dim、vocab、block_size、max_batch、`max_num_blocks`。少一个字段，Rust 就会把分页池大小读成词表，或者把策略 1 读成策略 2。Rust 侧 `#[repr(C)]` 加测试 `tiny_llm_config_layout_is_stable`，断言 `size_of::<TinyLlmConfig>() == 9 * 4`（E19，`050c80a`）。这比微信群里「我们约定一下结构体」可执行：布局漂移在 `cargo test` 红掉，而不是在 GPU 上静默用错 batch。步进函数同样约定扁平 `block_tables` 和每序列 `num_blocks`。策略 1 默认上传真块表；`PAGED_INFER_TINY_LLM_STRATEGY=2` 把 `max_num_blocks` 置 0，退回连续 KV。切换策略不必重编 CUDA。
 

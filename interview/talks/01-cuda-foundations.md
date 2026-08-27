@@ -10,7 +10,7 @@
 
 四模块：01 GEMM 阶梯、02 可复用算子库形态、03 HPC 实验、04 把 kernel/内存/流拼进小系统。04 是 **tiny-llm 的教学预览**，不是第二套运行时（`04-inference-engine/README.md`）。
 
-OUT：真实 GGUF、生产 FA、调度。那些分别在 tiny-llm / cuflash / paged-infer。
+OUT：真实 GGUF、生产 FA、调度。那些分别在 tiny-llm / cuflash / paged-serving。
 
 为什么不和 Triton 合仓：构建系统（CMake+CUDA vs pip）和面试展示都要求「同题两套 repo 并排打开」。`LEARNING_PATH.md` 是五仓导航入口。
 

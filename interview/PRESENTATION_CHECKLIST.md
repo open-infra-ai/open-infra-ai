@@ -8,7 +8,7 @@ Pinned 顺序（与讲述优先级一致）：
 
 1. [tiny-llm](https://github.com/open-infra-ai/tiny-llm) — 旗舰 runtime
 2. [cuflash](https://github.com/open-infra-ai/cuflash) — kernel 深度
-3. [paged-infer](https://github.com/open-infra-ai/paged-infer) — serving 控制面
+3. [paged-serving](https://github.com/open-infra-ai/paged-serving) — serving 控制面
 4. [cuda-foundations](https://github.com/open-infra-ai/cuda-foundations) — L1 教学
 5. [triton-fused-ops](https://github.com/open-infra-ai/triton-fused-ops) — 同题异构 / torch.library
 6. [aicl-lab](https://github.com/open-infra-ai/aicl-lab) — landing + 本面试包
@@ -20,7 +20,7 @@ Landing 一句话：四层学习链，不是迷你 vLLM。
 | 仓 | 必须能立刻看到 | 禁止出现 |
 |----|----------------|----------|
 | tiny-llm | TPOT 6.09/6.1；W8A16；策略 1；graphs 默认 | 「待 GPU」；比 llama.cpp 快且不提量化 |
-| paged-infer | 策略 1 默认；3 并发对齐；is/equals 诚实 | 3030 vs 5118；生产并发 |
+| paged-serving | 策略 1 默认；3 并发对齐；is/equals 诚实 | 3030 vs 5118；生产并发 |
 | cuflash | grid.y 修复；causal skip **负结果**；FlashDecoding | ±2% 当加速成功；LogicalHBM=物理带宽 |
 | triton-fused-ops | 三 op + torch.library；TRIT-001 | 假 FP8 E4M3；compile skip 当 pass |
 | cuda-foundations | 冻结；阶梯含更慢的 padding 步；04 预览 | 209/209 全执行；旧 slug 当现名 |
@@ -30,7 +30,7 @@ Landing 一句话：四层学习链，不是迷你 vLLM。
 
 ```bash
 cd /home/shane/github/aicl
-for d in cuda-foundations triton-fused-ops cuflash tiny-llm paged-infer aicl-lab; do
+for d in cuda-foundations triton-fused-ops cuflash tiny-llm paged-serving aicl-lab; do
   (cd $d && echo "== $d ==" && git status -sb && git log --oneline -1 && git tag --points-at HEAD)
 done
 ```
@@ -39,8 +39,8 @@ done
 
 ```bash
 # 旗舰：tiny-llm 测试（需 TLLM_GGUF_TEST_MODEL）
-# paged-infer 默认 CI（不含 e2e）
-cd /home/shane/github/aicl/paged-infer && cargo test
+# paged-serving 默认 CI（不含 e2e）
+cd /home/shane/github/aicl/paged-serving && cargo test
 ```
 
 对照 [`FREEZE_AUDIT.md`](FREEZE_AUDIT.md) 的 skip 数，不要现场「再优化一下数字」。
@@ -50,7 +50,7 @@ cd /home/shane/github/aicl/paged-infer && cargo test
 1. **tiny-llm bench**（主数字）  
    `./build/tiny_llm_bench ../models/qwen2.5-0.5b-instruct-q4_k_m.gguf --prompt "你好" --max-tokens 64 --warmup 3 --iters 5`  
    报 TPOT，立刻补一句：llama.cpp 同卡 3.7 ms，比值 1.65，量化不同。
-2. **paged-infer 3 并发**（正确性，需 `--features tiny-llm`）  
+2. **paged-serving 3 并发**（正确性，需 `--features tiny-llm`）  
    命令见 E18/E21。开口先说：默认 CI 218 不含这次 GPU e2e。
 3. **triton op schema**（接入形态）  
    `python -c "import torch, triton_ops; print(torch.ops.triton_ops.sgemm)"`

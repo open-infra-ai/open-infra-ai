@@ -184,25 +184,25 @@ TLLM_CUDA_GRAPHS=0 ./build/tiny_llm_demo model.gguf --prompt "你好" --max-toke
 
 ### E18. 「2+2 is/equals」量化分歧被诚实记录为前缀一致 + EOS
 - 证据类型：测试
-- 位置：`paged-infer/tests/tiny_llm_text_e2e.rs:159-166,272-280`
-- 关键 commit：`paged-infer@9c974d3` `test(e2e): honest llama.cpp divergence fixture for 2+2 prompt`
+- 位置：`paged-serving/tests/tiny_llm_text_e2e.rs:159-166,272-280`
+- 关键 commit：`paged-serving@9c974d3` `test(e2e): honest llama.cpp divergence fixture for 2+2 prompt`
 - 复现命令：
 ```bash
-cd paged-infer
+cd paged-serving
 TINY_LLM_DIR=/home/shane/github/aicl/tiny-llm \
 TINY_LLM_MODEL=/home/shane/github/aicl/models/qwen2.5-0.5b-instruct-q4_k_m.gguf \
-PINF_TOKENIZER_JSON=/home/shane/github/aicl/models/tokenizer.json \
+PSERV_TOKENIZER_JSON=/home/shane/github/aicl/models/tokenizer.json \
   cargo test --features tiny-llm --test tiny_llm_text_e2e -- --nocapture
 ```
 - 口径/限制：llama.cpp `[17,10,17,16819,…,151645]`（equals）；tiny-llm `[17,10,17,374,…,151645]`（is）。第 4 个 token 是 W8A16 vs Q4_K_M argmax 边界翻转。本次 T1 **未**重跑该 feature 测试。
 
 ### E19. FFI C ABI v2：9-int 布局 + num_blocks，Rust 布局守卫测试
 - 证据类型：代码路径 + 测试
-- 位置：`tiny-llm/include/tiny_llm/ffi.h:4,28-38`；`paged-infer/src/tiny_llm_ffi.rs:143-144` `tiny_llm_config_layout_is_stable`
-- 关键 commit：`tiny-llm@be8984e`；`paged-infer@050c80a`
+- 位置：`tiny-llm/include/tiny_llm/ffi.h:4,28-38`；`paged-serving/src/tiny_llm_ffi.rs:143-144` `tiny_llm_config_layout_is_stable`
+- 关键 commit：`tiny-llm@be8984e`；`paged-serving@050c80a`
 - 复现命令：
 ```bash
-cd paged-infer && cargo test tiny_llm_config_layout_is_stable
+cd paged-serving && cargo test tiny_llm_config_layout_is_stable
 ```
 - 口径/限制：`sizeof(TinyLlmConfig) == 9*4`。策略 1 用 `max_num_blocks > 0` 与 `block_tables`/`num_blocks`。
 
@@ -217,10 +217,10 @@ TLLM_GGUF_TEST_MODEL=/home/shane/github/aicl/models/qwen2.5-0.5b-instruct-q4_k_m
 ```
 - 口径/限制：本次 freeze FFI 套件包含在 174 passed 内。策略 1 有 gather/scatter 往返，正确性优先于延迟。
 
-### E21. paged-infer 3 并发 e2e 与 llama.cpp 参考对齐（请求 1 含 EOS 共 24 token）
+### E21. paged-serving 3 并发 e2e 与 llama.cpp 参考对齐（请求 1 含 EOS 共 24 token）
 - 证据类型：测试
-- 位置：`paged-infer/tests/tiny_llm_text_e2e.rs:166,257-266`；参考序列 24 个 id，末位 `151645`
-- 关键 commit：`paged-infer@9c3700b` `test(e2e): 3-way paged concurrency with llama.cpp token parity`
+- 位置：`paged-serving/tests/tiny_llm_text_e2e.rs:166,257-266`；参考序列 24 个 id，末位 `151645`
+- 关键 commit：`paged-serving@9c3700b` `test(e2e): 3-way paged concurrency with llama.cpp token parity`
 - 复现命令：同 E18
 - 口径/限制：请求 1 全序列严格相等。请求 2 见 E18。本次 T1 默认 `cargo test` 因未开 feature 跑了 0 个 e2e 用例。
 
@@ -235,35 +235,35 @@ TLLM_GGUF_TEST_MODEL=/home/shane/github/aicl/models/qwen2.5-0.5b-instruct-q4_k_m
 ```
 - 口径/限制：**不要背 3030/5118**——PHASE3 提纲写过这对数字，但仓库 README/results 里找不到来源。策略 1 vs 2 的正确性证据是 E20，不是显存表。3368 MB 是转置副本把峰值抬上去，不是分页节省。
 
-### E23. paged-infer 调度器资源守恒不变量（used+free==total）有属性测试
+### E23. paged-serving 调度器资源守恒不变量（used+free==total）有属性测试
 - 证据类型：测试
-- 位置：`paged-infer/src/kv_cache.rs:416` `prop_block_count_invariant`；`src/scheduler.rs:1512` `prop_resources_reclaimed_after_cancel_and_failure`
+- 位置：`paged-serving/src/kv_cache.rs:416` `prop_block_count_invariant`；`src/scheduler.rs:1512` `prop_resources_reclaimed_after_cancel_and_failure`
 - 关键 commit：v0.2.0 属性测试合入
 - 复现命令：
 ```bash
-cd paged-infer && cargo test prop_block_count_invariant prop_resources_reclaimed
+cd paged-serving && cargo test prop_block_count_invariant prop_resources_reclaimed
 ```
 - 口径/限制：本次 freeze lib 144 tests 通过（含这些属性测试）。
 
-### E24. paged-infer 内存水位线 / HOL / 优先级 / NaN / Unicode 修复各有回归测试
+### E24. paged-serving 内存水位线 / HOL / 优先级 / NaN / Unicode 修复各有回归测试
 - 证据类型：测试
 - 位置：HOL `tests/integration_tests.rs:699` `test_small_pending_request_not_blocked_by_large_one`；NaN `src/types/request.rs:267` `test_nan_parameters_rejected`；Unicode `src/engine.rs:1645` `test_stop_sequence_unicode_byte_offset_end_to_end`；优先级 `src/scheduler.rs:839` `test_priority_higher_prefill_starts_first`；水位线 `src/scheduler.rs:519` + 相关单测
-- 关键 commit：paged-infer T0–T8 / T12 与优先级调度
+- 关键 commit：paged-serving T0–T8 / T12 与优先级调度
 - 复现命令：
 ```bash
-cd paged-infer && cargo test test_small_pending_request_not_blocked_by_large_one \
+cd paged-serving && cargo test test_small_pending_request_not_blocked_by_large_one \
   test_nan_parameters_rejected test_stop_sequence_unicode_byte_offset_end_to_end \
   test_priority_higher_prefill_starts_first
 ```
 - 口径/限制：本次 freeze integration 15 + lib 144 通过。
 
-### E25. paged-infer OpenAI 兼容 API + SSE + metrics 有 server integration 测试
+### E25. paged-serving OpenAI 兼容 API + SSE + metrics 有 server integration 测试
 - 证据类型：测试
-- 位置：`paged-infer/tests/server_integration.rs`（`/v1/completions`、SSE `data: [DONE]`、`/metrics` Prometheus 名 `paged_*`）
+- 位置：`paged-serving/tests/server_integration.rs`（`/v1/completions`、SSE `data: [DONE]`、`/metrics` Prometheus 名 `paged_*`）
 - 关键 commit：v0.2.0 server 测试
 - 复现命令：
 ```bash
-cd paged-infer && cargo test --test server_integration
+cd paged-serving && cargo test --test server_integration
 ```
 - 口径/限制：本次 freeze 37 passed。测的是 CPU 参考后端的 HTTP 契约，不是 tiny-llm GPU serving 压测。
 
@@ -281,7 +281,7 @@ cd paged-infer && cargo test --test server_integration
 - 复现命令：
 ```bash
 grep -rn "cuda-kernel-academy" --exclude-dir=.git --exclude-dir=build \
-  cuda-foundations triton-fused-ops cuflash tiny-llm paged-infer || true
+  cuda-foundations triton-fused-ops cuflash tiny-llm paged-serving || true
 ```
 - 口径/限制：本 freeze 对上述五仓 **0 命中**。`aicl-lab/docs/organization-audit/` 与根目录 PHASE 计划仍保留旧名作为历史。教学品牌仍可用 “CUDA Kernel Academy”。
 

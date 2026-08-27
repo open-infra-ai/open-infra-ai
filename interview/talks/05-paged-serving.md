@@ -1,4 +1,4 @@
-# paged-infer · 10 分钟讲述稿
+# paged-serving · 10 分钟讲述稿
 
 验证故事必须用 **3 并发 e2e** 与 **used+free==total**（[`../NUMBERS_CARD.md`](../NUMBERS_CARD.md) §6–7）。
 

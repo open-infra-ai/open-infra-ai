@@ -91,11 +91,11 @@ SGEMM 差分：`tests/test_sgemm.py` 本次 freeze **24 passed**（4 shapes × f
 | triton-fused-ops | **116 passed, 1 skipped** | `.venv/bin/python -m pytest -q` |
 | cuflash | **71 collected, 0 failed, 1 skipped**（pytorch comparison） | `ctest --preset release` |
 | tiny-llm | **174 passed, 1 skipped** / 175；skip=`SecondModelTest.*` | `tiny_llm_tests` + `TLLM_GGUF_TEST_MODEL` |
-| paged-infer | **218 passed**（无 `tiny-llm` feature）；e2e 用例 0 运行 | `cargo fmt/clippy/test` |
+| paged-serving | **218 passed**（无 `tiny-llm` feature）；e2e 用例 0 运行 | `cargo fmt/clippy/test` |
 
 ## 7. llama.cpp 对齐（token）
 
-来源：`paged-infer/tests/tiny_llm_text_e2e.rs`。commit：`9c3700b` + 诚实分歧 `9c974d3`。
+来源：`paged-serving/tests/tiny_llm_text_e2e.rs`。commit：`9c3700b` + 诚实分歧 `9c974d3`。
 
 | 请求 | 断言 | 序列 |
 |------|------|------|
@@ -115,7 +115,7 @@ SGEMM 差分：`tests/test_sgemm.py` 本次 freeze **24 passed**（4 shapes × f
 7. **3030 vs 5118**：提纲里有、仓库里没有。分页 vs 连续的可讲证据是逐 token 差分，不是这对 MiB。
 8. **3368 MB**：转置副本把显存抬上去换来 TPOT；不是 KV 分页节省。
 9. **cuflash vs SDPA 0.42×–0.67×**：教学实现预期差距，ROADMAP 未把 causal skip 写成追上 FA2。
-10. **paged-infer 218**：不含真实 GPU e2e。mini-vLLM 故事的 token 对齐测试要显式开 feature。
+10. **paged-serving 218**：不含真实 GPU e2e。mini-vLLM 故事的 token 对齐测试要显式开 feature。
 
 ## 9. 如果面试官只让我报 5 个数
 

@@ -10,7 +10,7 @@ CUDA 原生最小运行时：GGUF 到 token。
 
 IN：GGUF 加载与反量化、W8A16 推理、KV、tokenizer、采样、分页 KV 策略 1、C ABI、bench、CUDA Graphs。
 
-OUT：调度/CB → paged-infer；FA 深挖 → cuflash；Triton → triton-fused-ops。
+OUT：调度/CB → paged-serving；FA 深挖 → cuflash；Triton → triton-fused-ops。
 
 不是低配 llama.cpp：目标是 **能精确回答瓶颈在反量化、访存还是 launch**。模型：Qwen2.5-0.5B Instruct，GGUF Q4_K_M 重量化 W8A16。GQA 14→2、RoPE 在 `transformer.cpp` 真实调用。tokenizer 30 例 417 token 与 HF 逐 id 对齐。
 

@@ -25,7 +25,7 @@
 | triton-fused-ops | `317347e` docs: check off GPU benchmark… | ahead 1 | （空；`phase-2-e` 在 HEAD~1） | pytest 与 ROADMAP 提交并行，未改测试代码 |
 | cuflash | `e0862b4` docs: check off completed ROADMAP… | ahead 1 | （空；`phase-2-e` 在 HEAD~1） | |
 | tiny-llm | `15001c5` docs: align ROADMAP and README… | ahead 1 | （空；`phase-2-e` 在 HEAD~1） | 测试带 `TLLM_GGUF_TEST_MODEL` |
-| paged-infer | `fb9d670` docs: mark paged KV strategy 1… | ahead 1 | （空；`phase-2-e` 在 HEAD~1） | 默认 `cargo test`，**未**开 `tiny-llm` feature |
+| paged-serving | `fb9d670` docs: mark paged KV strategy 1… | ahead 1 | （空；`phase-2-e` 在 HEAD~1） | 默认 `cargo test`，**未**开 `tiny-llm` feature |
 | aicl-lab | `42fad33` docs: sync Phase 2 E-batch… | ahead 0 | （无 tag） | landing 仓；无 `phase-2-e` / `phase-3-interview` |
 
 GitHub 可见性（`gh api repos/aicl-lab/<name> --jq .full_name`）：六个仓库均返回 `aicl-lab/<name>`。
@@ -80,7 +80,7 @@ TLLM_GGUF_TEST_MODEL=/home/shane/github/aicl/models/qwen2.5-0.5b-instruct-q4_k_m
 - 门控真实模型路径已跑：GGUF 加载、tokenizer 差分、`CudaGraphsGenerateMatchesNonGraph`、W8A16、GQA kernel 等
 - 与 README「第二模型待用户提供 GGUF」一致
 
-### 3.5 paged-infer
+### 3.5 paged-serving
 
 ```bash
 cargo fmt --all -- --check && cargo clippy --all-targets -- -D warnings && cargo test
@@ -103,11 +103,11 @@ cargo fmt --all -- --check && cargo clippy --all-targets -- -D warnings && cargo
 | doctests | 17 passed |
 | **合计** | **218 passed，0 failed** |
 
-真实 tiny-llm 3 并发 e2e **本次未重跑**（T1 命令是无 feature 的 `cargo test`）。证据仍指向 `paged-infer@9c3700b` / `9c974d3` 与 `tests/tiny_llm_text_e2e.rs`。
+真实 tiny-llm 3 并发 e2e **本次未重跑**（T1 命令是无 feature 的 `cargo test`）。证据仍指向 `paged-serving@9c3700b` / `9c974d3` 与 `tests/tiny_llm_text_e2e.rs`。
 
 ## 4. 结论
 
-- 五个开发仓：本次命令 **0 failed**。skip 均有对应门控（第二模型、torch.compile smoke、cuflash pytorch 对比、cuda-foundations 02/04 GPU 二进制、paged-infer tiny-llm feature）。
+- 五个开发仓：本次命令 **0 failed**。skip 均有对应门控（第二模型、torch.compile smoke、cuflash pytorch 对比、cuda-foundations 02/04 GPU 二进制、paged-serving tiny-llm feature）。
 - 五仓相对 origin **ahead 1 或 2**（本轮 docs）；**尚未 push**。
 - meta 仓 `aicl-lab` 无 phase tag。
 - 下一步：T2 证据矩阵、T3 数字卡；本文件不发明性能数字。

@@ -11,7 +11,7 @@
 
 ```bash
 cd /home/shane/github/aicl
-for d in cuda-foundations triton-fused-ops cuflash tiny-llm paged-infer aicl-lab; do
+for d in cuda-foundations triton-fused-ops cuflash tiny-llm paged-serving aicl-lab; do
   (cd $d && echo "== $d ==" && git status -sb && git log --oneline -1 && git tag --points-at HEAD)
 done
 ```
@@ -23,7 +23,7 @@ done
 
 ## 1. 场景 A（有 GPU）
 
-固定顺序：tiny-llm bench → paged-infer 3 并发 → triton op schema。
+固定顺序：tiny-llm bench → paged-serving 3 并发 → triton op schema。
 
 ### Step 1 · tiny-llm bench（主数字）
 
@@ -41,15 +41,15 @@ cd /home/shane/github/aicl/tiny-llm
 
 **失败切换**：bench 起不来 → 不再修，直接切到场景 B：打开数字卡第 9 节报同组数字。
 
-### Step 2 · paged-infer 3 并发（正确性）
+### Step 2 · paged-serving 3 并发（正确性）
 
 **命令**：
 
 ```bash
-cd /home/shane/github/aicl/paged-infer
+cd /home/shane/github/aicl/paged-serving
 TINY_LLM_DIR=/home/shane/github/aicl/tiny-llm \
 TINY_LLM_MODEL=/home/shane/github/aicl/models/qwen2.5-0.5b-instruct-q4_k_m.gguf \
-PINF_TOKENIZER_JSON=/home/shane/github/aicl/models/tokenizer.json \
+PSERV_TOKENIZER_JSON=/home/shane/github/aicl/models/tokenizer.json \
   cargo test --features tiny-llm --test tiny_llm_text_e2e -- --nocapture
 ```
 
@@ -86,7 +86,7 @@ cd /home/shane/github/aicl/triton-fused-ops
 **三句口播词**：
 1. “我报五个核心数字：TPOT 6.09 ms，lm_head 从 10.0 降到 0.98 ms，tiny/llama 1.65×（非同量化），请求 1 的 24+EOS 全等、请求 2 的 is/equals 我如实记录，还有 causal skip 的 ±2% 负结果。”
 2. “这些数字都在数字卡里带本机硬件、commit 和复现命令；换到别的卡我不沿用。”
-3. “测试规模看这张表：cuflash 71 项、tiny-llm 175、paged-infer 218，skip 的门控原因都在 freeze audit 里写清楚了。”
+3. “测试规模看这张表：cuflash 71 项、tiny-llm 175、paged-serving 218，skip 的门控原因都在 freeze audit 里写清楚了。”
 
 ---
 
@@ -116,10 +116,10 @@ skip 门控：venv 未装依赖，则口头报 E5 的三个注册名。
 **C3 · paged 3 并发 e2e（预计 2–3 分钟，需要 backends 构建 + 模型 + tokenizer.json）**
 
 ```bash
-cd /home/shane/github/aicl/paged-infer
+cd /home/shane/github/aicl/paged-serving
 TINY_LLM_DIR=/home/shane/github/aicl/tiny-llm \
 TINY_LLM_MODEL=/home/shane/github/aicl/models/qwen2.5-0.5b-instruct-q4_k_m.gguf \
-PINF_TOKENIZER_JSON=/home/shane/github/aicl/models/tokenizer.json \
+PSERV_TOKENIZER_JSON=/home/shane/github/aicl/models/tokenizer.json \
   cargo test --features tiny-llm --test tiny_llm_text_e2e -- --nocapture
 ```
 

@@ -201,8 +201,8 @@
 3. “浪费 < 5%”只在某类假设下成立：请求长度分布接近块大小、块数较多、尾部占比小时。
 4. 对单条短请求或块很少的场景，尾部浪费占比可以远大于 5%，所以措辞要带适用条件。
 
-**与本仓库数字对应**：paged-infer 用属性测试锁块计数不变量（`used+free==total`，E23），不锁“浪费 <5%”宣传句（Q47）；分页正确性证据是分页 vs 连续 KV 的逐 token 差分（E20）。
+**与本仓库数字对应**：paged-serving 用属性测试锁块计数不变量（`used+free==total`，E23），不锁“浪费 <5%”宣传句（Q47）；分页正确性证据是分页 vs 连续 KV 的逐 token 差分（E20）。
 
 **常见错误**：无条件说“分页把显存浪费降到 <5%”；把 3030/5118 当证据（E22）；把内部碎片与外部碎片混为一谈。
 
-**可在现场打开**：`paged-infer/src/kv_cache.rs`（`prop_block_count_invariant`）与 `paged-infer/src/scheduler.rs`；追问见 Q47/Q50。
+**可在现场打开**：`paged-serving/src/kv_cache.rs`（`prop_block_count_invariant`）与 `paged-serving/src/scheduler.rs`；追问见 Q47/Q50。
