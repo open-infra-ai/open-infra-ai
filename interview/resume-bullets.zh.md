@@ -22,7 +22,7 @@
 2. 修复 TRIT-001：RoPE 改为 Llama/Qwen half-split concat 契约。→ E4
 3. `torch.ops.triton_ops.*` 注册三 op；compile smoke 如实 skip。→ E5
 
-## cuflash-attn（3）
+## cuflash（3）
 
 1. FlashAttention 前后向多精度差分；B×H>65535 展平 grid 并回归。→ E7
 2. causal 边界块跳过实测 ±2%，文档记为低于噪声的负结果。→ E8

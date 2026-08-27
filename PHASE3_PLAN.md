@@ -57,14 +57,14 @@
 1. 对六个仓库依次记录：
    ```bash
    cd /home/shane/github/aicl
-   for d in cuda-foundations triton-fused-ops cuflash-attn tiny-llm paged-infer aicl-lab; do
+   for d in cuda-foundations triton-fused-ops cuflash tiny-llm paged-infer aicl-lab; do
      (cd $d && echo "== $d ==" && git status -sb && git log --oneline -1 && git tag --points-at HEAD)
    done
    ```
 2. 重跑五个开发仓的测试（耗时约 20–40 分钟，必须真实执行并粘贴结果尾部）：
    - cuda-foundations：`cmake --preset default && cmake --build --preset default && ctest --preset default`
    - triton-fused-ops：`.venv/bin/python -m pytest -q`
-   - cuflash-attn：`cmake --preset release && cmake --build --preset release && ctest --preset release --output-on-failure`
+   - cuflash：`cmake --preset release && cmake --build --preset release && ctest --preset release --output-on-failure`
    - tiny-llm：`cmake --build build -j$(nproc) && ./build/tiny_llm_tests`
    - paged-infer：`cargo fmt --all -- --check && cargo clippy --all-targets -- -D warnings && cargo test`
 3. 输出文件 `interview/FREEZE_AUDIT.md`：六仓状态表 + 测试结果 + 执行时间 + 环境（GPU/driver/CUDA）。
@@ -175,7 +175,7 @@
 对应文件：
 - `01-cuda-foundations.md`
 - `02-triton-fused-ops.md`
-- `03-cuflash-attn.md`
+- `03-cuflash.md`
 - `04-tiny-llm.md`
 - `05-paged-infer.md`
 
@@ -257,7 +257,7 @@
 
 1. `aicl-lab/README.md` 增加 `## Interview Evidence` 小节，链接 `interview/` 全部文件。
 2. 新增 `interview/PRESENTATION_CHECKLIST.md`：
-   - GitHub profile 建议（pinned 仓库顺序：tiny-llm、cuflash-attn、paged-infer、cuda-foundations、triton-fused-ops、aicl-lab）；
+   - GitHub profile 建议（pinned 仓库顺序：tiny-llm、cuflash、paged-infer、cuda-foundations、triton-fused-ops、aicl-lab）；
    - 每个仓库 README 状态表复查要点；
    - 面试前 24h 检查命令（一条 `git status` 六仓 + 一条测试命令）；
    - 线上面试 demo 顺序（先 tiny-llm bench，再 paged-infer 3 并发测试，再 triton op schema）。

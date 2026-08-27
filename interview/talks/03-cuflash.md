@@ -1,4 +1,4 @@
-# cuflash-attn · 10 分钟讲述稿
+# cuflash · 10 分钟讲述稿
 
 数字见 [`../NUMBERS_CARD.md`](../NUMBERS_CARD.md) §4。因果跳过必须当负结果讲。
 

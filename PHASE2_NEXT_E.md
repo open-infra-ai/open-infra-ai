@@ -126,7 +126,7 @@ cd /home/shane/github/aicl/triton-fused-ops
 
 ---
 
-## 任务 E2：cuflash-attn 一轮修复 + 一次有数字的优化
+## 任务 E2：cuflash 一轮修复 + 一次有数字的优化
 
 ### E2a：修复 grid.y 65535 限制（P1 正确性，一个 commit）
 
@@ -160,7 +160,7 @@ cd /home/shane/github/aicl/triton-fused-ops
 
 **验收**：
 ```bash
-cd /home/shane/github/aicl/cuflash-attn
+cd /home/shane/github/aicl/cuflash
 cmake --preset release && cmake --build --preset release
 ctest --preset release --output-on-failure   # 69 + 新增测试
 ./build/release/cuflash_attn_bench --benchmark_filter='GridYOverflow|Forward'
@@ -238,7 +238,7 @@ curl -sI https://github.com/open-infra-ai/aicl-lab | head -1   # 200
 **步骤**：
 1. 五个仓库各打并推送 `phase-2-e` tag：
    ```bash
-   for d in cuda-foundations triton-fused-ops cuflash-attn tiny-llm paged-infer; do
+   for d in cuda-foundations triton-fused-ops cuflash tiny-llm paged-infer; do
      (cd /home/shane/github/aicl/$d && git tag phase-2-e && git push origin phase-2-e)
    done
    ```
@@ -248,11 +248,11 @@ curl -sI https://github.com/open-infra-ai/aicl-lab | head -1   # 200
    grep -rn "cuda-kernel-academy" --exclude-dir=.git --exclude-dir=build --exclude-dir=target \
      --exclude-dir=.venv --exclude-dir=node_modules /home/shane/github/aicl | grep -v organization-audit || true
    # 五个仓库在 GitHub 上可见
-   for r in cuda-foundations triton-fused-ops cuflash-attn tiny-llm paged-infer aicl-lab; do
+   for r in cuda-foundations triton-fused-ops cuflash tiny-llm paged-infer aicl-lab; do
      gh api repos/aicl-lab/$r --jq '.full_name' 2>/dev/null || echo "MISSING $r"
    done
    # 每个 README 的 badge 链接 curl -I 返回 200/301/302
-   for r in cuda-foundations triton-fused-ops cuflash-attn tiny-llm paged-infer; do
+   for r in cuda-foundations triton-fused-ops cuflash tiny-llm paged-infer; do
      echo "== $r =="; curl -sI https://github.com/open-infra-ai/$r | head -1
    done
    ```

@@ -18,11 +18,11 @@
 3. 所以三行递推里因子 `exp(m − m_new)` 把旧统计搬到新 max 下，`exp(S_t − m_new)` 归一化新 tile。
 4. 全程只流式读 KV，不物化 `S`。
 
-**与本仓库数字对应**：这正是 `cuflash-attn` 前向 kernel 的 online 更新；FP16/BF16 API 把 logsumexp 保持 FP32（v0.5.0 breaking，E6/Q23）。
+**与本仓库数字对应**：这正是 `cuflash` 前向 kernel 的 online 更新；FP16/BF16 API 把 logsumexp 保持 FP32（v0.5.0 breaking，E6/Q23）。
 
 **常见错误**：忘记给旧分子/分母乘 `exp(m − m_new)`，导致新旧 tile 尺度不一致；或把 `m_new` 只用于当前 tile 而不回溯旧项。
 
-**可在现场打开**：`cuflash-attn/src/forward/flash_attention_forward_typed.cu`；追问见 `interview/QA_BANK.md` Q21。
+**可在现场打开**：`cuflash/src/forward/flash_attention_forward_typed.cu`；追问见 `interview/QA_BANK.md` Q21。
 
 ## 2. FlashAttention 为什么是 O(N) 辅助内存
 
@@ -34,11 +34,11 @@
 3. 需要留在外面的只有每行的 running `m`、`l` 和累计 `O`，都是 N 线性级。
 4. 计算量仍是 O(N²·d)，但内存工作集不是 O(N²)。
 
-**与本仓库数字对应**：`cuflash-attn` 不物化 S；`NUMBERS_CARD.md` §8 明确 3030/5118 MiB 这对数字无归档、不可当 FA 显存证据（E22）。
+**与本仓库数字对应**：`cuflash` 不物化 S；`NUMBERS_CARD.md` §8 明确 3030/5118 MiB 这对数字无归档、不可当 FA 显存证据（E22）。
 
 **常见错误**：把“O(N) 辅助内存”说成“O(N) 计算”；或把“O(N) 内存”当成本机实测显存表。
 
-**可在现场打开**：`cuflash-attn` 算法说明与 `benchmarks/bench_flash_attention.cu` 的 LogicalHBM 计数器；追问见 Q22/Q30。
+**可在现场打开**：`cuflash` 算法说明与 `benchmarks/bench_flash_attention.cu` 的 LogicalHBM 计数器；追问见 Q22/Q30。
 
 ## 3. Attention 标准 vs Flash 的 HBM 读写量
 
@@ -52,11 +52,11 @@
 3. Flash 把 S 的生成、softmax、`×V` 都在 tile 内完成，只有在线 rescale，删掉 2·N² 项。
 4. 长序列时 N² 项主导，所以 Flash 的收益随 N 增大而变大。
 
-**与本仓库数字对应**：`cuflash-attn` benchmark 报的是 **LogicalHBM** 模型流量（Q30），本机 FP16 seq=1024 1.76 ms / 4096 84.1 ms（`6860cbc`），对 SDPA 约 0.42×–0.67× 是教学预期差距。
+**与本仓库数字对应**：`cuflash` benchmark 报的是 **LogicalHBM** 模型流量（Q30），本机 FP16 seq=1024 1.76 ms / 4096 84.1 ms（`6860cbc`），对 SDPA 约 0.42×–0.67× 是教学预期差距。
 
 **常见错误**：把 LogicalHBM 说成物理 DRAM 带宽；忘记 Flash 仍要读 K/V 每块多次（这里的 N·d 已按总流量算，不指向任何实测计数器）。
 
-**可在现场打开**：`cuflash-attn/benchmarks/bench_flash_attention.cu`（counter 名 `LogicalHBM GB/s`）；追问见 Q30。
+**可在现场打开**：`cuflash/benchmarks/bench_flash_attention.cu`（counter 名 `LogicalHBM GB/s`）；追问见 Q30。
 
 ## 4. Roofline 与 arithmetic intensity
 

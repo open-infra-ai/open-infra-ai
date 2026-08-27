@@ -26,7 +26,7 @@
 |---|---|---|---|---|
 | cuda-foundations | `38ccdcd` | ahead 2 | ✅ 冻结 | 2 docs commit（README/README.zh-CN/ROADMAP） |
 | triton-fused-ops | `317347e` | ahead 1 | ✅ 冻结 | 1 docs commit（ROADMAP） |
-| cuflash-attn | `e0862b4` | ahead 1 | ✅ 冻结 | 1 docs commit（ROADMAP） |
+| cuflash | `e0862b4` | ahead 1 | ✅ 冻结 | 1 docs commit（ROADMAP） |
 | tiny-llm | `15001c5` | ahead 1 | ✅ 冻结 | 1 docs commit（README/ROADMAP） |
 | paged-infer | `fb9d670` | ahead 1 | ✅ 冻结 | 1 docs commit（ROADMAP） |
 | aicl-lab (meta) | `8c3c6d4` | ahead 10 | ✅ 完成 | 10 interview docs commits |
@@ -37,7 +37,7 @@
 |---|---|---|
 | cuda-foundations | 0 failed / 209 collected | **78 skipped**；不得声称 209 全执行，131 项实际执行 |
 | triton-fused-ops | 116 passed + 1 skipped | skip = torch.compile smoke（已约定） |
-| cuflash-attn | 71 tests，100% passed（1 skip） | PyTorch 对比项环境 skip |
+| cuflash | 71 tests，100% passed（1 skip） | PyTorch 对比项环境 skip |
 | tiny-llm | 175 tests，174 passed + 1 skipped | 真模型门控已跑；skip = 第二 GQA 模型未提供 |
 | paged-infer | 218 passed，0 failed | 本次未开 `--features tiny-llm`；3 并发 e2e 证据指向 `9c3700b`/`9c974d3` |
 | aicl-lab | 无测试 | 文档仓 |
@@ -85,7 +85,7 @@
 
 ```bash
 cd /home/shane/github/aicl
-for d in cuda-foundations triton-fused-ops cuflash-attn tiny-llm paged-infer; do
+for d in cuda-foundations triton-fused-ops cuflash tiny-llm paged-infer; do
   (cd $d && git log origin/master..HEAD --oneline && git push origin master && \
    git tag phase-3-docs && git push origin phase-3-docs)
 done

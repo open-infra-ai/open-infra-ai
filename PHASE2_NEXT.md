@@ -59,12 +59,12 @@ python -m pytest -q           # 88 passed
 
 ---
 
-## 任务 A2：提交 cuflash-attn 文档同步 + 归档 PLAN.md（P0）
+## 任务 A2：提交 cuflash 文档同步 + 归档 PLAN.md（P0）
 
 **背景（已预先核实）**：10 个已修改文件全部是 `docs/` 文档（补 BF16 API 分节、修正表述、同步 v0.5.0 代码事实），不含源码；未跟踪的 `PLAN.md` 是"v1.0 收敛计划"，内容与 `ROADMAP.md` 不重复且对未来 E2 有价值，应归档而不是删除。
 
 **执行步骤**：
-1. `cd /home/shane/github/aicl/cuflash-attn`
+1. `cd /home/shane/github/aicl/cuflash`
 2. 先跑测试确认源码未受影响：
    ```bash
    cmake --preset release && cmake --build --preset release
@@ -115,7 +115,7 @@ git tag phase-1-complete && git push origin phase-1-complete
 仓库顺序与预期 ahead：
 1. `tiny-llm`（ahead 20，含 3ddafcc）
 2. `paged-infer`（ahead 15）
-3. `cuflash-attn`（ahead 4 + 本批 A2 的 2 个提交）
+3. `cuflash`（ahead 4 + 本批 A2 的 2 个提交）
 4. `triton-fused-ops`（ahead 3 + 本批 A1 的 1 个提交）
 5. `cuda-kernel-academy`（ahead 2）
 
@@ -126,7 +126,7 @@ git tag phase-1-complete && git push origin phase-1-complete
 
 **验收**：
 ```bash
-for d in tiny-llm paged-infer cuflash-attn triton-fused-ops cuda-kernel-academy; do
+for d in tiny-llm paged-infer cuflash triton-fused-ops cuda-kernel-academy; do
   (cd /home/shane/github/aicl/$d && echo "== $d ==" && git status -sb | head -1 && git log origin/master..HEAD --oneline | wc -l)
 done
 # 期望：每仓 ahead 0，工作区干净，tag phase-1-complete 已推送（检查 git ls-remote --tags origin | grep phase-1-complete）
@@ -252,7 +252,7 @@ docs: rename site and links to cuda-foundations
 **范围**：
 - `paged-infer/README.md`
 - `tiny-llm/README.md`
-- `cuflash-attn/README.md`
+- `cuflash/README.md`
 - `triton-fused-ops/README.md`
 - `triton-fused-ops/triton_fused_ops.egg-info/PKG-INFO`（仅当该文件被 git 跟踪）
 - `/home/shane/github/aicl/MASTER_PLAN.md`、`PHASE2_PLAN.md`

@@ -7,7 +7,7 @@ Phase 3 本地交付核对。`phase-3-interview` tag 已推送（meta = `9e0b4f7
 Pinned 顺序（与讲述优先级一致）：
 
 1. [tiny-llm](https://github.com/open-infra-ai/tiny-llm) — 旗舰 runtime
-2. [cuflash-attn](https://github.com/open-infra-ai/cuflash-attn) — kernel 深度
+2. [cuflash](https://github.com/open-infra-ai/cuflash) — kernel 深度
 3. [paged-infer](https://github.com/open-infra-ai/paged-infer) — serving 控制面
 4. [cuda-foundations](https://github.com/open-infra-ai/cuda-foundations) — L1 教学
 5. [triton-fused-ops](https://github.com/open-infra-ai/triton-fused-ops) — 同题异构 / torch.library
@@ -21,7 +21,7 @@ Landing 一句话：四层学习链，不是迷你 vLLM。
 |----|----------------|----------|
 | tiny-llm | TPOT 6.09/6.1；W8A16；策略 1；graphs 默认 | 「待 GPU」；比 llama.cpp 快且不提量化 |
 | paged-infer | 策略 1 默认；3 并发对齐；is/equals 诚实 | 3030 vs 5118；生产并发 |
-| cuflash-attn | grid.y 修复；causal skip **负结果**；FlashDecoding | ±2% 当加速成功；LogicalHBM=物理带宽 |
+| cuflash | grid.y 修复；causal skip **负结果**；FlashDecoding | ±2% 当加速成功；LogicalHBM=物理带宽 |
 | triton-fused-ops | 三 op + torch.library；TRIT-001 | 假 FP8 E4M3；compile skip 当 pass |
 | cuda-foundations | 冻结；阶梯含更慢的 padding 步；04 预览 | 209/209 全执行；旧 slug 当现名 |
 | aicl-lab | 五仓地图 + Interview Evidence 链接 + tag 链 | 把五仓源码改动混入 meta、或把 `phase-3-docs`/`phase-3-interview` 链说反 |
@@ -30,7 +30,7 @@ Landing 一句话：四层学习链，不是迷你 vLLM。
 
 ```bash
 cd /home/shane/github/aicl
-for d in cuda-foundations triton-fused-ops cuflash-attn tiny-llm paged-infer aicl-lab; do
+for d in cuda-foundations triton-fused-ops cuflash tiny-llm paged-infer aicl-lab; do
   (cd $d && echo "== $d ==" && git status -sb && git log --oneline -1 && git tag --points-at HEAD)
 done
 ```

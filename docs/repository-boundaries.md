@@ -22,11 +22,11 @@
 |------|----------|--------|
 | `cuda-foundations` | CUDA 基础、SGEMM 阶梯、通用推理组件教学 | 完整推理引擎、求职计划 |
 | `triton-fused-ops` | Triton 算子与 `torch.library` 集成对照 | CUDA 专项实现的重复副本 |
-| `cuflash-attn` | FlashAttention/FlashDecoding CUDA 专项深挖 | `tiny-llm` 的 generate 路径 |
+| `cuflash` | FlashAttention/FlashDecoding CUDA 专项深挖 | `tiny-llm` 的 generate 路径 |
 | `tiny-llm` | 真实权重加载、量化、decode、KV 与端到端推理加速 | HTTP 调度控制面 |
 | `paged-infer` | Paged KV、continuous batching、调度、HTTP/SSE 与 serving 评测 | 重复实现模型算子与权重加载 |
 
-`tiny-llm` 与 `paged-infer` 只通过受测试的 C ABI 集成；`cuflash-attn` 不接入
+`tiny-llm` 与 `paged-infer` 只通过受测试的 C ABI 集成；`cuflash` 不接入
 `tiny-llm` generate 路径。技术仓名称已经被简历和证据引用，保持冻结，不做大规模重命名。
 
 ## 3. 个人执行仓：`holtwood/ai-infra-interview-prep`
@@ -51,7 +51,7 @@
 ## 5. 面试叙事边界
 
 - 推理加速主线：`tiny-llm`；
-- CUDA 专项深度：`cuflash-attn`；
+- CUDA 专项深度：`cuflash`；
 - Serving/调度扩展：`paged-infer`；
 - 基础与跨语言对照：`cuda-foundations`、`triton-fused-ops`。
 

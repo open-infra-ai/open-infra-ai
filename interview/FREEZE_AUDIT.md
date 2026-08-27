@@ -23,7 +23,7 @@
 |------|------|-------------|---------------|------|
 | cuda-foundations | `38ccdcd` docs: record freeze ctest… | ahead 2 | （空；`phase-2-e` 在 HEAD~2） | 测试跑在 `44ac954`；`38ccdcd` 只改正 skip 表述 |
 | triton-fused-ops | `317347e` docs: check off GPU benchmark… | ahead 1 | （空；`phase-2-e` 在 HEAD~1） | pytest 与 ROADMAP 提交并行，未改测试代码 |
-| cuflash-attn | `e0862b4` docs: check off completed ROADMAP… | ahead 1 | （空；`phase-2-e` 在 HEAD~1） | |
+| cuflash | `e0862b4` docs: check off completed ROADMAP… | ahead 1 | （空；`phase-2-e` 在 HEAD~1） | |
 | tiny-llm | `15001c5` docs: align ROADMAP and README… | ahead 1 | （空；`phase-2-e` 在 HEAD~1） | 测试带 `TLLM_GGUF_TEST_MODEL` |
 | paged-infer | `fb9d670` docs: mark paged KV strategy 1… | ahead 1 | （空；`phase-2-e` 在 HEAD~1） | 默认 `cargo test`，**未**开 `tiny-llm` feature |
 | aicl-lab | `42fad33` docs: sync Phase 2 E-batch… | ahead 0 | （无 tag） | landing 仓；无 `phase-2-e` / `phase-3-interview` |
@@ -55,7 +55,7 @@ cmake --preset default && cmake --build --preset default -j$(nproc) && ctest --p
 - skip：`tests/test_torch_library.py::test_torch_compile_smoke`（文档约定：`torch.compile` 失败则 skip，不伪造通过）
 - 收集 117 items（含 `test_sgemm.py` 24 项）
 
-### 3.3 cuflash-attn
+### 3.3 cuflash
 
 ```bash
 cmake --preset release && cmake --build --preset release -j$(nproc) && ctest --preset release --output-on-failure

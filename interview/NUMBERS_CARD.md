@@ -40,7 +40,7 @@ README 快照 commit 写成 `f897084`，命令 `--iters 10`；decode-optimizatio
 | rtx3060 文峰值 **2490 MB** | `2026-08-18-rtx3060.md:41` | `d234157` | `--iters 10` 那次 | 优化前对比档 |
 | 3030 MiB vs 5118 MiB | **六仓无归档** | — | — | 不要当作实测。策略 1 vs 2 正确性见 FFI 差分测试，不是这对数字 |
 
-## 4. cuflash-attn
+## 4. cuflash
 
 硬件/commit：`docs/performance/benchmarks.md` §1.5，commit `6860cbc`，batch=1 heads=8，CUDA Event 中位数。
 
@@ -89,7 +89,7 @@ SGEMM 差分：`tests/test_sgemm.py` 本次 freeze **24 passed**（4 shapes × f
 |----|------|------|
 | cuda-foundations | 0 failed / **209 collected**；**78 skipped**；131 执行 | `ctest --preset default` @ `44ac954` 源码 |
 | triton-fused-ops | **116 passed, 1 skipped** | `.venv/bin/python -m pytest -q` |
-| cuflash-attn | **71 collected, 0 failed, 1 skipped**（pytorch comparison） | `ctest --preset release` |
+| cuflash | **71 collected, 0 failed, 1 skipped**（pytorch comparison） | `ctest --preset release` |
 | tiny-llm | **174 passed, 1 skipped** / 175；skip=`SecondModelTest.*` | `tiny_llm_tests` + `TLLM_GGUF_TEST_MODEL` |
 | paged-infer | **218 passed**（无 `tiny-llm` feature）；e2e 用例 0 运行 | `cargo fmt/clippy/test` |
 

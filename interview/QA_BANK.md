@@ -15,7 +15,7 @@
   - block 内可用 `__syncthreads` 和 shared memory；block 之间不能假设顺序。
   - grid 是 block 的集合；`gridDim.y` 有硬件上限（见 Q25）。
   - 教学仓 SGEMM 用 block 对应输出 tile，warp 在 WMMA 层变成矩阵片段。
-- 证据：`cuda-foundations/01-sgemm-tutorial/`；`cuflash-attn@d144765`（grid 上限）
+- 证据：`cuda-foundations/01-sgemm-tutorial/`；`cuflash@d144765`（grid 上限）
 - 追问 1：一个 block 必须是 warp 的整数倍吗？ → 硬件按 warp 调度；非 32 倍数的尾部仍占一个 warp，多余 lane 闲置。
 
 ### Q2. occupancy 是什么，为什么不是越高越好？
@@ -72,7 +72,7 @@
   - 本教程 double-buffer 0.68 TFLOPS，未超过 tiled 0.92。
   - cuflash ROADMAP 仍把双缓冲/`cp.async` 列为未做。
   - 把教学 double-buffer 说成 TMA/warp-specialization，是红灯。
-- 证据：`cuda-foundations` double_buffer kernel；`cuflash-attn/ROADMAP.md`；组织审计对同步 load 的说明
+- 证据：`cuda-foundations` double_buffer kernel；`cuflash/ROADMAP.md`；组织审计对同步 load 的说明
 - 追问 1：那为什么还留这一级？ → 展示「写了软件流水意图但没有硬件异步」时数字会怎样；负结果是课。
 
 ### Q8. 什么是 roofline？你们有实测点吗？
@@ -210,7 +210,7 @@
   - 本 tile：`exp(s - m_new) * V` 累进分子。
   - 结束 `O /= l`。
   - 不必物化完整 `S = QK^T`。
-- 证据：`cuflash-attn` 前向 kernel；讲述稿 `03-cuflash-attn.md`
+- 证据：`cuflash` 前向 kernel；讲述稿 `03-cuflash.md`
 - 追问 1：为什么不先全局 max 再 softmax？ → 那要两遍扫 KV，失去单遍 streaming 和 O(N) 工作集。
 
 ### Q22. 为什么说 FlashAttention 是 O(N) 内存？
@@ -273,7 +273,7 @@
   - 本机非 causal FP16 seq=1024：**1.76 ms**；4096 hd=128：**84.1 ms**（`6860cbc`）。
   - 对 SDPA 大约 0.42×–0.67× 是预期差距（数字卡边界 §9）。
   - `cp.async` 双缓冲未做（ROADMAP）。
-- 证据：数字卡 §4、§8；`cuflash-attn/ROADMAP.md`
+- 证据：数字卡 §4、§8；`cuflash/ROADMAP.md`
 - 追问 1：面试官说太慢怎么办？ → 承认教学实现；能讲 online softmax、grid 上限、负结果 skip、Split-KV 契约。
 
 ### Q29. FP16/BF16 数值要注意什么？
@@ -291,7 +291,7 @@
   - 不是 ncu 测到的 DRAM 计数器。
   - 反向不乱用同一模型（文档：避免模型继续出错）。
   - 红灯：把 LogicalHBM 说成「我们打满了 HBM」。
-- 证据：`cuflash-attn/benchmarks/bench_flash_attention.cu`；README 带宽口径
+- 证据：`cuflash/benchmarks/bench_flash_attention.cu`；README 带宽口径
 - 追问 1：为什么还要报它？ → 让不同 seq/head 的时间可对照流量模型；同时防止自己撒谎。
 
 ### Q31. cuflash 的 ctypes 绑定和 triton 的 torch.library 有何不同？

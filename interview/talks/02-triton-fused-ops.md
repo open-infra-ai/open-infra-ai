@@ -10,7 +10,7 @@
 
 三条路径：`fused_rmsnorm_rope`、`fused_gated_mlp`（SwiGLU）、FlashAttention **前向**参考；外加 Triton SGEMM 与 `torch.ops.triton_ops.*`。
 
-FlashAttention 本仓只做 cuflash-attn 的独立参考，不讲前后向优化（README 降级声明）。
+FlashAttention 本仓只做 cuflash 的独立参考，不讲前后向优化（README 降级声明）。
 
 为什么存在：和 cuda-foundations 做 **同题异构**（同一 GEMM，CUDA C++ vs Triton）；和 cuflash 做 **同题深浅**（Triton 参考 vs CUDA 深挖）。验证方法（独立 NumPy/PyTorch reference、失败路径、GPU skip 不报 pass）是这个仓的资产。
 

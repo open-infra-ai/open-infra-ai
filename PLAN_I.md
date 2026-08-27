@@ -170,7 +170,7 @@ git -C /home/shane/github/aicl/aicl-lab status --short   # 干净
 ### I6：`interview/ROLE_PLAYBOOKS/` 岗位角色手册（三份）
 
 **背景**：同一份材料，不同岗位的讲述顺序和重点应不同。生成：
-- `kernel.md`：主推 cuflash-attn + triton-fused-ops + cuda-foundations；tiny-llm 只讲转置优化与 microbench；paged-infer 一分钟带过。
+- `kernel.md`：主推 cuflash + triton-fused-ops + cuda-foundations；tiny-llm 只讲转置优化与 microbench；paged-infer 一分钟带过。
 - `runtime.md`：主推 tiny-llm（decode 优化、graphs、FFI、paged KV）+ cuflash 集成点；serving 讲边界。
 - `serving.md`：主推 paged-infer（调度/资源不变量/3 并发）+ tiny-llm 作为后端；kernel 只讲"为什么控制面不需要写 kernel"。
 

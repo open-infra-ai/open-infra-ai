@@ -32,7 +32,7 @@ cd triton-fused-ops && .venv/bin/python -m pytest -q tests/test_sgemm.py
 ```bash
 cd triton-fused-ops && .venv/bin/python -m pytest -q tests/test_rmsnorm_rope.py tests/test_gated_mlp.py tests/test_flash_attention.py
 ```
-- 口径/限制：FlashAttention 前向是 cuflash-attn 的参考实现，不是本仓优化旗舰。无 GPU 时 kernel 差分 skip。
+- 口径/限制：FlashAttention 前向是 cuflash 的参考实现，不是本仓优化旗舰。无 GPU 时 kernel 差分 skip。
 
 ### E4. TRIT-001 RoPE half-split 约定 bug 已修复并有测试
 - 证据类型：代码路径 + 测试
@@ -58,28 +58,28 @@ cd triton-fused-ops
 
 ### E6. FlashAttention 前向+反向多精度通过差分测试
 - 证据类型：测试
-- 位置：`cuflash-attn/tests/unit/`（forward/backward/dtype）；本次 freeze `ctest --preset release` 71 collected / 0 failed / 1 skip（pytorch comparison）
-- 关键 commit：`cuflash-attn` v0.5.0 前后向 WMMA 路径（CHANGELOG `[0.5.0]`）
+- 位置：`cuflash/tests/unit/`（forward/backward/dtype）；本次 freeze `ctest --preset release` 71 collected / 0 failed / 1 skip（pytorch comparison）
+- 关键 commit：`cuflash` v0.5.0 前后向 WMMA 路径（CHANGELOG `[0.5.0]`）
 - 复现命令：
 ```bash
-cd cuflash-attn && cmake --preset release && cmake --build --preset release && ctest --preset release --output-on-failure
+cd cuflash && cmake --preset release && cmake --build --preset release && ctest --preset release --output-on-failure
 ```
 - 口径/限制：skip 的 pytorch 对比本次未跑。head_dim 支持 32/64/128。不是 FA2/FA3 吞吐竞品。
 
 ### E7. grid.y > 65535 的 launch bug 已修复并有回归测试
 - 证据类型：测试 + 代码路径
-- 位置：`cuflash-attn/tests/unit/test_forward.cu:397` `ForwardTest.GridYOverflowSmoke`（B=512,H=128 → 65536）；kernel `src/forward/flash_attention_forward_typed.cu:22`
-- 关键 commit：`cuflash-attn@d144765` `fix(forward): flatten grid.y batch*heads for >65535 launches`
+- 位置：`cuflash/tests/unit/test_forward.cu:397` `ForwardTest.GridYOverflowSmoke`（B=512,H=128 → 65536）；kernel `src/forward/flash_attention_forward_typed.cu:22`
+- 关键 commit：`cuflash@d144765` `fix(forward): flatten grid.y batch*heads for >65535 launches`
 - 复现命令：
 ```bash
-cd cuflash-attn && ctest --preset release -R GridYOverflowSmoke --output-on-failure
+cd cuflash && ctest --preset release -R GridYOverflowSmoke --output-on-failure
 ```
 - 口径/限制：该回归走 FP32 scalar、seq_len=1；不覆盖 WMMA tile 约束。
 
 ### E8. causal 边界块跳过优化实测 ±2%，诚实记录为负结果
 - 证据类型：benchmark 文档
-- 位置：`cuflash-attn/docs/performance/causal-boundary-skip.md:32-41,65-72`
-- 关键 commit：`cuflash-attn@e1735b3` `perf(forward): skip fully-future KV blocks in causal path`
+- 位置：`cuflash/docs/performance/causal-boundary-skip.md:32-41,65-72`
+- 关键 commit：`cuflash@e1735b3` `perf(forward): skip fully-future KV blocks in causal path`
 - 复现命令：
 ```bash
 ./build/release/cuflash_attn_bench --benchmark_filter='Forward_Causal'
@@ -88,11 +88,11 @@ cd cuflash-attn && ctest --preset release -R GridYOverflowSmoke --output-on-fail
 
 ### E9. FlashDecoding / Split-KV 前向已实现并有 benchmark
 - 证据类型：代码路径 + 测试
-- 位置：`cuflash-attn/src/forward/flash_decoding.cu:1`；`tests/unit/test_flash_decoding.cu`（`MatchesCpuReferenceF32` / `ChunkCountInvariant`）；`benchmarks/bench_flash_attention.cu` Split-KV 段
-- 关键 commit：`cuflash-attn@9f65df7` `feat: E3 FlashDecoding (Split-KV) decode 前向`
+- 位置：`cuflash/src/forward/flash_decoding.cu:1`；`tests/unit/test_flash_decoding.cu`（`MatchesCpuReferenceF32` / `ChunkCountInvariant`）；`benchmarks/bench_flash_attention.cu` Split-KV 段
+- 关键 commit：`cuflash@9f65df7` `feat: E3 FlashDecoding (Split-KV) decode 前向`
 - 复现命令：
 ```bash
-cd cuflash-attn && ctest --preset release -R FlashDecoding --output-on-failure
+cd cuflash && ctest --preset release -R FlashDecoding --output-on-failure
 ```
 - 口径/限制：query_len=1 的 decode 路径；不是把整个 FA 训练前向换成 Split-KV。
 
@@ -281,7 +281,7 @@ cd paged-infer && cargo test --test server_integration
 - 复现命令：
 ```bash
 grep -rn "cuda-kernel-academy" --exclude-dir=.git --exclude-dir=build \
-  cuda-foundations triton-fused-ops cuflash-attn tiny-llm paged-infer || true
+  cuda-foundations triton-fused-ops cuflash tiny-llm paged-infer || true
 ```
 - 口径/限制：本 freeze 对上述五仓 **0 命中**。`aicl-lab/docs/organization-audit/` 与根目录 PHASE 计划仍保留旧名作为历史。教学品牌仍可用 “CUDA Kernel Academy”。
 
@@ -298,7 +298,7 @@ grep -rn "cuda-kernel-academy" --exclude-dir=.git --exclude-dir=build \
 ### E29. 性能数字诚信：benchmark 附硬件 / commit / 复现命令
 - 证据类型：文档
 - 位置：tiny-llm README 基准快照；`2026-08-18-decode-optimization.md` 元信息表；cuflash `docs/performance/benchmarks.md` §1.5；triton README「性能基准」；cuda-foundations `docs/en/benchmarks/index.md`
-- 关键 commit：各仓实测回填提交（如 `tiny-llm@6d0471e`、`cuflash-attn` benchmarks 刷新 `6860cbc`）
+- 关键 commit：各仓实测回填提交（如 `tiny-llm@6d0471e`、`cuflash` benchmarks 刷新 `6860cbc`）
 - 复现命令：各归档文件顶部的复现命令
 - 口径/限制：单一硬件 RTX 3060 Laptop。causal skip 负结果也归档（E8）。禁止把计划数字（E22 的 3030/5118）当实测。
 

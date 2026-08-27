@@ -33,7 +33,7 @@
 |------|----------|----------|
 | cuda-foundations | `cmake --preset default && cmake --build --preset default` | `ctest --preset default` |
 | triton-fused-ops | `pip install -e '.[dev]'` | `pytest -q` |
-| cuflash-attn | `cmake --preset release && cmake --build --preset release` | `ctest --preset release --output-on-failure` |
+| cuflash | `cmake --preset release && cmake --build --preset release` | `ctest --preset release --output-on-failure` |
 | tiny-llm | `cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON && cmake --build build -j` | `./build/tiny_llm_tests` |
 | paged-infer | `cargo build` | `cargo test` |
 
@@ -61,12 +61,12 @@
 阶段 B（P0）：基准与对比基线 —— 建立可信数字
   B1. tiny-llm: benchmark 驱动
   B2. tiny-llm: llama.cpp 对比方法论文档
-  B3. cuflash-attn: benchmark 刷新 + 文档更新
+  B3. cuflash: benchmark 刷新 + 文档更新
   B4. triton-fused-ops: GPU benchmark 跑一次
 
 阶段 C（P1）：深度锚点 —— 每个项目的核心叙事
   C1. tiny-llm: CUDA Graphs 或 Speculative Decoding
-  C2. cuflash-attn: 一轮优化迭代（双缓冲/异步拷贝 或 warp 级 softmax 归约）
+  C2. cuflash: 一轮优化迭代（双缓冲/异步拷贝 或 warp 级 softmax 归约）
   C3. triton-fused-ops: Triton SGEMM + torch.library 注册
 
 阶段 D（P1）：跨仓对接与边界文档
@@ -78,7 +78,7 @@
 阶段 E（P2/P3）：收尾
   E1. cuda-foundations 剩余问题修复 ✅（2026-08-18 复核 d880996：build+ctest 209/209 0 失败；04 模块 GPU 测试在本机 skip 属既有环境异常，见执行报告）
   E2. paged-infer: chunked prefill 或优先级调度（选一）✅（2026-08-18, paged-infer@a69b146 选优先级调度）
-  E3. cuflash-attn: FlashDecoding/Split-KV ✅（2026-08-18, cuflash-attn@9f65df7）
+  E3. cuflash: FlashDecoding/Split-KV ✅（2026-08-18, cuflash@9f65df7）
   E4. cuda-foundations 改名 cuda-foundations（可选）✅（2026-08-18：`cuda-kernel-academy` → `cuda-foundations` 全链路改名完成，见 PHASE2_PLAN 任务 B0）
 ```
 
@@ -278,7 +278,7 @@ cmake --build build -j$(nproc)
 
 ---
 
-### 任务 B3：cuflash-attn benchmark 刷新
+### 任务 B3：cuflash benchmark 刷新
 
 **背景**：当前 benchmark 文档是 v0.4.0 快照，需要刷新到当前版本。
 
@@ -352,7 +352,7 @@ python -m pytest tests/benchmarks/ -v
 
 ---
 
-### 任务 C2：cuflash-attn 一轮优化迭代
+### 任务 C2：cuflash 一轮优化迭代
 
 **背景**：当前与 PyTorch SDPA 的比值只有 0.42×–0.67×，需要一轮有数字的优化迭代。
 
@@ -461,25 +461,25 @@ TINY_LLM_DIR=... TINY_LLM_MODEL=... cargo test --features tiny-llm --test tiny_l
 
 1. **cuda-foundations**：
    - IN：CUDA 编程模型、GEMM 优化阶梯、算子库设计、profiling 方法
-   - OUT：生产级推理运行时（见 tiny-llm）、完整 FlashAttention（见 cuflash-attn）、Serving（见 paged-infer）
+   - OUT：生产级推理运行时（见 tiny-llm）、完整 FlashAttention（见 cuflash）、Serving（见 paged-infer）
    - 04-inference-engine 标注为"教学预览，非独立作品"
 
 2. **triton-fused-ops**：
    - IN：Triton 融合算子、autotuner、torch.library 注册、验证方法论
-   - OUT：CUDA C++ kernel 学习（见 cuda-foundations）、完整 FlashAttention（见 cuflash-attn）、模型加载与生成（见 tiny-llm）
-   - FlashAttention kernel 标注为"cuflash-attn 的参考实现"
+   - OUT：CUDA C++ kernel 学习（见 cuda-foundations）、完整 FlashAttention（见 cuflash）、模型加载与生成（见 tiny-llm）
+   - FlashAttention kernel 标注为"cuflash 的参考实现"
 
-3. **cuflash-attn**：
+3. **cuflash**：
    - IN：FlashAttention 前向+反向、多精度、causal mask、FlashDecoding、优化叙事
    - OUT：GEMM 基础（见 cuda-foundations）、Triton 实现（见 triton-fused-ops）、完整推理运行时（见 tiny-llm）
 
 4. **tiny-llm**：
    - IN：GGUF 加载、W8A16 量化推理、KV Cache、tokenizer、采样、端到端生成、性能基准、CUDA Graphs
-   - OUT：调度/批处理/paged KV（见 paged-infer）、FlashAttention 深挖（见 cuflash-attn）、Triton 算子（见 triton-fused-ops）
+   - OUT：调度/批处理/paged KV（见 paged-infer）、FlashAttention 深挖（见 cuflash）、Triton 算子（见 triton-fused-ops）
 
 5. **paged-infer**：
    - IN：Paged KV、continuous batching、准入控制、OpenAI 兼容 API、属性测试
-   - OUT：计算 kernel（见 tiny-llm）、模型加载（见 tiny-llm）、FlashAttention（见 cuflash-attn）
+   - OUT：计算 kernel（见 tiny-llm）、模型加载（见 tiny-llm）、FlashAttention（见 cuflash）
 
 **验收命令**：
 ```bash
@@ -524,7 +524,7 @@ grep -r "教学预览\|tutorial preview\|简化预习" cuda-foundations/04-infer
 
 ### 任务 D4：triton-fused-ops FlashAttention 降级为"参考实现"
 
-**背景**：triton-fused-ops 中的 FlashAttention 应该定位为 cuflash-attn 的参考实现，而非独立交付物。
+**背景**：triton-fused-ops 中的 FlashAttention 应该定位为 cuflash 的参考实现，而非独立交付物。
 
 **改动文件**：
 - `triton-fused-ops/README.md`
@@ -534,15 +534,15 @@ grep -r "教学预览\|tutorial preview\|简化预习" cuda-foundations/04-infer
 
 1. 在 `README.md` 的快速示例和功能描述中，将 FlashAttention 标注为：
    ```markdown
-   > ℹ️ **定位**：Triton FlashAttention 是 [cuflash-attn](https://github.com/open-infra-ai/cuflash-attn)
+   > ℹ️ **定位**：Triton FlashAttention 是 [cuflash](https://github.com/open-infra-ai/cuflash)
    > 的独立参考实现，用于验证 CUDA C++ 版本的正确性。完整 FlashAttention 前后向 +
-   > 优化叙事见 cuflash-attn。
+   > 优化叙事见 cuflash。
    ```
 2. 在 `triton_ops/kernels/flash_attention.py` 的文档字符串中添加同样的说明。
 
 **验收命令**：
 ```bash
-grep -r "参考实现\|reference implementation\|cuflash-attn" triton-fused-ops/README.md triton-fused-ops/triton_ops/kernels/flash_attention.py
+grep -r "参考实现\|reference implementation\|cuflash" triton-fused-ops/README.md triton-fused-ops/triton_ops/kernels/flash_attention.py
 # 期望：两处都有明确标注
 ```
 
@@ -605,7 +605,7 @@ cargo test
 
 ---
 
-### 任务 E3：cuflash-attn FlashDecoding / Split-KV
+### 任务 E3：cuflash FlashDecoding / Split-KV
 
 **背景**：FlashDecoding 是 decode 阶段（query_len=1）的 KV 分块并行 + reduce，是推理加速面试的高频主题。
 
@@ -693,19 +693,19 @@ ctest --preset default
 ### 7.3 阶段 B 全部完成
 
 - [x] tiny-llm: benchmark 驱动 + llama.cpp 对比文档（2026-08-18：bench 复核通过；对比实测 tiny-llm@753d913）
-- [x] cuflash-attn: benchmark 刷新（2026-08-18, cuflash-attn@52c4bfd，RTX 3060 实测 + head_dim=128）
+- [x] cuflash: benchmark 刷新（2026-08-18, cuflash@52c4bfd，RTX 3060 实测 + head_dim=128）
 - [x] triton-fused-ops: GPU benchmark 数字（2026-08-18, triton-fused-ops@b16a4c9，RTX 3060 / torch 2.5.1 / triton 3.1.0 实测）
 
 ### 7.4 阶段 C 至少完成 1 项
 
 - [x] tiny-llm: CUDA Graphs（2026-08-18 复核：gated 差分测试通过，TPOT -6.8%，a2a9c58/efd035a）
-- [x] cuflash-attn: 一轮优化迭代（2026-08-18, PHASE2_NEXT_E E2b：causal 边界块跳过，before/after 见 docs/performance/causal-boundary-skip.md）
+- [x] cuflash: 一轮优化迭代（2026-08-18, PHASE2_NEXT_E E2b：causal 边界块跳过，before/after 见 docs/performance/causal-boundary-skip.md）
 - [x] triton-fused-ops: Triton SGEMM + torch.library（2026-08-18, PHASE2_NEXT_E E1a/E1b：SGEMM 差分测试 + torch.ops.triton_ops.* 注册）
 
 ### 7.5 阶段 D 全部完成
 
 - [x] tiny-llm + paged-infer: 分页 KV 端到端（2026-08-18：策略 1 block_tables + 3 并发 e2e 与 llama.cpp greedy 对齐，资源守恒测试全绿，`phase-2-d` tag）
-- [x] 5 个 README 都有 IN/OUT 边界（2026-08-18：cuda-foundations@3b73d7b, tiny-llm@ef56907, paged-infer@7d10389, cuflash-attn@d9ab221, triton 已有）
+- [x] 5 个 README 都有 IN/OUT 边界（2026-08-18：cuda-foundations@3b73d7b, tiny-llm@ef56907, paged-infer@7d10389, cuflash@d9ab221, triton 已有）
 - [x] 04-inference-engine 降级标注（2026-08-18, cuda-foundations@8483ed3）
 - [x] triton-fused-ops FlashAttention 降级标注（2026-08-18, triton-fused-ops@dbab4e0）
 
@@ -719,7 +719,7 @@ ctest --preset default
 |------|----------|
 | cuda-foundations | "我写的是 GEMM 阶梯，但真正交付的是用测量数据说话的能力" |
 | triton-fused-ops | "CUDA 给我底层控制力，Triton 给我开发速度；我用同一个 GEMM 把两者的工程权衡量化了" |
-| cuflash-attn | "我能手推 online softmax、解释为什么不物化 O(N²)、说出我的实现和 FA2/FA3 每一档差距来自哪里" |
+| cuflash | "我能手推 online softmax、解释为什么不物化 O(N²)、说出我的实现和 FA2/FA3 每一档差距来自哪里" |
 | tiny-llm | "我做的不是低配 llama.cpp，而是一个能精确回答瓶颈在反量化、访存还是 launch 开销的最小运行时" |
 | paged-infer | "计算面（P4）和控制面（P5）通过一个最小 FFI 契约解耦，这本身就是 AI Infra 的分层意识" |
 
@@ -741,7 +741,7 @@ ctest --preset default
 ```
 第 1 周：A1 → A2 → A3 → A4（tiny-llm P0 正确性）
 第 2 周：A5（paged-infer P0 修复包，T0-T8）
-第 3 周：B1 → B2（tiny-llm benchmark） + B3 → B4（cuflash-attn + triton benchmark）
+第 3 周：B1 → B2（tiny-llm benchmark） + B3 → B4（cuflash + triton benchmark）
 第 4 周：C1 或 C2 或 C3（选一个深度锚点）
 第 5 周：D1 → D2 → D3 → D4（边界文档与跨仓对接）
 第 6 周：E1 → E2 → E3 → E4（收尾，可选）
@@ -758,7 +758,7 @@ ctest --preset default
 | cuda-foundations | `DEV_PLAN.md` | T1-T12（剩余修复 + 基准 + 工程化） |
 | tiny-llm | `DEVELOPMENT_PLAN.md` | 阶段 1-4（半成品收尾 + benchmark + CUDA Graphs + 工程完整性） |
 | paged-infer | `DEVELOPMENT_PLAN.md` | T0-T13（P0 正确性 + P1 补全 + P2 冻结） |
-| cuflash-attn | `ROADMAP.md` | 阶段 1-4（数据刷新 + 优化迭代 + 推理扩展 + 输出沉淀） |
+| cuflash | `ROADMAP.md` | 阶段 1-4（数据刷新 + 优化迭代 + 推理扩展 + 输出沉淀） |
 | triton-fused-ops | `ROADMAP.md` | 面试前建议 + 可选扩展 + 明确不做 |
 
 本 `MASTER_PLAN.md` 是跨仓库的总协调文档。各仓库的 DEV_PLAN/ROADMAP 是具体任务的详细执行说明。执行时，**先看本 MASTER_PLAN 确定优先级和顺序，再到对应仓库的 DEV_PLAN 中查看具体实施步骤**。

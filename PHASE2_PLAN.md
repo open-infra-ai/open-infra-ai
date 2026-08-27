@@ -34,7 +34,7 @@
 │     cuda-foundations        CUDA C++ 基础与测量（改名自 cuda-foundations）
 │     triton-fused-ops        Triton 算子与 PyTorch 集成
 ├─ 层 2  Kernel 深度层
-│     cuflash-attn            FlashAttention 唯一 owner
+│     cuflash            FlashAttention 唯一 owner
 ├─ 层 3  Runtime 运行时层
 │     tiny-llm                单 GPU 推理运行时（量化 decode 性能为锚点）
 └─ 层 4  Serving 控制面层
@@ -71,7 +71,7 @@
 | 文档站 base | `/cuda-foundations/` | `/cuda-foundations/` |
 | npm 包名 | `cuda-foundations-docs`（或现值） | `cuda-foundations-docs` |
 
-**不变**：org 名 `AICL-Lab`；其余四仓名 `triton-fused-ops`、`cuflash-attn`、`tiny-llm`、`paged-infer` 全部不变。
+**不变**：org 名 `AICL-Lab`；其余四仓名 `triton-fused-ops`、`cuflash`、`tiny-llm`、`paged-infer` 全部不变。
 
 ---
 
@@ -83,13 +83,13 @@
 |---|---|---|
 | cuda-foundations | `01-sgemm-tutorial`、`02-tensorcraft-core`、`03-hpc-advanced`、`04-inference-engine`（教学预览）、`common/`、`docs/`、GEMM/算子的**教学实现** | 真实 GGUF/量化 runtime；生产 FlashAttention；调度器 |
 | triton-fused-ops | `triton_ops/kernels/`、`reference/`、`autotuner/`、`benchmark/`、`tests/`；**Triton FA 只作为 cuflash 的参考实现** | CUDA C++ FA；完整模型加载；Serving |
-| cuflash-attn | `src/forward/`、`src/backward/`、`src/kernels/`、FlashDecoding、FA 前后向算法与优化 | GEMM 教程；Triton 教学；推理运行时；调度 |
+| cuflash | `src/forward/`、`src/backward/`、`src/kernels/`、FlashDecoding、FA 前后向算法与优化 | GEMM 教程；Triton 教学；推理运行时；调度 |
 | tiny-llm | `kernels/`、`src/`（GGUF/tokenizer/量化/transformer/KV/采样/bench/ffi）、`include/`；单 GPU 运行时与 C ABI | 调度/批处理/paged 控制面（paged-infer）；FA 教学 |
 | paged-infer | `src/`（scheduler/kv_cache/server/executor）、`tests/`、`benches/`；控制面与后端 trait | 任何 CUDA kernel；模型加载/tokenizer 实现 |
 
 ### 2.2 跨仓规则（面试时会被追问，文档也要写清）
 
-1. **一个算法一个权威 owner**：FlashAttention → cuflash-attn；量化反量化 GEMM → tiny-llm；Paged KV 控制面 → paged-infer；GEMM 教学阶梯 → cuda-foundations。
+1. **一个算法一个权威 owner**：FlashAttention → cuflash；量化反量化 GEMM → tiny-llm；Paged KV 控制面 → paged-infer；GEMM 教学阶梯 → cuda-foundations。
 2. **同题异构允许**：同一 GEMM 分别在 cuda-foundations（CUDA C++）与 triton-fused-ops（Triton）出现，但 README 必须互相指向，并说明对比结论。
 3. **跨仓只通过窄 ABI**：paged-infer ↔ tiny-llm 只允许走 `ffi.h` / `tiny_llm_ffi.rs` 的 C ABI，禁止 include 对方头文件。
 4. **共享的是契约和 fixture，不是源码**：layout/RoPE/KV 语义以 `docs/organization-audit/.../03-cross-repo-contracts.md` 为准；测试向量用 JSON/NPZ 文件，不复制实现代码。
@@ -104,7 +104,7 @@
 | R3 tiny-llm FFI v2 分页 KV | ✅ 做（P1，旗舰） | 完成 D1 的唯一正确方式，mini-vLLM 叙事闭环 |
 | R4 paged-infer executor 策略 1 | ✅ 做（P1） | 配合 R3；策略 2 保留为 fallback feature |
 | R5 triton-fused-ops 脏文件 commit/revert | ✅ 做（P0） | 工作区有未提交改动，先定性再处理 |
-| R6 cuflash-attn 脏文件 commit/revert | ✅ 做（P0） | 同上 |
+| R6 cuflash 脏文件 commit/revert | ✅ 做（P0） | 同上 |
 | R7 把 triton-fused-ops 物理合入 cuda-foundations | ❌ 不做 | 见 1.2 |
 | R8 把 04-inference-engine 代码搬进 tiny-llm | ❌ 不做 | 04 是教学预览，搬迁引入无用耦合；保持文档边界即可 |
 | R9 paged-infer 改 C++ | ❌ 不做 | Rust + C ABI 是加分项，不是负担 |
@@ -118,7 +118,7 @@
 阶段 A（P0）：仓库卫生 + 恢复绿构建 —— 先让每个仓库在 GitHub 上干净可见
   A0 修复 tiny-llm 4.3 WIP（完成 execution_common 重构）   ← 阻塞一切
   A1 处置 triton-fused-ops 未提交改动
-  A2 处置 cuflash-attn 未提交改动
+  A2 处置 cuflash 未提交改动
   A3 推送全部 unpushed commits + 打 phase-1 基线 tag
   出口门槛：五个仓库 git status clean，远端领先，CI/本地测试全绿
 
@@ -148,7 +148,7 @@
 
 阶段 E（P2，有余力）：作品集收尾
   E1 triton-fused-ops：Triton SGEMM + torch.library 注册（补 MASTER_PLAN C3）
-  E2 cuflash-attn：一轮有数字的优化迭代（补 MASTER_PLAN C2）
+  E2 cuflash：一轮有数字的优化迭代（补 MASTER_PLAN C2）
   E3 组织级 landing README（新建 meta 仓，可选）
   E4 各仓 release tag + README badge 校验
 ```
@@ -225,7 +225,7 @@ git status --short     # 干净
 
 ---
 
-### 任务 A2：处置 cuflash-attn 未提交改动（P0）
+### 任务 A2：处置 cuflash 未提交改动（P0）
 
 **现状**：11 个 docs 修改 + 1 个未跟踪 `PLAN.md`。
 
@@ -261,7 +261,7 @@ git status --short                            # 干净
 
 **验收**：
 ```bash
-for d in cuda-foundations triton-fused-ops cuflash-attn tiny-llm paged-infer; do
+for d in cuda-foundations triton-fused-ops cuflash tiny-llm paged-infer; do
   (cd "$d" && echo "== $d ==" && git status -sb && git log origin/master..HEAD --oneline | wc -l)
 done
 # 期望：每个仓库 ahead 0，status 干净
@@ -362,7 +362,7 @@ cd docs && npm run build 2>/dev/null || npm run docs:build   # 按仓库 package
 
 ### 任务 B4：跨仓链接更新
 
-**范围（已核实）**：`paged-infer/README.md`、`tiny-llm/README.md`、`cuflash-attn/README.md`、`triton-fused-ops/README.md`、`triton-fused-ops/triton_fused_ops.egg-info/PKG-INFO`、根 `MASTER_PLAN.md`、`docs/organization-audit/**`。
+**范围（已核实）**：`paged-infer/README.md`、`tiny-llm/README.md`、`cuflash/README.md`、`triton-fused-ops/README.md`、`triton-fused-ops/triton_fused_ops.egg-info/PKG-INFO`、根 `MASTER_PLAN.md`、`docs/organization-audit/**`。
 
 **规则**：
 1. 把所有 `github.com/open-infra-ai/cuda-foundations` 替换为 `github.com/open-infra-ai/cuda-foundations`。
@@ -595,7 +595,7 @@ TINY_LLM_DIR=... TINY_LLM_MODEL=... cargo test --features tiny-llm --test concur
 - ✅ README 增加"torch.library 自定义算子"小节（含与 vLLM/SGLang custom op 的对应关系）。
 - 提交：`feat(triton): SGEMM kernel with differential tests` / `feat(torch): register custom ops via torch.library`
 
-### E2 cuflash-attn：一轮有数字的优化（补 MASTER_PLAN C2）
+### E2 cuflash：一轮有数字的优化（补 MASTER_PLAN C2）
 
 - ✅ E2a 修复 forward/backward `grid.y = batch*heads` 在 B*H > 65535 时 launch 非法：
   grid 展平到 x 维；回归测试 `ForwardTest.GridYOverflowSmoke`（B*H=65536）。
@@ -615,7 +615,7 @@ TINY_LLM_DIR=... TINY_LLM_MODEL=... cargo test --features tiny-llm --test concur
 
 ### E4 release tag 与 badge 校验
 
-- ✅ 五仓打并推送 `phase-2-e` tag（cuda-foundations / triton-fused-ops / cuflash-attn /
+- ✅ 五仓打并推送 `phase-2-e` tag（cuda-foundations / triton-fused-ops / cuflash /
   tiny-llm / paged-infer）。
 - ✅ 终检：旧名 `cuda-kernel-academy` 在实时内容 0 命中（计划文档与审计归档除外）；
   六仓 GitHub 可见无 MISSING；五个 README 链接全 200。

@@ -22,7 +22,7 @@ Numbers only from [`NUMBERS_CARD.md`](NUMBERS_CARD.md). Each bullet ≤25 words,
 2. Fixed TRIT-001: RoPE uses Llama/Qwen half-split concat, not repeat_interleave. → E4
 3. Registered `torch.ops.triton_ops.*`; compile smoke is an honest skip, not a pass. → E5
 
-## cuflash-attn (3)
+## cuflash (3)
 
 1. Multi-dtype FA fwd/bwd diffs; flattened grid.y for B×H>65535 with a smoke test. → E7
 2. Causal boundary-block skip measured ±2% and documented as a negative result. → E8

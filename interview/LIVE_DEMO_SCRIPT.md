@@ -11,7 +11,7 @@
 
 ```bash
 cd /home/shane/github/aicl
-for d in cuda-foundations triton-fused-ops cuflash-attn tiny-llm paged-infer aicl-lab; do
+for d in cuda-foundations triton-fused-ops cuflash tiny-llm paged-infer aicl-lab; do
   (cd $d && echo "== $d ==" && git status -sb && git log --oneline -1 && git tag --points-at HEAD)
 done
 ```

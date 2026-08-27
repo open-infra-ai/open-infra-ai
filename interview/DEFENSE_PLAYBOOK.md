@@ -33,7 +33,7 @@
 ### D4. cuflash causal skip 只有 ±2%（负结果）
 - 面试官最可能怎么问：你这个 causal 优化提升多少？是不是越界优化很成功？
 - 10 秒承认口径：不是成功优化；实测 256–4096 变化约 +1.2% 到 −1.9%，低于 10% 阈值，是噪声级负结果。
-- 证据式回答：`cuflash-attn/docs/performance/causal-boundary-skip.md:32-41,65-72` 有 before/after 表；关键 commit `cuflash-attn@e1735b3`。保留改动是因为语义自文档化与减少无效访存，不是因为加速。`EVIDENCE_MATRIX.md` E8 和 `NUMBERS_CARD.md` §4 都按负结果记录。
+- 证据式回答：`cuflash/docs/performance/causal-boundary-skip.md:32-41,65-72` 有 before/after 表；关键 commit `cuflash@e1735b3`。保留改动是因为语义自文档化与减少无效访存，不是因为加速。`EVIDENCE_MATRIX.md` E8 和 `NUMBERS_CARD.md` §4 都按负结果记录。
 - 绝对不能说：我们做了 causal 优化所以更快；±2% 是显著收益。
 - 追问 1：为什么不回滚？ → 回滚省不下可测延迟，还会丢掉对无效访存的回归锁；文档已写明“增益低于噪声”。
 - 追问 2：那主路径原来不是已经有 break 吗？ → 是，旧路径已跳过大部分未来块；新 skip 只覆盖旧 break 没处理的边界块，所以增量很小。
