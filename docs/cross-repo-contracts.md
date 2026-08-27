@@ -3,7 +3,7 @@
 > 本文是组织级语义契约的 **live 版本**，派生自只读审计快照
 > [`docs/organization-audit/2026-08-13/03-cross-repo-contracts.md`](organization-audit/2026-08-13/03-cross-repo-contracts.md)。
 > 快照记录当时事实，不改写；契约演进在本文进行。
-> 与审计快照的差异：§10 Backend 边界已按实际决策落地为 tiny-llm ⇄ paged-infer
+> 与审计快照的差异：§10 Backend 边界已按实际决策落地为 tiny-llm ⇄ paged-serving
 > 的 C ABI 双源契约（见 §10.1）。
 
 ## 1. 目的
@@ -187,11 +187,11 @@ metrics()
 
 ### 10.1 已落地决策：C ABI 双源契约（ABI v2）
 
-tiny-llm（数据面）与 paged-infer（控制面）采用**同进程 C ABI 静态链接**：
+tiny-llm（数据面）与 paged-serving（控制面）采用**同进程 C ABI 静态链接**：
 
 - 契约双源：[`tiny-llm/include/tiny_llm/ffi.h`](https://github.com/open-infra-ai/tiny-llm/blob/master/include/tiny_llm/ffi.h)
-  ⇄ [`paged-infer/src/tiny_llm_ffi.rs`](https://github.com/open-infra-ai/paged-infer/blob/master/src/tiny_llm_ffi.rs)。
-- `TinyLlmConfig` 为 9 个 int 的 repr(C) 布局；paged-infer 侧有布局守卫测试
+  ⇄ [`paged-serving/src/tiny_llm_ffi.rs`](https://github.com/open-infra-ai/paged-serving/blob/master/src/tiny_llm_ffi.rs)。
+- `TinyLlmConfig` 为 9 个 int 的 repr(C) 布局；paged-serving 侧有布局守卫测试
   （`size_of == 9*4`）锁定一致性。
 - 分页 KV 策略 1（block_tables + scatter/gather）为默认路径；
   `max_num_blocks == 0` 表示策略 2。
@@ -203,7 +203,7 @@ tiny-llm（数据面）与 paged-infer（控制面）采用**同进程 C ABI 静
   从 `((s * logprobs_k + j) * 2)` 开始，依次存储以 `float` 表示的 `token_id` 与
   `logprob`。`logprobs_k < 0`、超过词表大小或请求输出但缓冲区为空均为参数错误。
 - 差分验证：`tiny-llm/tests/test_ffi.cpp`（策略 1 vs 策略 2 逐 token 差分）、
-  `paged-infer/tests/tiny_llm_backend.rs`、`paged-infer/tests/tiny_llm_text_e2e.rs`。
+  `paged-serving/tests/tiny_llm_backend.rs`、`paged-serving/tests/tiny_llm_text_e2e.rs`。
 
 ## 11. 契约变更规则
 

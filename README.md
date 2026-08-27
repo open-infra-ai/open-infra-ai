@@ -15,7 +15,7 @@
 | L1 Triton 算子 | [triton-fused-ops](https://github.com/open-infra-ai/triton-fused-ops) | 精简 Triton 算子库（RMSNorm+RoPE / SwiGLU / FlashAttention / SGEMM）+ torch.library 注册 | stable |
 | L1 Attention | [cuflash](https://github.com/open-infra-ai/cuflash) | 从零实现的 CUDA C++ FlashAttention 前后向（FP16/BF16 WMMA + FlashDecoding） | stable |
 | L2 推理引擎 | [tiny-llm](https://github.com/open-infra-ai/tiny-llm) | CUDA 原生 C++ 推理引擎（GGUF / W8A16 / 分页 KV 策略 1），导出 C ABI | active |
-| L3 控制面 | [paged-infer](https://github.com/open-infra-ai/paged-infer) | PagedAttention 分页 KV + Continuous Batching 的推理控制面（Rust），经 C ABI 接 tiny-llm | active |
+| L3 控制面 | [paged-serving](https://github.com/open-infra-ai/paged-serving) | PagedAttention 分页 KV + Continuous Batching 的推理控制面（Rust），经 C ABI 接 tiny-llm | active |
 
 **状态语义**：`active` = 学习/演进中；`stable` = 作品完成，只修正确性 bug 与文档；
 `archived` = 不再维护。状态以本表为唯一权威注册表，与各仓 README 状态行、
@@ -26,7 +26,7 @@ GitHub topics 三处同步。
 1. **cuda-foundations**（基础）→ 2. **triton-fused-ops**（Triton 表达同一批算子）→
    3. **cuflash**（FlashAttention 前后向深挖）→
    4. **tiny-llm**（模型加载 + 推理内核 + 分页 KV 策略 1）→
-   5. **paged-infer**（分页调度 / continuous batching / HTTP 控制面，接 tiny-llm 真实后端）。
+   5. **paged-serving**（分页调度 / continuous batching / HTTP 控制面，接 tiny-llm 真实后端）。
 
 完整方法论（优化循环、不变量测试、阶段完成标准）见本仓
 [`LEARNING_PATH.md`](LEARNING_PATH.md)——组织级导航的唯一权威入口。
@@ -34,7 +34,7 @@ GitHub topics 三处同步。
 ## 跨仓契约
 
 - **ABI 契约（代码双源）**：[`tiny-llm/include/tiny_llm/ffi.h`](https://github.com/open-infra-ai/tiny-llm/blob/master/include/tiny_llm/ffi.h)
-  ⇄ [`paged-infer/src/tiny_llm_ffi.rs`](https://github.com/open-infra-ai/paged-infer/blob/master/src/tiny_llm_ffi.rs)
+  ⇄ [`paged-serving/src/tiny_llm_ffi.rs`](https://github.com/open-infra-ai/paged-serving/blob/master/src/tiny_llm_ffi.rs)
   （repr(C) 布局守卫测试即一致性检查）。
 - **语义契约（12 条）**：维度命名 / 布局 / GQA / RoPE / KV 事务语义 / 采样顺序等，
   live 版见 [`docs/cross-repo-contracts.md`](docs/cross-repo-contracts.md)。
@@ -47,7 +47,7 @@ GitHub topics 三处同步。
   [完整限制](https://github.com/open-infra-ai/tiny-llm/blob/master/docs/performance/results/2026-08-23-cuda-graphs-ab.md)
   已归档，TTFT 不作改善声明。当前 **193 项测试通过**；分页 KV（策略 1）与连续 KV
   逐 token 差分一致。
-- **paged-infer**：**3 并发分页请求 e2e 与 llama.cpp greedy 对齐**（请求 1 全序列
+- **paged-serving**：**3 并发分页请求 e2e 与 llama.cpp greedy 对齐**（请求 1 全序列
   严格一致；请求 2 的 `equals`/`is` 为 W8A16 vs Q4_K_M 量化 argmax 边界翻转，
   已诚实记录为"前缀一致 + EOS 终止 + 分歧注释"，不伪造全序列一致）；
   默认测试当前 **232 项通过**。真实 GPU serving 吞吐报告仍是待补证据，不用 CPU
@@ -70,7 +70,7 @@ GitHub topics 三处同步。
    M==1 GEMM、CUDA Graphs 与可复现的端到端指标。
 2. **专项深挖：cuflash** —— 用来证明 CUDA kernel、online softmax、
    Tensor Core、数值正确性和 profiling 深度。
-3. **系统扩展：paged-infer** —— 用来证明 Paged KV、continuous batching、
+3. **系统扩展：paged-serving** —— 用来证明 Paged KV、continuous batching、
    调度不变量、HTTP/SSE 与服务评测方法；不把它包装成低层 kernel 加速项目。
 4. `cuda-foundations` 与 `triton-fused-ops` 是基础与横向对照证据，不与主项目争夺叙事中心。
 

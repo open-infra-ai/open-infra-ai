@@ -24,9 +24,9 @@
 | `triton-fused-ops` | Triton 算子与 `torch.library` 集成对照 | CUDA 专项实现的重复副本 |
 | `cuflash` | FlashAttention/FlashDecoding CUDA 专项深挖 | `tiny-llm` 的 generate 路径 |
 | `tiny-llm` | 真实权重加载、量化、decode、KV 与端到端推理加速 | HTTP 调度控制面 |
-| `paged-infer` | Paged KV、continuous batching、调度、HTTP/SSE 与 serving 评测 | 重复实现模型算子与权重加载 |
+| `paged-serving` | Paged KV、continuous batching、调度、HTTP/SSE 与 serving 评测 | 重复实现模型算子与权重加载 |
 
-`tiny-llm` 与 `paged-infer` 只通过受测试的 C ABI 集成；`cuflash` 不接入
+`tiny-llm` 与 `paged-serving` 只通过受测试的 C ABI 集成；`cuflash` 不接入
 `tiny-llm` generate 路径。技术仓名称已经被简历和证据引用，保持冻结，不做大规模重命名。
 
 ## 3. 个人执行仓：`holtwood/ai-infra-interview-prep`
@@ -52,7 +52,7 @@
 
 - 推理加速主线：`tiny-llm`；
 - CUDA 专项深度：`cuflash`；
-- Serving/调度扩展：`paged-infer`；
+- Serving/调度扩展：`paged-serving`；
 - 基础与跨语言对照：`cuda-foundations`、`triton-fused-ops`。
 
 五仓共同组成能力链，但简历不要把五仓平铺成五个同等重要项目。主项目讲深，另外两项作为
