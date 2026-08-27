@@ -163,7 +163,7 @@ cd /home/shane/github/aicl/triton-fused-ops
 cd /home/shane/github/aicl/cuflash
 cmake --preset release && cmake --build --preset release
 ctest --preset release --output-on-failure   # 69 + 新增测试
-./build/release/cuflash_attn_bench --benchmark_filter='GridYOverflow|Forward'
+./build/release/cuflash_bench --benchmark_filter='GridYOverflow|Forward'
 ```
 
 **提交**：`fix(forward): flatten grid.y batch*heads for >65535 launches`
@@ -189,15 +189,15 @@ ctest --preset release --output-on-failure   # 69 + 新增测试
    - 新增非对称形状测试（seq_len=257，非整 tile 边界）确保 `q_last` 计算正确。
 5. 实测 benchmark（FP16，causal vs non-causal，N=256/512/1024/2048，head_dim=64）：
    ```bash
-   ./build/release/cuflash_attn_bench --benchmark_filter='Forward_Causal'
-   ./build/release/cuflash_attn_bench --benchmark_filter='Forward_FP16'
+   ./build/release/cuflash_bench --benchmark_filter='Forward_Causal'
+   ./build/release/cuflash_bench --benchmark_filter='Forward_FP16'
    ```
 6. 把 before/after 表写入 `docs/performance/`（快照版本+日期+硬件+commit）；如果提升 <10%，保留改动（数值不回归）并在文档写明"增益低于噪声，主要价值是减少无效访存"。
 
 **验收**：
 ```bash
 ctest --preset release --output-on-failure
-./build/release/cuflash_attn_bench --benchmark_filter='Forward'
+./build/release/cuflash_bench --benchmark_filter='Forward'
 # 期望：causal FP16 各长度有可测下降；所有测试全绿
 ```
 

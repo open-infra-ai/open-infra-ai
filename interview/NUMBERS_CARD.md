@@ -44,7 +44,7 @@ README 快照 commit 写成 `f897084`，命令 `--iters 10`；decode-optimizatio
 
 硬件/commit：`docs/performance/benchmarks.md` §1.5，commit `6860cbc`，batch=1 heads=8，CUDA Event 中位数。
 
-复现：`cmake --preset release && cmake --build --preset release && ./build/release/cuflash_attn_bench`
+复现：`cmake --preset release && cmake --build --preset release && ./build/release/cuflash_bench`
 
 **Forward 非 causal（ms）** — benchmarks.md 本机快照表：
 

@@ -291,7 +291,7 @@ cmake --build build -j$(nproc)
 1. 在可用的 GPU 上运行现有 benchmark：
    ```bash
    cmake --preset release && cmake --build --preset release
-   ./build/release/cuflash_attn_bench
+   ./build/release/cuflash_bench
    ```
 2. 记录输出，更新 `docs/performance/benchmarks.md` 中的数字和日期。
 3. 补充 `head_dim=128` 的 benchmark 数据（如果当前只覆盖了 `head_dim=64`）。
@@ -300,7 +300,7 @@ cmake --build build -j$(nproc)
 **验收命令**：
 ```bash
 cmake --preset release && cmake --build --preset release
-./build/release/cuflash_attn_bench
+./build/release/cuflash_bench
 # 期望：benchmark 正常运行，输出数字
 ```
 
@@ -374,7 +374,7 @@ python -m pytest tests/benchmarks/ -v
 **验收命令**：
 ```bash
 cmake --preset release && cmake --build --preset release
-./build/release/cuflash_attn_bench --benchmark_filter=Forward
+./build/release/cuflash_bench --benchmark_filter=Forward
 # 期望：优化后 benchmark 数字有提升
 ```
 
@@ -625,7 +625,7 @@ cargo test
 **验收命令**：
 ```bash
 cmake --preset release && cmake --build --preset release
-./build/release/cuflash_attn_bench --benchmark_filter=Decode
+./build/release/cuflash_bench --benchmark_filter=Decode
 # 期望：FlashDecoding 测试通过，benchmark 有数字
 ```
 

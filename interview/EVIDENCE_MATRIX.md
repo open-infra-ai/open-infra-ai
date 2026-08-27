@@ -82,7 +82,7 @@ cd cuflash && ctest --preset release -R GridYOverflowSmoke --output-on-failure
 - 关键 commit：`cuflash@e1735b3` `perf(forward): skip fully-future KV blocks in causal path`
 - 复现命令：
 ```bash
-./build/release/cuflash_attn_bench --benchmark_filter='Forward_Causal'
+./build/release/cuflash_bench --benchmark_filter='Forward_Causal'
 ```
 - 口径/限制：FP32 causal 256–4096 变化约 +1.2% 到 −1.9%，低于 10% 阈值。文档写明「增益低于噪声」。保留改动是因为语义自文档化与无效访存，**不是因为加速了**。
 

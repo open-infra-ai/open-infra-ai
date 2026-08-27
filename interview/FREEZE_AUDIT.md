@@ -63,7 +63,7 @@ cmake --preset release && cmake --build --preset release -j$(nproc) && ctest --p
 
 - 墙钟：25.3 s
 - **100% tests passed, 0 tests failed out of 71**
-- 1 skipped：`cuflash_attn_pytorch_comparison`（did not run）
+- 1 skipped：`cuflash_pytorch_comparison`（did not run）
 - 70 项执行通过
 
 ### 3.4 tiny-llm
