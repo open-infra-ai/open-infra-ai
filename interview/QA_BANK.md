@@ -462,7 +462,7 @@
 - 一句话答案：paged-serving 控制面持有；策略 1 经 FFI 上传扁平表和每序列 `num_blocks`。
 - 展开（3–5 点）：
   - tiny-llm 按表 scatter/gather，不自己做调度。
-  - 策略 2：`PAGED_INFER_TINY_LLM_STRATEGY=2`，`max_num_blocks=0`。
+  - 策略 2：`PAGED_SERVING_TINY_LLM_STRATEGY=2`，`max_num_blocks=0`。
   - 默认策略 1（ROADMAP 已勾选）。
 - 证据：E19、E20
 - 追问 1：扁平表越界怎么办？ → 由 runtime 校验；布局错误会在 Rust 守卫或 GPU 差分爆，不允许静默。

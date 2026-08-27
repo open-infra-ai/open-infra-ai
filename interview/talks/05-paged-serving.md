@@ -58,5 +58,5 @@ HOL：大 prefill 排在队头时，后面的小请求不能饿死。回归 `tes
 6. 没有抢占会怎样？ → 高优先级来了也不能踢人；内存满则拒。
 7. 3 并发等于生产并发？ → 不等于；是正确性 fixture。
 8. 为什么 Rust？ → 见 cross-cutting。
-9. 策略 2 还在吗？ → `PAGED_INFER_TINY_LLM_STRATEGY=2`。
+9. 策略 2 还在吗？ → `PAGED_SERVING_TINY_LLM_STRATEGY=2`。
 10. 本次 freeze 跑过 e2e 吗？ → 没有；要 `--features tiny-llm`。

@@ -56,7 +56,7 @@ Landing：<https://github.com/open-infra-ai/aicl-lab>。五仓 `phase-2-e` 钉�
 ### ② 分页 KV：策略 2 连续 KV → ABI v2 策略 1
 
 - **Before**：FFI 只能连续 KV；paged-serving 的 block table 传了也不生效。
-- **改动**：`TinyLlmConfig` 第 9 个 int `max_num_blocks`；`tinyllm_step` 增加 `block_tables`/`num_blocks`（`be8984e` / `050c80a`）。Rust `sizeof == 9*4` 布局守卫。默认策略 1，`PAGED_INFER_TINY_LLM_STRATEGY=2` 回退。
+- **改动**：`TinyLlmConfig` 第 9 个 int `max_num_blocks`；`tinyllm_step` 增加 `block_tables`/`num_blocks`（`be8984e` / `050c80a`）。Rust `sizeof == 9*4` 布局守卫。默认策略 1，`PAGED_SERVING_TINY_LLM_STRATEGY=2` 回退。
 - **After**：`FFITest.PagedKVStrategyMatchesContiguous` 真模型逐 token 一致；3 并发 e2e 请求 1 全序列 24 id 对齐 llama.cpp（`9c3700b`）。
 - **代价**：scatter/gather 多一次显存往返；分页路径未接 CUDA Graphs。不要背 3030 vs 5118 MiB（无归档）。
 
