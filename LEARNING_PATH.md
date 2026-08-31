@@ -7,7 +7,7 @@
 | 阶段 | 主仓 | 需要掌握的能力 | 完成证据 |
 |---|---|---|---|
 | 1. CUDA 基础 | `cuda-foundations` | 内存层次、线程组织、归约、GEMM、profiling | kernel 与 CPU/库参考结果一致，并有基准数据 |
-| 2. Triton 算子 | `triton-fused-ops` | block 设计、融合、在线 softmax、输入契约 | Triton 与 PyTorch/NumPy 参考实现一致 |
+| 2. Triton 算子 | `trifuse` | block 设计、融合、在线 softmax、输入契约 | Triton 与 PyTorch/NumPy 参考实现一致 |
 | 3. 专项深挖 | `cuflash` | FlashAttention 前后向、数值稳定性、性能分析 | 多精度与 causal/non-causal 正确性测试 |
 | 4. 推理运行时 | `tiny-llm` | 模型加载、Tensor、算子编排、采样、token 生成 | 真实模型从权重加载到生成 token 的端到端测试 |
 | 5. Serving 控制面 | `paged-serving` | Paged KV、continuous batching、限流、取消、指标 | 分页 KV 已启用：`tiny-llm` 策略 1（block_tables）3 并发 e2e 与 llama.cpp 逐 token 对齐 + 资源守恒（`paged-serving/tests/tiny_llm_text_e2e.rs::qwen2_three_concurrent_paged_requests_match_llama_cpp`） |

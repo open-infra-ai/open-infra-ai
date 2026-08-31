@@ -12,7 +12,7 @@
 | 层 | 仓库 | 一句话定位 | 状态 |
 |----|------|-----------|------|
 | L1 CUDA 基础 | [cuda-foundations](https://github.com/open-infra-ai/cuda-foundations) | 从 SGEMM 到可复用推理组件的系统性 CUDA 算子工程学习路径 | active |
-| L1 Triton 算子 | [triton-fused-ops](https://github.com/open-infra-ai/triton-fused-ops) | 精简 Triton 算子库（RMSNorm+RoPE / SwiGLU / FlashAttention / SGEMM）+ torch.library 注册 | stable |
+| L1 Triton 算子 | [trifuse](https://github.com/open-infra-ai/trifuse) | 精简 Triton 算子库（RMSNorm+RoPE / SwiGLU / FlashAttention / SGEMM）+ torch.library 注册 | stable |
 | L1 Attention | [cuflash](https://github.com/open-infra-ai/cuflash) | 从零实现的 CUDA C++ FlashAttention 前后向（FP16/BF16 WMMA + FlashDecoding） | stable |
 | L2 推理引擎 | [tiny-llm](https://github.com/open-infra-ai/tiny-llm) | CUDA 原生 C++ 推理引擎（GGUF / W8A16 / 分页 KV 策略 1），导出 C ABI | active |
 | L3 控制面 | [paged-serving](https://github.com/open-infra-ai/paged-serving) | PagedAttention 分页 KV + Continuous Batching 的推理控制面（Rust），经 C ABI 接 tiny-llm | active |
@@ -23,7 +23,7 @@ GitHub topics 三处同步。
 
 ## 阅读顺序
 
-1. **cuda-foundations**（基础）→ 2. **triton-fused-ops**（Triton 表达同一批算子）→
+1. **cuda-foundations**（基础）→ 2. **trifuse**（Triton 表达同一批算子）→
    3. **cuflash**（FlashAttention 前后向深挖）→
    4. **tiny-llm**（模型加载 + 推理内核 + 分页 KV 策略 1）→
    5. **paged-serving**（分页调度 / continuous batching / HTTP 控制面，接 tiny-llm 真实后端）。
@@ -55,7 +55,7 @@ GitHub topics 三处同步。
 - **cuflash**：FlashAttention 前后向 FP32/FP16/BF16，FP16/BF16 前向接 WMMA；
   修复 grid.y 65535 越界（B*H>65535 回归测试）并加入 causal 边界块跳过优化；
   RTX 3060 Laptop 当前 **81/81 项测试通过**（可选 PyTorch 集成 1 项跳过）。
-- **triton-fused-ops**：Triton SGEMM + `torch.library`（`torch.ops.triton_ops.*`）
+- **trifuse**：Triton SGEMM + `torch.library`（`torch.ops.trifuse.*`）
   注册三个自定义算子；CPU-only **57 passed / 66 skipped**，RTX 3060 Laptop
   **123/123 passed**。
 - **cuda-foundations**：SGEMM 与推理组件教学阶梯；RTX 3060 Laptop 当前
@@ -72,7 +72,7 @@ GitHub topics 三处同步。
    Tensor Core、数值正确性和 profiling 深度。
 3. **系统扩展：paged-serving** —— 用来证明 Paged KV、continuous batching、
    调度不变量、HTTP/SSE 与服务评测方法；不把它包装成低层 kernel 加速项目。
-4. `cuda-foundations` 与 `triton-fused-ops` 是基础与横向对照证据，不与主项目争夺叙事中心。
+4. `cuda-foundations` 与 `trifuse` 是基础与横向对照证据，不与主项目争夺叙事中心。
 
 ## 求职与面试执行
 
