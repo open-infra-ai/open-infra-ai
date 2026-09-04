@@ -1,32 +1,54 @@
-# open-infra-ai · AI Infra 学习作品集
+# open-infra-ai · AI Infra 系统作品集
 
-> **AI Infra 工程学习作品集**：从 CUDA 内核到推理 serving 的完整能力链，
-> 每个作品都有独立参考实现与差分验证。本仓是组织的 meta 仓：
-> landing 页 + 状态注册表 + 学习路径 + 跨仓契约 + 历史档案。
+> 从可验证的 CUDA/Triton kernel 到真实权重推理与 serving 控制面。
+> 每个性能结论都应绑定代码、环境、原始结果和适用边界。本仓是组织的
+> landing 页、状态注册表、学习路径、跨仓契约和历史档案。
 
 仓库职责与私人求职材料的边界见
 [`docs/repository-boundaries.md`](docs/repository-boundaries.md)。
 
-## 仓库地图（四层能力）
+## 90 秒入口
 
-| 层 | 仓库 | 一句话定位 | 状态 |
-|----|------|-----------|------|
-| L1 CUDA 基础 | [cuda-foundations](https://github.com/open-infra-ai/cuda-foundations) | 从 SGEMM 到可复用推理组件的系统性 CUDA 算子工程学习路径 | active |
-| L1 Triton 算子 | [trifuse](https://github.com/open-infra-ai/trifuse) | 精简 Triton 算子库（RMSNorm+RoPE / SwiGLU / FlashAttention / SGEMM）+ torch.library 注册 | stable |
-| L1 Attention | [cuflash](https://github.com/open-infra-ai/cuflash) | 从零实现的 CUDA C++ FlashAttention 前后向（FP16/BF16 WMMA + FlashDecoding） | stable |
-| L2 推理引擎 | [tiny-llm](https://github.com/open-infra-ai/tiny-llm) | CUDA 原生 C++ 推理引擎（GGUF / W8A16 / 分页 KV 策略 1），导出 C ABI | active |
-| L3 控制面 | [paged-serving](https://github.com/open-infra-ai/paged-serving) | PagedAttention 分页 KV + Continuous Batching 的推理控制面（Rust），经 C ABI 接 tiny-llm | active |
+| 面试主题 | 从哪里开始 | 重点 |
+|----------|--------------|------|
+| 端到端 LLM Serving | [tiny-llm](https://github.com/open-infra-ai/tiny-llm) + [paged-serving](https://github.com/open-infra-ai/paged-serving) | 真实权重、W8A16、Paged KV、continuous batching、C ABI、HTTP/SSE |
+| CUDA kernel 深挖 | [cuflash](https://github.com/open-infra-ai/cuflash) | online softmax、Tensor Core、FlashDecoding、数值与性能边界 |
+| CUDA/Triton 基础与对照 | [cuda-foundations](https://github.com/open-infra-ai/cuda-foundations) + [trifuse](https://github.com/open-infra-ai/trifuse) | 优化阶梯、参考实现、差分测试、`torch.library` |
+| 可追溯证据 | [`docs/evidence-index.md`](docs/evidence-index.md) | 结果包、复现入口、已知限制和尚待补齐的证据 |
+
+## 作品集架构
+
+```text
+旗舰系统：HTTP/SSE → paged-serving（调度、Paged KV）
+                              ⇅ 受测试的同进程 C ABI
+                         tiny-llm（真实权重、CUDA decode）
+
+Kernel 深挖：cuflash（独立作品，不接入 tiny-llm generate）
+基础对照：cuda-foundations · trifuse
+```
+
+`tiny-llm` 和 `paged-serving` 是同一旗舰系统的数据面与控制面；
+`cuflash` 证明 CUDA kernel 深度，但不是旗舰请求路径的依赖。
+
+## 状态注册表
+
+| 角色 | 仓库 | 唯一主责 | 状态 |
+|------|------|----------|------|
+| 基础 | [cuda-foundations](https://github.com/open-infra-ai/cuda-foundations) | 从 SGEMM 到可复用推理组件的 CUDA 工程学习路径 | stable |
+| 对照 | [trifuse](https://github.com/open-infra-ai/trifuse) | Triton 算子与 `torch.library` 集成 | stable |
+| 深挖 | [cuflash](https://github.com/open-infra-ai/cuflash) | CUDA C++ FlashAttention 前后向与 FlashDecoding | stable |
+| 旗舰数据面 | [tiny-llm](https://github.com/open-infra-ai/tiny-llm) | 真实权重加载、量化、decode、KV 与 C ABI | active |
+| 旗舰控制面 | [paged-serving](https://github.com/open-infra-ai/paged-serving) | Paged KV、continuous batching、HTTP/SSE 与 serving 评测 | active |
 
 **状态语义**：`active` = 学习/演进中；`stable` = 作品完成，只修正确性 bug 与文档；
 `archived` = 不再维护。状态以本表为唯一权威注册表，与各仓 README 状态行、
 GitHub topics 三处同步。
 
-## 阅读顺序
+## 按目标阅读
 
-1. **cuda-foundations**（基础）→ 2. **trifuse**（Triton 表达同一批算子）→
-   3. **cuflash**（FlashAttention 前后向深挖）→
-   4. **tiny-llm**（模型加载 + 推理内核 + 分页 KV 策略 1）→
-   5. **paged-serving**（分页调度 / continuous batching / HTTP 控制面，接 tiny-llm 真实后端）。
+1. **准备系统/Serving 面试**：`paged-serving → C ABI → tiny-llm`，按一条请求生命周期阅读。
+2. **准备 CUDA kernel 面试**：先看 `cuflash`，再用 `trifuse` 解释 Triton/CUDA 取舍。
+3. **从基础完整学习**：按 `cuda-foundations → trifuse → cuflash → tiny-llm → paged-serving`。
 
 完整方法论（优化循环、不变量测试、阶段完成标准）见本仓
 [`LEARNING_PATH.md`](LEARNING_PATH.md)——组织级导航的唯一权威入口。
@@ -40,6 +62,9 @@ GitHub topics 三处同步。
   live 版见 [`docs/cross-repo-contracts.md`](docs/cross-repo-contracts.md)。
 
 ## 完成证据摘要
+
+跨仓复现入口、证据层级与当前缺口见
+[`docs/evidence-index.md`](docs/evidence-index.md)。
 
 - **tiny-llm**：W8A16 推理端到端可用；clean commit `565da79` 的 schema v2
   五组配对 CUDA Graph A/B 中，TPOT 8.322→**5.225 ms/token**（-37.2%），decode
@@ -66,13 +91,13 @@ GitHub topics 三处同步。
 
 ## 面试展示优先级
 
-1. **主项目：tiny-llm** —— 推理加速岗位先讲真实模型链路、W8A16、decode、
-   M==1 GEMM、CUDA Graphs 与可复现的端到端指标。
+1. **旗舰系统：tiny-llm + paged-serving** —— 沿“请求 → 调度 → block table →
+   C ABI → CUDA decode → SSE token”讲清数据面/控制面分工，并区分正确性证据与
+   尚未发布的真实 GPU Serving 性能证据。
 2. **专项深挖：cuflash** —— 用来证明 CUDA kernel、online softmax、
    Tensor Core、数值正确性和 profiling 深度。
-3. **系统扩展：paged-serving** —— 用来证明 Paged KV、continuous batching、
-   调度不变量、HTTP/SSE 与服务评测方法；不把它包装成低层 kernel 加速项目。
-4. `cuda-foundations` 与 `trifuse` 是基础与横向对照证据，不与主项目争夺叙事中心。
+3. **基础与对照：cuda-foundations + trifuse** —— 证明优化方法、参考实现和
+   CUDA/Triton 工程取舍，不与旗舰系统争夺叙事中心。
 
 ## 求职与面试执行
 
