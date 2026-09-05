@@ -30,8 +30,8 @@ Kernel 深挖：cuflash（独立作品，不接入 tiny-llm generate）
 `tiny-llm` 和 `paged-serving` 是同一旗舰系统的数据面与控制面；
 `cuflash` 证明 CUDA kernel 深度，但不是旗舰请求路径的依赖。
 可交互地查看请求、C ABI 与批量执行边界，见
-[`docs/serving-control-data-plane.html`](docs/serving-control-data-plane.html)
-（[源规格](docs/serving-control-data-plane.architecture.json)）。
+[`docs/serving-control-data-plane-p2-greedy.html`](docs/serving-control-data-plane-p2-greedy.html)
+（[源规格](docs/serving-control-data-plane-p2-greedy.architecture.json)）。
 
 ## 状态注册表
 

@@ -29,8 +29,9 @@
 - P2 closed c1/c2/c4 与三档 Poisson 的 TTFT p95 未通过 10% 重复收敛门槛；
 - 发压机与服务同机，未采集 GPU 时钟/功耗，且没有独立网络发压机；
 - 尚无 llama-server/vLLM 的同模型、同上下文、同工作负载对照；
-- 当前 tiny-llm FFI 批量调用仍逐序列执行并逐序列同步采样，不能把调度 batch 当作
-  fused compute batch；
+- 当前 tiny-llm FFI 的层前向仍逐序列执行；正常 greedy 已改为 device argmax 与一次
+  batch token 回传，但 logprobs 仍走主机 logits 路径，不能把调度 batch 当作 fused compute
+  batch，也不能在重新采集结果前声称吞吐改善；
 - KV 利用率采样、prefix cache、抢占、chunked prefill 与 token 级 ITL 仍未实现。
 
 ## 引用规则

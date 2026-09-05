@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "P2 Device-Greedy：控制面、数据面与未融合批量边界",
+    "locale": "zh-CN",
+    "output": "serving-control-data-plane-p2-greedy.html",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "request-path-p2",
+        "label": "一次流式请求",
+        "focus": ["load_client", "openai_sse", "batch_control", "ffi_bridge", "ffi_executor", "decode_cuda", "device_greedy", "batch_copy"],
+        "note": "正常 greedy 请求在 GPU 选 token；SSE 仍由安全增量文本解码决定。"
+      },
+      {
+        "id": "batch-boundary-p2",
+        "label": "已优化与未优化边界",
+        "focus": ["batch_control", "ffi_bridge", "ffi_executor", "decode_cuda", "device_greedy", "host_logprobs"],
+        "note": "输出同步点从每序列移到 batch 末尾；层前向仍按序列提交，尚非 fused compute。"
+      },
+      {
+        "id": "evidence-path-p2",
+        "label": "正确性与性能证据",
+        "focus": ["load_client", "evidence_pack", "device_greedy", "host_logprobs"],
+        "note": "真实模型 device/host 对照和 feature e2e 已通过；尚未重新采集吞吐矩阵。"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "load_client",
+      "type": "external",
+      "label": "loadgen / Client",
+      "sublabel": "closed-loop / Poisson",
+      "tag": "TTFT + raw records",
+      "pos": [20, 310],
+      "size": [120, 72]
+    },
+    {
+      "id": "openai_sse",
+      "type": "backend",
+      "label": "OpenAI-compatible API",
+      "sublabel": "/v1 + SSE",
+      "tag": "safe text chunks",
+      "pos": [175, 310],
+      "size": [135, 72]
+    },
+    {
+      "id": "batch_control",
+      "type": "backend",
+      "label": "Scheduler + Engine",
+      "sublabel": "admission / continuous batch",
+      "tag": "control plane",
+      "pos": [345, 310],
+      "size": [155, 72]
+    },
+    {
+      "id": "page_tables",
+      "type": "database",
+      "label": "BlockPool + PageTable",
+      "sublabel": "paged KV block tables",
+      "tag": "sequence ownership",
+      "pos": [345, 125],
+      "size": [155, 72]
+    },
+    {
+      "id": "ffi_bridge",
+      "type": "messagebus",
+      "label": "C ABI v2",
+      "sublabel": "tinyllm_step(batch)",
+      "tag": "layout unchanged",
+      "pos": [535, 310],
+      "size": [130, 72]
+    },
+    {
+      "id": "ffi_executor",
+      "type": "backend",
+      "label": "tiny-llm FFI executor",
+      "sublabel": "per-sequence layer loop",
+      "tag": "not fused",
+      "pos": [700, 310],
+      "size": [150, 72]
+    },
+    {
+      "id": "decode_cuda",
+      "type": "cloud",
+      "label": "CUDA decode + paged KV",
+      "sublabel": "layer forward",
+      "tag": "serial launches per sequence",
+      "pos": [885, 310],
+      "size": [155, 72]
+    },
+    {
+      "id": "device_greedy",
+      "type": "backend",
+      "label": "GPU greedy argmax",
+      "sublabel": "logprobs_k == 0",
+      "tag": "normal serving path",
+      "pos": [1075, 310],
+      "size": [150, 72]
+    },
+    {
+      "id": "batch_copy",
+      "type": "backend",
+      "label": "一次 batch token 回传",
+      "sublabel": "D2H + stream sync",
+      "tag": "next_tokens[s] order",
+      "pos": [1075, 515],
+      "size": [150, 72]
+    },
+    {
+      "id": "host_logprobs",
+      "type": "backend",
+      "label": "logprobs fallback",
+      "sublabel": "host logits + top-k",
+      "tag": "special request path",
+      "pos": [885, 125],
+      "size": [155, 72]
+    },
+    {
+      "id": "evidence_pack",
+      "type": "database",
+      "label": "证据包",
+      "sublabel": "tests / raw / report",
+      "tag": "commit + model SHA-256",
+      "pos": [175, 515],
+      "size": [135, 72]
+    }
+  ],
+  "boundaries": [
+    {"kind": "region", "label": "paged-serving 控制面", "wraps": ["openai_sse", "batch_control", "page_tables", "ffi_bridge"], "pad": 28},
+    {"kind": "region", "label": "tiny-llm 数据面", "wraps": ["ffi_executor", "decode_cuda", "device_greedy", "batch_copy", "host_logprobs"], "pad": 28}
+  ],
+  "connections": [
+    {"id": "request_p2", "from": "load_client", "to": "openai_sse", "label": "request + SSE", "labelAt": [158, 396], "variant": "emphasis"},
+    {"id": "submit_p2", "from": "openai_sse", "to": "batch_control", "label": "submit", "labelAt": [328, 396]},
+    {"id": "kv_plan_p2", "from": "batch_control", "to": "page_tables", "label": "allocate + block tables", "fromSide": "top", "toSide": "bottom"},
+    {"id": "batch_abi_p2", "from": "batch_control", "to": "ffi_bridge", "label": "batch", "labelAt": [518, 396], "variant": "emphasis"},
+    {"id": "abi_call_p2", "from": "ffi_bridge", "to": "ffi_executor", "label": "C ABI", "labelAt": [682, 396]},
+    {"id": "serial_forward_p2", "from": "ffi_executor", "to": "decode_cuda", "label": "per sequence", "labelAt": [868, 396], "variant": "emphasis"},
+    {"id": "normal_logits_p2", "from": "decode_cuda", "to": "device_greedy", "label": "logits row", "labelAt": [1057, 396]},
+    {"id": "device_token_p2", "from": "device_greedy", "to": "batch_copy", "label": "device token", "labelAt": [1150, 396], "fromSide": "bottom", "toSide": "top", "variant": "emphasis"},
+    {"id": "return_tokens_p2", "from": "batch_copy", "to": "openai_sse", "label": "next_tokens", "variant": "dashed", "fromSide": "left", "toSide": "bottom"},
+    {"id": "logprobs_branch_p2", "from": "decode_cuda", "to": "host_logprobs", "label": "only logprobs > 0", "variant": "dashed", "fromSide": "top", "toSide": "bottom"},
+    {"id": "archive_p2", "from": "load_client", "to": "evidence_pack", "label": "raw requests + results", "variant": "dashed", "fromSide": "bottom", "toSide": "top"}
+  ],
+  "cards": [
+    {"dot": "cyan", "title": "正常 greedy 路径", "items": ["GPU argmax 在每个 logits row 覆盖前写入独立 token slot", "tinyllm_step 末尾一次 D2H 回传 next_tokens", "SSE 仍只发送 tokenizer 可安全追加的文本"]},
+    {"dot": "amber", "title": "仍未融合", "items": ["调度器组织 batch，不等于 CUDA layer forward 已批量化", "FFI 仍逐序列调用 layer forward", "请求 logprobs 时保留主机 logits / top-k 路径"]},
+    {"dot": "emerald", "title": "证据纪律", "items": ["GPU kernel 与 CPU greedy 对照含同分和 NaN 边界", "真实 GGUF device/host 连续 token 与 feature e2e 已通过", "未重新采集 serving 矩阵，不声称吞吐提升"]}
+  ]
+}
