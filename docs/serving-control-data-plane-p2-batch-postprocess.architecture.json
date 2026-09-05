@@ -1,0 +1,217 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "P2：批量末端后处理的 Serving 控制面与数据面",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [1250, 800],
+    "views": [
+      {
+        "id": "normal-greedy",
+        "label": "正常 greedy 路径",
+        "focus": ["client", "scheduler", "ffi", "layers", "hidden-batch", "batch-tail", "argmax", "next-tokens"],
+        "note": "不请求 logprobs 时，末端输出以 batch 处理，并只回传 token id。"
+      },
+      {
+        "id": "serial-boundary",
+        "label": "仍然串行的边界",
+        "focus": ["ffi", "layers", "hidden-batch"],
+        "note": "Transformer layer forward 仍逐序列执行；D2D 拷贝保护 shared hidden buffer。"
+      },
+      {
+        "id": "logprob-fallback",
+        "label": "logprobs 回退路径",
+        "focus": ["ffi", "layers", "logprobs"],
+        "note": "请求 logprobs 时维持主机侧完整 logits 与 top-k 处理，未混入 normal greedy 路径。"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "client",
+      "type": "external",
+      "label": "客户端 / 负载发生器",
+      "sublabel": "HTTP 请求与批次到达",
+      "pos": [20, 250],
+      "size": [150, 66]
+    },
+    {
+      "id": "scheduler",
+      "type": "backend",
+      "label": "paged-serving 调度器",
+      "sublabel": "连续 / 分页 KV 请求编组",
+      "pos": [210, 250],
+      "size": [180, 66]
+    },
+    {
+      "id": "ffi",
+      "type": "backend",
+      "label": "tinyllm_step C ABI",
+      "sublabel": "Rust → CUDA FFI batch 调用",
+      "pos": [430, 250],
+      "size": [180, 66]
+    },
+    {
+      "id": "layers",
+      "type": "backend",
+      "label": "Transformer layer forward",
+      "sublabel": "逐序列；连续或分页 KV",
+      "tag": "仍未批量融合",
+      "pos": [650, 250],
+      "size": [190, 72]
+    },
+    {
+      "id": "hidden-batch",
+      "type": "cloud",
+      "label": "GPU batch hidden buffer",
+      "sublabel": "[B, hidden]；每序列 D2D 捕获",
+      "pos": [880, 253],
+      "size": [190, 66]
+    },
+    {
+      "id": "batch-tail",
+      "type": "backend",
+      "label": "批量末端计算",
+      "sublabel": "final RMSNorm + LM head，[B, vocab]",
+      "pos": [880, 430],
+      "size": [210, 66]
+    },
+    {
+      "id": "argmax",
+      "type": "backend",
+      "label": "greedy_argmax_batch",
+      "sublabel": "GPU；并列取较小 token id",
+      "pos": [880, 560],
+      "size": [180, 66]
+    },
+    {
+      "id": "next-tokens",
+      "type": "external",
+      "label": "Host next_tokens",
+      "sublabel": "一次 int[B] D2H + stream sync",
+      "pos": [1090, 560],
+      "size": [150, 66]
+    },
+    {
+      "id": "logprobs",
+      "type": "backend",
+      "label": "logprobs 主机回退",
+      "sublabel": "完整 logits D2H + top-k",
+      "tag": "logprobs_k > 0",
+      "pos": [430, 610],
+      "size": [190, 66]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "paged-serving 控制面",
+      "wraps": ["scheduler"]
+    },
+    {
+      "kind": "region",
+      "label": "tiny-llm CUDA 数据面",
+      "wraps": ["ffi", "layers", "hidden-batch", "batch-tail", "argmax", "logprobs"]
+    }
+  ],
+  "connections": [
+    {
+      "id": "request-arrival",
+      "from": "client",
+      "to": "scheduler",
+      "label": "HTTP 请求到达",
+      "variant": "emphasis",
+      "labelDy": 57
+    },
+    {
+      "id": "schedule-ffi",
+      "from": "scheduler",
+      "to": "ffi",
+      "label": "Rust batch 调用",
+      "variant": "emphasis",
+      "labelDy": 57
+    },
+    {
+      "id": "ffi-layer-forward",
+      "from": "ffi",
+      "to": "layers",
+      "label": "逐序列 layer forward",
+      "variant": "emphasis",
+      "labelDy": 57
+    },
+    {
+      "id": "capture-final-hidden",
+      "from": "layers",
+      "to": "hidden-batch",
+      "label": "每序列末层 hidden 的 D2D 拷贝",
+      "variant": "emphasis",
+      "labelAt": [860, 340]
+    },
+    {
+      "id": "batch-output-head",
+      "from": "hidden-batch",
+      "to": "batch-tail",
+      "label": "循环结束后处理 [B, hidden]",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelAt": [1140, 370]
+    },
+    {
+      "id": "batch-greedy",
+      "from": "batch-tail",
+      "to": "argmax",
+      "label": "[B, vocab] logits",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelAt": [790, 530]
+    },
+    {
+      "id": "single-token-return",
+      "from": "argmax",
+      "to": "next-tokens",
+      "label": "单次 token id 回传",
+      "variant": "emphasis",
+      "labelDy": 57
+    },
+    {
+      "id": "logprob-branch",
+      "from": "ffi",
+      "to": "logprobs",
+      "label": "logprobs_k > 0",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "已落地的 normal greedy 边界",
+      "items": [
+        "每个序列完成 layer forward 后立即写入独立的 batch hidden 槽位",
+        "final RMSNorm、FP16 LM head 与 greedy argmax 在 GPU 端按 batch 执行",
+        "step 末尾仅回传 int[B] token id；并列最大值和首项 NaN 语义与 CPU 基线一致"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "刻意保留的边界",
+      "items": [
+        "Transformer layer forward 尚未跨序列融合，因此不能把此改动称为完整批量推理",
+        "logprobs_k > 0 保留主机侧完整 logits / top-k 路径，避免改变 API 语义"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "已验证的正确性证据",
+      "items": [
+        "真实 GGUF 的 C++ 197 项回归通过；第二模型测试未配置而跳过",
+        "Rust 真实后端通过三并发 paged 文本与 llama.cpp 对照",
+        "这不是新的 serving 性能结果；P2 矩阵需要在此提交后重新采集"
+      ]
+    }
+  ]
+}
