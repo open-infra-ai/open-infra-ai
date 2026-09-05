@@ -34,6 +34,8 @@ P2 当前流式矩阵归档了 21 个 run、1344 条逐请求记录、模型 SHA
 paged-serving feature e2e（含三并发文本与 llama.cpp 对照）。本地 C++ `ctest` 定义 197 项，
 其中第二模型测试因未配置而跳过、其余无失败；这只是正确性证据。上述 21-run 矩阵早于该
 改动，必须重新采集，不能从它推导吞吐或 TTFT 改善。
+[当前干净提交的 closed c=4 HTTP 功能 canary](https://github.com/open-infra-ai/paged-serving/tree/master/benchmarks/serving/results/2026-09-05-RTX3060Laptop-paged-serving-p2-batch-postprocess-canary)
+另行归档了 4/4 成功、模型 SHA-256 与双仓 commit；它同样是可运行性证据，而非性能结果。
 
 ## 下一项 P2 性能工作
 
