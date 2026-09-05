@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Paged-Serving × tiny-llm：控制面、数据面与批量执行边界",
+    "locale": "zh-CN",
+    "output": "serving-control-data-plane.html",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "request-path",
+        "label": "一次流式请求",
+        "focus": ["loadgen", "http_api", "scheduler", "ffi_abi", "tiny_ffi", "cuda_kernels"],
+        "note": "从 OpenAI SSE 请求进入调度，到真实 CUDA 推理并返回文本片段。"
+      },
+      {
+        "id": "batch-boundary",
+        "label": "批量语义与执行边界",
+        "focus": ["scheduler", "page_table", "ffi_abi", "tiny_ffi", "host_sampling"],
+        "note": "控制面可以组织多序列 batch；当前 FFI 仍逐序列同步采样。"
+      },
+      {
+        "id": "evidence-path",
+        "label": "可追溯证据",
+        "focus": ["loadgen", "evidence", "http_api", "scheduler"],
+        "note": "逐请求记录、summary、run metadata 与正式报告构成证据链。"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "loadgen",
+      "type": "external",
+      "label": "loadgen",
+      "sublabel": "闭环 / Poisson",
+      "tag": "TTFT + raw records",
+      "pos": [20, 300],
+      "size": [125, 72]
+    },
+    {
+      "id": "http_api",
+      "type": "backend",
+      "label": "OpenAI-compatible API",
+      "sublabel": "/v1 + SSE",
+      "tag": "first nonempty text",
+      "pos": [205, 300],
+      "size": [140, 72]
+    },
+    {
+      "id": "scheduler",
+      "type": "backend",
+      "label": "调度器 + 引擎",
+      "sublabel": "准入 / continuous batch",
+      "tag": "control plane",
+      "pos": [405, 300],
+      "size": [165, 72]
+    },
+    {
+      "id": "page_table",
+      "type": "database",
+      "label": "BlockPool + PageTable",
+      "sublabel": "paged KV table",
+      "tag": "sequence ownership",
+      "pos": [405, 126],
+      "size": [165, 72]
+    },
+    {
+      "id": "ffi_abi",
+      "type": "messagebus",
+      "label": "C ABI v2",
+      "sublabel": "tinyllm_step(batch)",
+      "tag": "dual-source contract",
+      "pos": [630, 300],
+      "size": [150, 72]
+    },
+    {
+      "id": "tiny_ffi",
+      "type": "backend",
+      "label": "tiny-llm FFI executor",
+      "sublabel": "tinyllm_step",
+      "tag": "current: per-sequence loop",
+      "pos": [840, 300],
+      "size": [155, 72]
+    },
+    {
+      "id": "cuda_kernels",
+      "type": "cloud",
+      "label": "CUDA decode + paged KV",
+      "sublabel": "layer forward + KV",
+      "tag": "data plane",
+      "pos": [1055, 300],
+      "size": [165, 72]
+    },
+    {
+      "id": "host_sampling",
+      "type": "backend",
+      "label": "Greedy sampling",
+      "sublabel": "sync + D2H logits",
+      "tag": "P2 optimization boundary",
+      "pos": [1055, 126],
+      "size": [165, 72]
+    },
+    {
+      "id": "evidence",
+      "type": "database",
+      "label": "结果证据包",
+      "sublabel": "raw / summary / report",
+      "tag": "commit + model SHA-256",
+      "pos": [205, 500],
+      "size": [140, 72]
+    }
+  ],
+  "boundaries": [
+    {"kind": "region", "label": "paged-serving 控制面", "wraps": ["http_api", "scheduler", "page_table", "ffi_abi"], "pad": 28},
+    {"kind": "region", "label": "tiny-llm 数据面", "wraps": ["tiny_ffi", "cuda_kernels", "host_sampling"], "pad": 28}
+  ],
+  "connections": [
+    {"id": "request", "from": "loadgen", "to": "http_api", "label": "请求 + SSE", "variant": "emphasis"},
+    {"id": "submit", "from": "http_api", "to": "scheduler", "label": "submit"},
+    {"id": "kv-plan", "from": "scheduler", "to": "page_table", "label": "allocate + block table", "fromSide": "top", "toSide": "bottom"},
+    {"id": "batch", "from": "scheduler", "to": "ffi_abi", "label": "batch", "variant": "emphasis"},
+    {"id": "abi-call", "from": "ffi_abi", "to": "tiny_ffi", "label": "C ABI"},
+    {"id": "per-sequence", "from": "tiny_ffi", "to": "cuda_kernels", "label": "逐序列", "variant": "emphasis"},
+    {"id": "logits", "from": "cuda_kernels", "to": "host_sampling", "label": "final logits", "fromSide": "top", "toSide": "bottom"},
+    {"id": "next-token", "from": "host_sampling", "to": "tiny_ffi", "label": "next token", "fromSide": "left", "toSide": "top"},
+    {"id": "archive", "from": "loadgen", "to": "evidence", "label": "raw requests + summary", "variant": "dashed", "fromSide": "bottom", "toSide": "top"}
+  ],
+  "cards": [
+    {"dot": "cyan", "title": "主路径", "items": ["控制面按序列准入并组织 batch", "C ABI 返回每个 sequence 的 token / status", "SSE 只发送 tokenizer 可安全追加的文本"]},
+    {"dot": "amber", "title": "已定位边界", "items": ["ABI 的 batch 形状正确，不等于 CUDA fused batch", "每序列采样同步 stream 并回传完整 logits", "下一步：批量 decode + 设备侧采样，同时保持 greedy 对齐"]},
+    {"dot": "emerald", "title": "证据纪律", "items": ["P2 归档 raw request、summary、metadata、图表与报告", "Poisson seed 写入 summary 与 run metadata", "未收敛重复和 429 保留，不包装为 SLO"]}
+  ]
+}

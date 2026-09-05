@@ -16,21 +16,22 @@
 | 仓库 | 可审计入口 | 能证明什么 | 不能证明什么 |
 |------|--------------|--------------|----------------|
 | [tiny-llm](https://github.com/open-infra-ai/tiny-llm) | [CUDA Graphs A/B 报告](https://github.com/open-infra-ai/tiny-llm/blob/master/docs/performance/results/2026-08-23-cuda-graphs-ab.md) · [summary JSON](https://github.com/open-infra-ai/tiny-llm/blob/master/docs/performance/results/data/2026-08-23-cuda-graphs-ab.summary.json) · [raw JSONL](https://github.com/open-infra-ai/tiny-llm/blob/master/docs/performance/results/data/2026-08-23-cuda-graphs-ab.raw.jsonl) | 报告所述硬件、模型、shape 和 decode 设置下的配对 A/B | 其他 GPU、模型、长上下文或生产 Serving 性能 |
-| [paged-serving](https://github.com/open-infra-ai/paged-serving) | [Serving 评测入口](https://github.com/open-infra-ai/paged-serving/tree/master/benchmarks/serving) · [结果报告模板](https://github.com/open-infra-ai/paged-serving/blob/master/benchmarks/serving/RESULT_REPORT_TEMPLATE.md) | 评测方法、数据集、校验器和结果包契约已准备 | **尚无可引用的真实 CUDA closed-loop/Poisson 报告** |
+| [paged-serving](https://github.com/open-infra-ai/paged-serving) | [P1 历史基线](https://github.com/open-infra-ai/paged-serving/tree/master/benchmarks/serving/results/2026-09-04-RTX3060Laptop-paged-serving) · [P2 当前流式矩阵](https://github.com/open-infra-ai/paged-serving/tree/master/benchmarks/serving/results/2026-09-04-RTX3060Laptop-paged-serving-p2-streaming) · [评测入口](https://github.com/open-infra-ai/paged-serving/tree/master/benchmarks/serving) | 绑定 RTX 3060 Laptop、模型 SHA-256、双仓 commit、原始请求与报告的真实 CUDA closed-loop/Poisson 观察；P2 验证真实首文本 TTFT 与 Poisson seed 证据链 | 跨 GPU/模型/引擎的通用容量或生产 SLO；P2 多档 TTFT p95 未收敛，P1/P2 流式语义不同，不能形成 before/after 性能比值 |
 | [cuflash](https://github.com/open-infra-ai/cuflash) | [benchmark 口径](https://github.com/open-infra-ai/cuflash/blob/master/docs/performance/benchmarks.md) · [causal 边界块优化快照](https://github.com/open-infra-ai/cuflash/blob/master/docs/performance/causal-boundary-skip.md) | 指定 RTX 3060 快照与该优化的形状边界 | 不同 GPU 上的通用加速比或生产库等价性 |
 | [trifuse](https://github.com/open-infra-ai/trifuse) | [README 验证和 benchmark 边界](https://github.com/open-infra-ai/trifuse#%E9%AA%8C%E8%AF%81) | Triton kernel 与参考实现的数值对照及记录的本机快照 | 跨 GPU 性能普适性 |
 | [cuda-foundations](https://github.com/open-infra-ai/cuda-foundations) | [RTX 3060 实测页](https://github.com/open-infra-ai/cuda-foundations/blob/master/docs/en/benchmarks/rtx3060-laptop-2026-08-17.md) | 教学 kernel 的本机优化阶梯和与 cuBLAS 的差距 | 生产算子库或推理系统性能 |
 
 ## 旗舰系统当前缺口
 
-`tiny-llm + paged-serving` 已有跨语言正确性链路，但在下列产物归档前，
-不宣称真实 GPU Serving 容量、QPS 或生产成熟度：
+`tiny-llm + paged-serving` 已有跨语言正确性链路及两份真实 CUDA serving 结果包；
+但下列缺口关闭前，仍不宣称通用容量、跨引擎排名或生产成熟度：
 
-- 同一结果包中的 `tiny-llm` / `paged-serving` commit；
-- 模型 SHA-256、量化格式、GPU/CPU/驱动/CUDA 环境；
-- closed-loop 与 Poisson 工作负载配置；
-- `per_request.jsonl`、`summary.json`、原始日志和完整复现命令；
-- TTFT/TPOT/吞吐的 p50/p95、错误/OOM 计数、token coverage 和已知限制。
+- P2 closed c1/c2/c4 与三档 Poisson 的 TTFT p95 未通过 10% 重复收敛门槛；
+- 发压机与服务同机，未采集 GPU 时钟/功耗，且没有独立网络发压机；
+- 尚无 llama-server/vLLM 的同模型、同上下文、同工作负载对照；
+- 当前 tiny-llm FFI 批量调用仍逐序列执行并逐序列同步采样，不能把调度 batch 当作
+  fused compute batch；
+- KV 利用率采样、prefix cache、抢占、chunked prefill 与 token 级 ITL 仍未实现。
 
 ## 引用规则
 

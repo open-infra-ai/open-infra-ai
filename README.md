@@ -29,6 +29,9 @@ Kernel 深挖：cuflash（独立作品，不接入 tiny-llm generate）
 
 `tiny-llm` 和 `paged-serving` 是同一旗舰系统的数据面与控制面；
 `cuflash` 证明 CUDA kernel 深度，但不是旗舰请求路径的依赖。
+可交互地查看请求、C ABI 与批量执行边界，见
+[`docs/serving-control-data-plane.html`](docs/serving-control-data-plane.html)
+（[源规格](docs/serving-control-data-plane.architecture.json)）。
 
 ## 状态注册表
 
@@ -74,9 +77,11 @@ GitHub topics 三处同步。
   逐 token 差分一致。
 - **paged-serving**：**3 并发分页请求 e2e 与 llama.cpp greedy 对齐**（请求 1 全序列
   严格一致；请求 2 的 `equals`/`is` 为 W8A16 vs Q4_K_M 量化 argmax 边界翻转，
-  已诚实记录为"前缀一致 + EOS 终止 + 分歧注释"，不伪造全序列一致）；
-  默认测试当前 **232 项通过**。真实 GPU serving 吞吐报告仍是待补证据，不用 CPU
-  参考后端数字冒充 GPU 性能。
+  已诚实记录为"前缀一致 + EOS 终止 + 分歧注释"，不伪造全序列一致）。真实 CUDA
+  closed-loop/Poisson 已有 [P1 历史基线](https://github.com/open-infra-ai/paged-serving/tree/master/benchmarks/serving/results/2026-09-04-RTX3060Laptop-paged-serving)
+  与 [P2 当前流式矩阵](https://github.com/open-infra-ai/paged-serving/tree/master/benchmarks/serving/results/2026-09-04-RTX3060Laptop-paged-serving-p2-streaming)：
+  后者绑定双仓 commit、模型 SHA-256、1344 条原始请求与固定 Poisson seed，但 P2 多档
+  TTFT p95 未通过 10% 收敛门槛，不能写成稳定 SLO、通用容量或生产成熟度。
 - **cuflash**：FlashAttention 前后向 FP32/FP16/BF16，FP16/BF16 前向接 WMMA；
   修复 grid.y 65535 越界（B*H>65535 回归测试）并加入 causal 边界块跳过优化；
   RTX 3060 Laptop 当前 **81/81 项测试通过**（可选 PyTorch 集成 1 项跳过）。
@@ -86,14 +91,15 @@ GitHub topics 三处同步。
 - **cuda-foundations**：SGEMM 与推理组件教学阶梯；RTX 3060 Laptop 当前
   **261/261 项测试通过**。旧名审计快照见 `docs/organization-audit/`。
 
-> 以上是 **2026-08-23 本地验证快照**。性能数字仍以各技术仓的结果文件、硬件、
-> commit 与复现命令为准；测试数量只表示当前验证面，不直接等价于项目质量。
+> 除明确更新的 paged-serving 2026-09-04 结果外，以上是 **2026-08-23 本地验证快照**。
+> 性能数字仍以各技术仓的结果文件、硬件、commit 与复现命令为准；测试数量只表示当前
+> 验证面，不直接等价于项目质量。
 
 ## 面试展示优先级
 
 1. **旗舰系统：tiny-llm + paged-serving** —— 沿“请求 → 调度 → block table →
    C ABI → CUDA decode → SSE token”讲清数据面/控制面分工，并区分正确性证据与
-   尚未发布的真实 GPU Serving 性能证据。
+   已归档但带收敛限制的真实 GPU Serving 证据。
 2. **专项深挖：cuflash** —— 用来证明 CUDA kernel、online softmax、
    Tensor Core、数值正确性和 profiling 深度。
 3. **基础与对照：cuda-foundations + trifuse** —— 证明优化方法、参考实现和
