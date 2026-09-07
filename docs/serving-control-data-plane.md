@@ -31,7 +31,7 @@
 [2026-09-04 结果包](https://github.com/open-infra-ai/paged-serving/tree/master/benchmarks/serving/results/2026-09-04-RTX3060Laptop-paged-serving-p2-streaming)。
 其中若干 TTFT p95 重复未收敛，故它是历史边界证据而不是通用 SLO。
 当前批量末端后处理已通过真实模型 device/host 逐 token 对照、分页/连续 KV 差分和
-paged-serving feature e2e（含三并发文本与 llama.cpp 对照）。本地 C++ `ctest` 定义 197 项，
+paged-serving feature e2e（含三并发文本与 llama.cpp 对照）。本地 C++ `ctest` 定义 198 项，
 其中第二模型测试因未配置而跳过、其余无失败；这只是正确性证据。上述 21-run 矩阵早于该
 改动，不能从它推导吞吐或 TTFT 改善。
 [当前干净提交的 closed c=4 HTTP 功能 canary](https://github.com/open-infra-ai/paged-serving/tree/master/benchmarks/serving/results/2026-09-05-RTX3060Laptop-paged-serving-p2-batch-postprocess-canary)
@@ -49,11 +49,14 @@ req/s 分别有 9 / 74 个 429；closed c1/c4 通过 TTFT p95 与吞吐的 10% �
 
 1. 已完成：正常 greedy 的 final RMSNorm、LM head、argmax 与单次 batch token 回传；它们
    仅覆盖 layer forward 之后的末端输出阶段。
-2. 为 ragged sequence、`block_tables`、prefill/decode 混合批建立 batch-aware workspace
+2. 已完成但未接入 FFI：RoPE 内部 CUDA API 已可读取 `[num_tokens]` device 绝对位置数组，
+   非连续、非单调位置与 CPU half-split 参考逐元素对照；它只解除 ragged position 的原语
+   限制，不代表 layer batch compute。
+3. 为 ragged sequence、`block_tables`、prefill/decode 混合批建立 batch-aware workspace
    与可比较的逐 token oracle，并逐层替换当前的逐序列 Transformer layer forward。
-3. 保持 `next_tokens[s]` 与可选 logprobs 的 ABI 顺序不变；若 ABI 必须变化，先更新
+4. 保持 `next_tokens[s]` 与可选 logprobs 的 ABI 顺序不变；若 ABI 必须变化，先更新
    live 契约、`ffi.h`、Rust 双源定义与两仓 CHANGELOG。
-4. 每一步都重跑 tiny-llm 策略 1/2 差分、paged-serving feature e2e、真实 HTTP canary；
+5. 每一步都重跑 tiny-llm 策略 1/2 差分、paged-serving feature e2e、真实 HTTP canary；
    只有 correctness 通过后，才采集新的独立结果包。
 
 面试时应直接说出这条边界："调度器已经在构造 batch，正常 greedy 的末端 final RMSNorm、
