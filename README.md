@@ -81,8 +81,11 @@ GitHub topics 三处同步。
   已诚实记录为"前缀一致 + EOS 终止 + 分歧注释"，不伪造全序列一致）。真实 CUDA
   closed-loop/Poisson 已有 [P1 历史基线](https://github.com/open-infra-ai/paged-serving/tree/master/benchmarks/serving/results/2026-09-04-RTX3060Laptop-paged-serving)
   与 [P2 当前流式矩阵](https://github.com/open-infra-ai/paged-serving/tree/master/benchmarks/serving/results/2026-09-04-RTX3060Laptop-paged-serving-p2-streaming)：
-  后者绑定双仓 commit、模型 SHA-256、1344 条原始请求与固定 Poisson seed，但 P2 多档
-  TTFT p95 未通过 10% 收敛门槛，不能写成稳定 SLO、通用容量或生产成熟度。
+  后者绑定双仓 commit、模型 SHA-256、1344 条原始请求与固定 Poisson seed。批量末端
+  后处理后又有 [当前 21-run 正式矩阵](https://github.com/open-infra-ai/paged-serving/tree/master/benchmarks/serving/results/2026-09-07-RTX3060Laptop-paged-serving-p2-batch-postprocess-streaming)：
+  closed-loop 全部成功，Poisson 0.64 / 1.28 req/s 仍有 429，c2/c8 与三档 Poisson 的
+  TTFT p95 未通过 10% 收敛门槛。两包没有配对基线，不能写成速度提升、稳定 SLO、通用容量
+  或生产成熟度。
 - **cuflash**：FlashAttention 前后向 FP32/FP16/BF16，FP16/BF16 前向接 WMMA；
   修复 grid.y 65535 越界（B*H>65535 回归测试）并加入 causal 边界块跳过优化；
   RTX 3060 Laptop 当前 **81/81 项测试通过**（可选 PyTorch 集成 1 项跳过）。
@@ -92,7 +95,7 @@ GitHub topics 三处同步。
 - **cuda-foundations**：SGEMM 与推理组件教学阶梯；RTX 3060 Laptop 当前
   **261/261 项测试通过**。旧名审计快照见 `docs/organization-audit/`。
 
-> 除明确更新的 paged-serving 2026-09-04 结果外，以上是 **2026-08-23 本地验证快照**。
+> 除明确更新的 paged-serving 2026-09-04 / 2026-09-07 结果外，以上是 **2026-08-23 本地验证快照**。
 > 性能数字仍以各技术仓的结果文件、硬件、commit 与复现命令为准；测试数量只表示当前
 > 验证面，不直接等价于项目质量。
 

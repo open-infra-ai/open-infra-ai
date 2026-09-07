@@ -26,16 +26,21 @@
    decode；该契约及 ABI 双源布局见
    [`cross-repo-contracts.md`](cross-repo-contracts.md)。
 
-P2 当前流式矩阵归档了 21 个 run、1344 条逐请求记录、模型 SHA-256、双仓 commit、
+初版 P2 流式矩阵归档了 21 个 run、1344 条逐请求记录、模型 SHA-256、双仓 commit、
 固定 Poisson seed、CSV、图表和限制说明：
-[完整结果包](https://github.com/open-infra-ai/paged-serving/tree/master/benchmarks/serving/results/2026-09-04-RTX3060Laptop-paged-serving-p2-streaming)。
-其中若干 TTFT p95 重复未收敛，故它是边界证据而不是通用 SLO。
+[2026-09-04 结果包](https://github.com/open-infra-ai/paged-serving/tree/master/benchmarks/serving/results/2026-09-04-RTX3060Laptop-paged-serving-p2-streaming)。
+其中若干 TTFT p95 重复未收敛，故它是历史边界证据而不是通用 SLO。
 当前批量末端后处理已通过真实模型 device/host 逐 token 对照、分页/连续 KV 差分和
 paged-serving feature e2e（含三并发文本与 llama.cpp 对照）。本地 C++ `ctest` 定义 197 项，
 其中第二模型测试因未配置而跳过、其余无失败；这只是正确性证据。上述 21-run 矩阵早于该
-改动，必须重新采集，不能从它推导吞吐或 TTFT 改善。
+改动，不能从它推导吞吐或 TTFT 改善。
 [当前干净提交的 closed c=4 HTTP 功能 canary](https://github.com/open-infra-ai/paged-serving/tree/master/benchmarks/serving/results/2026-09-05-RTX3060Laptop-paged-serving-p2-batch-postprocess-canary)
 另行归档了 4/4 成功、模型 SHA-256 与双仓 commit；它同样是可运行性证据，而非性能结果。
+批量末端后处理后的 [2026-09-07 正式矩阵](https://github.com/open-infra-ai/paged-serving/tree/master/benchmarks/serving/results/2026-09-07-RTX3060Laptop-paged-serving-p2-batch-postprocess-streaming)
+已在当前双仓 clean commit 上重新采集 21 个 run：closed-loop 全部成功，Poisson 0.64 / 1.28
+req/s 分别有 9 / 74 个 429；closed c1/c4 通过 TTFT p95 与吞吐的 10% 重复波动检查，c2/c8
+与三档 Poisson 仍未收敛。它是当前路径的边界证据；由于没有交替、配对基线，不能把它与
+旧包的差异归因于末端后处理，更不能把它说成 fused layer batch 的吞吐扩展。
 
 ## 下一项 P2 性能工作
 
