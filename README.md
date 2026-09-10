@@ -120,9 +120,8 @@ GitHub topics 三处同步。
 以下内容是历史记录，**只读存档，不再更新**；文中旧组织名（AICL-Lab / aicl-lab）
 与旧工作区路径是当时事实的忠实记录，不改写。
 
-- [`LEARNING_PATH.md`](LEARNING_PATH.md) 之外的计划文档（`MASTER_PLAN.md` /
-  `PHASE2_*.md` / `PHASE3_PLAN.md` / `PLAN_v3.md` / `PLAN_I.md`）——
-  Phase 1–3 与面试执行期的历史执行计划。
+- [`archive/plans/`](archive/plans/) —— Phase 1–3 与面试执行期的历史执行计划
+  （`MASTER_PLAN.md` / `PHASE2_*.md` / `PHASE3_PLAN.md` / `PLAN_v3.md` / `PLAN_I.md`）。
 - [`interview/`](interview/) —— 面试证据包与排练材料（Phase 3 / Phase I 产物）：
   证据矩阵、数字卡、讲述稿、QA 库、模拟面试、简历条目等。
 - [`docs/organization-audit/2026-08-13/`](docs/organization-audit/2026-08-13/) ——
