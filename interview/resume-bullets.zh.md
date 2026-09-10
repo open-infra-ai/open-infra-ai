@@ -16,7 +16,7 @@
 2. 04-inference-engine 降级教学预览，runtime 禁止依赖教学仓。→ E26
 3. 仓库改名 cuda-foundations，五仓源码旧 slug 0 命中。→ E27
 
-## triton-fused-ops（3）
+## trifuse（3）
 
 1. RMSNorm+RoPE / SwiGLU / FA 前向各有独立 reference 差分。→ E3
 2. 修复 TRIT-001：RoPE 改为 Llama/Qwen half-split concat 契约。→ E4
@@ -50,7 +50,7 @@
 
 | 想证明 | 不依赖 GPU 的说法 | 指向 |
 |--------|-------------------|------|
-| 工程闭环 | 「六仓 GitHub 可见；面试包在 aicl-lab/interview；五仓 `phase-2-e`。」 | E30、本目录 |
+| 工程闭环 | 「六仓 GitHub 可见；面试包在 open-infra-ai/interview；五仓 `phase-2-e`。」 | E30、本目录 |
 | CUDA 阶梯 | 「打开 benchmarks 页：0.58→1.09，bank-conflict-free 更慢是刻意留下的。」 | E1 |
 | Triton 契约 | 「TRIT-001 是排列 bug；torch.library schema 可在 README 指给面试官。」 | E4、E5 |
 | FA 负结果 | 「causal-boundary-skip.md 写明 ±2% 低于 10% 阈值。」 | E8 |

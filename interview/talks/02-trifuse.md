@@ -1,4 +1,4 @@
-# triton-fused-ops · 10 分钟讲述稿
+# trifuse · 10 分钟讲述稿
 
 数字见 [`../NUMBERS_CARD.md`](../NUMBERS_CARD.md) §5。
 

@@ -114,7 +114,7 @@
   - `tl.arange` 构造 tile；`num_warps`/`num_stages` 是粗调参。
   - 看不到 bank 索引和精确 occupancy。
   - 同题 GEMM 在 cuda-foundations 用手写 smem，在本仓用 Triton（E2）。
-- 证据：`triton-fused-ops/triton_ops/kernels/sgemm.py`；E2
+- 证据：`trifuse/triton_ops/kernels/sgemm.py`；E2
 - 追问 1：program 能不能小于一个 warp？ → 启动器仍按 block/warp 跑；过小 tile 浪费 lane。本仓不以 occupancy 表说话。
 
 ### Q12. 为什么 Triton load/store 必须 mask？
@@ -123,7 +123,7 @@
   - `tests/test_sgemm.py` 含非 2 幂 17×33×65（E2/数字卡 §5）。
   - 失败路径也要测，不只 happy path。
   - FA/RoPE 同理：seq 和 head_dim 尾部。
-- 证据：`triton-fused-ops/tests/test_sgemm.py`（24 项，rtol/atol=1e-2）
+- 证据：`trifuse/tests/test_sgemm.py`（24 项，rtol/atol=1e-2）
 - 追问 1：mask 会不会让编译变慢？ → 会增加分支；正确性优先。没有单独 mask 微秒表，不报。
 
 ### Q13. `tl.dot` 做什么，累加用什么精度？
@@ -141,7 +141,7 @@
   - 面试不把它说成 vLLM 级别 kernel 选择器。
   - 真正的资产是 reference + 差分 + torch.library。
   - 融合也不是默认正确：lm_head 的时间在访存形状（cross-cutting §2）。
-- 证据：`triton-fused-ops` README；`interview/cross-cutting.md` §2
+- 证据：`trifuse` README；`interview/cross-cutting.md` §2
 - 追问 1：为什么不把每个 op 都 autotune？ → 作品集要讲契约和负结果，不堆配置空间。
 
 ### Q15. RMSNorm+RoPE 融合的收益怎么讲？
@@ -165,7 +165,7 @@
 ### Q17. TRIT-001 是怎么发现的？
 - 一句话答案：helper / API / example 的 RoPE 排列不一致，审计点名 half-split，不是性能回归。
 - 展开（3–5 点）：
-  - 修复 commit `triton-fused-ops@b1bcdcb`。
+  - 修复 commit `trifuse@b1bcdcb`。
   - 同时处理 Triton 3.x 兼容。
   - 测试：`tests/test_compute_rope.py`、`test_rmsnorm_rope.py`。
 - 证据：E4

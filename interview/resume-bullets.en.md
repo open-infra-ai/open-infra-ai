@@ -16,7 +16,7 @@ Numbers only from [`NUMBERS_CARD.md`](NUMBERS_CARD.md). Each bullet ≤25 words,
 2. Demoted 04-inference-engine to a teaching preview; runtime must not include it. → E26
 3. Renamed cuda-kernel-academy→cuda-foundations; old slug has 0 hits in product repos. → E27
 
-## triton-fused-ops (3)
+## trifuse (3)
 
 1. RMSNorm+RoPE, SwiGLU, and FA forward each have standalone references and diffs. → E3
 2. Fixed TRIT-001: RoPE uses Llama/Qwen half-split concat, not repeat_interleave. → E4

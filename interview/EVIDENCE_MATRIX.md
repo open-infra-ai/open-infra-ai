@@ -16,41 +16,41 @@ cd cuda-foundations && cmake --preset default && cmake --build --preset default
 
 ### E2. CUDA 与 Triton 的 SGEMM「同题异构」对比存在
 - 证据类型：代码路径 + 文档
-- 位置：CUDA 阶梯 `cuda-foundations/01-sgemm-tutorial/`；Triton `triton-fused-ops/triton_ops/kernels/sgemm.py`；导航 `cuda-foundations/LEARNING_PATH.md:9-11`；triton README 指向 cuda-foundations
-- 关键 commit：`triton-fused-ops@e85d824` `feat(triton): SGEMM kernel with differential tests`
+- 位置：CUDA 阶梯 `cuda-foundations/01-sgemm-tutorial/`；Triton `trifuse/triton_ops/kernels/sgemm.py`；导航 `cuda-foundations/LEARNING_PATH.md:9-11`；triton README 指向 cuda-foundations
+- 关键 commit：`trifuse@e85d824` `feat(triton): SGEMM kernel with differential tests`
 - 复现命令：
 ```bash
-cd triton-fused-ops && .venv/bin/python -m pytest -q tests/test_sgemm.py
+cd trifuse && .venv/bin/python -m pytest -q tests/test_sgemm.py
 ```
 - 口径/限制：两边都是教学/练习实现；没有同一脚本、同一时刻的 head-to-head TFLOPS 表。对比点是「同题两套实现 + 各自差分测试」，不是生产选型跑分。
 
 ### E3. Triton 三个融合算子有独立参考实现与差分测试
 - 证据类型：测试
-- 位置：`triton-fused-ops/tests/test_rmsnorm_rope.py`、`tests/test_gated_mlp.py`、`tests/test_flash_attention.py`；参考 `triton_ops/reference/`
-- 关键 commit：`triton-fused-ops@0c5b1ed` 收敛到可验证 Transformer kernels
+- 位置：`trifuse/tests/test_rmsnorm_rope.py`、`tests/test_gated_mlp.py`、`tests/test_flash_attention.py`；参考 `triton_ops/reference/`
+- 关键 commit：`trifuse@0c5b1ed` 收敛到可验证 Transformer kernels
 - 复现命令：
 ```bash
-cd triton-fused-ops && .venv/bin/python -m pytest -q tests/test_rmsnorm_rope.py tests/test_gated_mlp.py tests/test_flash_attention.py
+cd trifuse && .venv/bin/python -m pytest -q tests/test_rmsnorm_rope.py tests/test_gated_mlp.py tests/test_flash_attention.py
 ```
 - 口径/限制：FlashAttention 前向是 cuflash 的参考实现，不是本仓优化旗舰。无 GPU 时 kernel 差分 skip。
 
 ### E4. TRIT-001 RoPE half-split 约定 bug 已修复并有测试
 - 证据类型：代码路径 + 测试
-- 位置：`triton-fused-ops/triton_ops/reference/rmsnorm_rope.py:320-324`（concat 而非 `repeat_interleave`）；`examples/rmsnorm_rope_example.py:33-36`
-- 关键 commit：`triton-fused-ops@b1bcdcb` `fix(triton): TRIT-001 half-split RoPE convention and Triton 3.x compatibility`
+- 位置：`trifuse/triton_ops/reference/rmsnorm_rope.py:320-324`（concat 而非 `repeat_interleave`）；`examples/rmsnorm_rope_example.py:33-36`
+- 关键 commit：`trifuse@b1bcdcb` `fix(triton): TRIT-001 half-split RoPE convention and Triton 3.x compatibility`
 - 复现命令：
 ```bash
-cd triton-fused-ops && .venv/bin/python -m pytest -q tests/test_compute_rope.py tests/test_rmsnorm_rope.py
+cd trifuse && .venv/bin/python -m pytest -q tests/test_compute_rope.py tests/test_rmsnorm_rope.py
 ```
 - 口径/限制：契约是 Llama/Qwen `rotate_half`（half-split），不是 interleaved pair。审计 TRIT-001 关闭依赖这条，而不是「随机 cos/sin 自比通过」。
 
 ### E5. torch.library 注册的三个自定义 op 可直接调用
 - 证据类型：代码路径 + 测试
-- 位置：`triton-fused-ops/triton_ops/ops.py:6-8,120-127`；schema：`triton_ops::sgemm`、`triton_ops::fused_rmsnorm_rope`、`triton_ops::fused_gated_mlp`
-- 关键 commit：`triton-fused-ops@1bbf5c8` `feat(torch): register custom ops via torch.library`
+- 位置：`trifuse/triton_ops/ops.py:6-8,120-127`；schema：`triton_ops::sgemm`、`triton_ops::fused_rmsnorm_rope`、`triton_ops::fused_gated_mlp`
+- 关键 commit：`trifuse@1bbf5c8` `feat(torch): register custom ops via torch.library`
 - 复现命令：
 ```bash
-cd triton-fused-ops
+cd trifuse
 .venv/bin/python -c "import torch, triton_ops; print(torch.ops.triton_ops.sgemm)"
 .venv/bin/python -m pytest -q tests/test_torch_library.py
 ```
@@ -103,7 +103,7 @@ cd cuflash && ctest --preset release -R FlashDecoding --output-on-failure
 - 复现命令：
 ```bash
 cd tiny-llm
-./build/tiny_llm_demo /home/shane/github/aicl/models/qwen2.5-0.5b-instruct-q4_k_m.gguf \
+./build/tiny_llm_demo /home/shane/github/open-infra-ai/models/qwen2.5-0.5b-instruct-q4_k_m.gguf \
   --prompt "你好" --max-tokens 32 --show-tokens
 ```
 - 口径/限制：GGUF Q4_K_M 加载后重量化为 W8A16 再推理。本次 freeze 用同一模型跑了 `tiny_llm_tests`（含 graphs on/off 生成对齐）。
@@ -114,7 +114,7 @@ cd tiny-llm
 - 关键 commit：tokenizer 差分合入（见 tiny-llm CHANGELOG Unreleased tokenizer 段）
 - 复现命令：
 ```bash
-TLLM_GGUF_TEST_MODEL=/home/shane/github/aicl/models/qwen2.5-0.5b-instruct-q4_k_m.gguf \
+TLLM_GGUF_TEST_MODEL=/home/shane/github/open-infra-ai/models/qwen2.5-0.5b-instruct-q4_k_m.gguf \
   ./build/tiny_llm_tests --gtest_filter='TokenizerRealModel.*'
 ```
 - 口径/限制：门控于真实 GGUF。本次 freeze 该套件通过。
@@ -125,7 +125,7 @@ TLLM_GGUF_TEST_MODEL=/home/shane/github/aicl/models/qwen2.5-0.5b-instruct-q4_k_m
 - 关键 commit：量化路径合入（CHANGELOG Unreleased）
 - 复现命令：
 ```bash
-TLLM_GGUF_TEST_MODEL=/home/shane/github/aicl/models/qwen2.5-0.5b-instruct-q4_k_m.gguf \
+TLLM_GGUF_TEST_MODEL=/home/shane/github/open-infra-ai/models/qwen2.5-0.5b-instruct-q4_k_m.gguf \
   ./build/tiny_llm_tests --gtest_filter='Dequantize*:*GGUFRealModelTest*'
 ```
 - 口径/限制：合成块期望值来自 Python `gguf.quants`；真实模型首块门控于 Qwen2.5-0.5B Q4_K_M。
@@ -189,9 +189,9 @@ TLLM_CUDA_GRAPHS=0 ./build/tiny_llm_demo model.gguf --prompt "你好" --max-toke
 - 复现命令：
 ```bash
 cd paged-serving
-TINY_LLM_DIR=/home/shane/github/aicl/tiny-llm \
-TINY_LLM_MODEL=/home/shane/github/aicl/models/qwen2.5-0.5b-instruct-q4_k_m.gguf \
-PSERV_TOKENIZER_JSON=/home/shane/github/aicl/models/tokenizer.json \
+TINY_LLM_DIR=/home/shane/github/open-infra-ai/tiny-llm \
+TINY_LLM_MODEL=/home/shane/github/open-infra-ai/models/qwen2.5-0.5b-instruct-q4_k_m.gguf \
+PSERV_TOKENIZER_JSON=/home/shane/github/open-infra-ai/models/tokenizer.json \
   cargo test --features tiny-llm --test tiny_llm_text_e2e -- --nocapture
 ```
 - 口径/限制：llama.cpp `[17,10,17,16819,…,151645]`（equals）；tiny-llm `[17,10,17,374,…,151645]`（is）。第 4 个 token 是 W8A16 vs Q4_K_M argmax 边界翻转。本次 T1 **未**重跑该 feature 测试。
@@ -212,7 +212,7 @@ cd paged-serving && cargo test tiny_llm_config_layout_is_stable
 - 关键 commit：`tiny-llm@7b456cd` `test(ffi): paged strategy differential vs contiguous strategy`
 - 复现命令：
 ```bash
-TLLM_GGUF_TEST_MODEL=/home/shane/github/aicl/models/qwen2.5-0.5b-instruct-q4_k_m.gguf \
+TLLM_GGUF_TEST_MODEL=/home/shane/github/open-infra-ai/models/qwen2.5-0.5b-instruct-q4_k_m.gguf \
   ./build/tiny_llm_tests --gtest_filter='FFITest.PagedKVStrategyMatchesContiguous'
 ```
 - 口径/限制：本次 freeze FFI 套件包含在 174 passed 内。策略 1 有 gather/scatter 往返，正确性优先于延迟。
@@ -281,7 +281,7 @@ cd paged-serving && cargo test --test server_integration
 - 复现命令：
 ```bash
 grep -rn "cuda-kernel-academy" --exclude-dir=.git --exclude-dir=build \
-  cuda-foundations triton-fused-ops cuflash tiny-llm paged-serving || true
+  cuda-foundations trifuse cuflash tiny-llm paged-serving || true
 ```
 - 口径/限制：本 freeze 对上述五仓 **0 命中**。`aicl-lab/docs/organization-audit/` 与根目录 PHASE 计划仍保留旧名作为历史。教学品牌仍可用 “CUDA Kernel Academy”。
 
@@ -304,12 +304,12 @@ grep -rn "cuda-kernel-academy" --exclude-dir=.git --exclude-dir=build \
 
 ### E30. 六仓 GitHub 可见 + phase tag + landing repo
 - 证据类型：git tag + GitHub API
-- 位置：landing `https://github.com/open-infra-ai/aicl-lab`；五仓 `phase-2-e`（在「link portfolio」提交上，不是本轮 ROADMAP HEAD）
+- 位置：landing `https://github.com/open-infra-ai/open-infra-ai`；五仓 `phase-2-e`（在「link portfolio」提交上，不是本轮 ROADMAP HEAD）
 - 关键 commit：五仓 `docs: link portfolio landing repo`；aicl-lab `1ab3e66` / `42fad33`
 - 复现命令：
 ```bash
-gh api repos/aicl-lab/aicl-lab --jq .full_name
-# 本 freeze：六个 full_name 均返回 aicl-lab/<name>
+gh api repos/open-infra-ai/open-infra-ai --jq .full_name
+# 本 freeze 时组织名为 aicl-lab，六个 full_name 均返回 aicl-lab/<name>
 git -C tiny-llm tag --list 'phase-*'
 ```
 - 口径/限制：K 阶段后六仓 ahead 0；五仓 tag = `phase-3-docs`，meta tag = `phase-3-interview`（`9e0b4f7`）。tag 链：`phase-2-e` → `phase-3-docs`（五仓）→ `phase-3-interview`（meta）。

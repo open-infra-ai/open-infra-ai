@@ -10,13 +10,13 @@
 一条命令做六仓 `git status -sb` + 最近 commit + HEAD tag 检查：
 
 ```bash
-cd /home/shane/github/aicl
-for d in cuda-foundations triton-fused-ops cuflash tiny-llm paged-serving aicl-lab; do
+cd /home/shane/github/open-infra-ai
+for d in cuda-foundations trifuse cuflash tiny-llm paged-serving open-infra-ai; do
   (cd $d && echo "== $d ==" && git status -sb && git log --oneline -1 && git tag --points-at HEAD)
 done
 ```
 
-- 期望：六仓 `## master...origin/master`、ahead 0；五仓 HEAD 显示 `phase-3-docs`，meta 显示 `phase-3-interview`。
+- 期望：六仓 `## master...origin/master`、ahead 0；HEAD 不带 tag（`phase-3-*` 是历史冻结 tag，已不指向 HEAD）。
 - 若某仓 ahead 非 0：先 `git push` 或记下偏差，demo 时不刷状态。
 
 ---
@@ -30,7 +30,7 @@ done
 **命令**：
 
 ```bash
-cd /home/shane/github/aicl/tiny-llm
+cd /home/shane/github/open-infra-ai/tiny-llm
 ./build/tiny_llm_bench ../models/qwen2.5-0.5b-instruct-q4_k_m.gguf \
   --prompt "你好" --max-tokens 64 --warmup 3 --iters 5
 ```
@@ -46,10 +46,10 @@ cd /home/shane/github/aicl/tiny-llm
 **命令**：
 
 ```bash
-cd /home/shane/github/aicl/paged-serving
-TINY_LLM_DIR=/home/shane/github/aicl/tiny-llm \
-TINY_LLM_MODEL=/home/shane/github/aicl/models/qwen2.5-0.5b-instruct-q4_k_m.gguf \
-PSERV_TOKENIZER_JSON=/home/shane/github/aicl/models/tokenizer.json \
+cd /home/shane/github/open-infra-ai/paged-serving
+TINY_LLM_DIR=/home/shane/github/open-infra-ai/tiny-llm \
+TINY_LLM_MODEL=/home/shane/github/open-infra-ai/models/qwen2.5-0.5b-instruct-q4_k_m.gguf \
+PSERV_TOKENIZER_JSON=/home/shane/github/open-infra-ai/models/tokenizer.json \
   cargo test --features tiny-llm --test tiny_llm_text_e2e -- --nocapture
 ```
 
@@ -67,7 +67,7 @@ PSERV_TOKENIZER_JSON=/home/shane/github/aicl/models/tokenizer.json \
 **命令**：
 
 ```bash
-cd /home/shane/github/aicl/triton-fused-ops
+cd /home/shane/github/open-infra-ai/trifuse
 .venv/bin/python -c "import torch, triton_ops; [print(getattr(torch.ops.triton_ops, n)) for n in ['sgemm','fused_rmsnorm_rope','fused_gated_mlp']]"
 ```
 
@@ -97,7 +97,7 @@ cd /home/shane/github/aicl/triton-fused-ops
 **C1 · tiny 数字（预计 1 分钟内，需要已构建 binary + GGUF）**
 
 ```bash
-cd /home/shane/github/aicl/tiny-llm
+cd /home/shane/github/open-infra-ai/tiny-llm
 ./build/tiny_llm_bench ../models/qwen2.5-0.5b-instruct-q4_k_m.gguf \
   --prompt "你好" --max-tokens 64 --warmup 3 --iters 5
 ```
@@ -107,7 +107,7 @@ skip 门控：无 `tiny_llm_bench` 或 GGUF 文件，则改用 `interview/NUMBER
 **C2 · triton schema（预计 10 秒内，需要 venv）**
 
 ```bash
-cd /home/shane/github/aicl/triton-fused-ops
+cd /home/shane/github/open-infra-ai/trifuse
 .venv/bin/python -c "import torch, triton_ops; print(torch.ops.triton_ops.sgemm)"
 ```
 
@@ -116,10 +116,10 @@ skip 门控：venv 未装依赖，则口头报 E5 的三个注册名。
 **C3 · paged 3 并发 e2e（预计 2–3 分钟，需要 backends 构建 + 模型 + tokenizer.json）**
 
 ```bash
-cd /home/shane/github/aicl/paged-serving
-TINY_LLM_DIR=/home/shane/github/aicl/tiny-llm \
-TINY_LLM_MODEL=/home/shane/github/aicl/models/qwen2.5-0.5b-instruct-q4_k_m.gguf \
-PSERV_TOKENIZER_JSON=/home/shane/github/aicl/models/tokenizer.json \
+cd /home/shane/github/open-infra-ai/paged-serving
+TINY_LLM_DIR=/home/shane/github/open-infra-ai/tiny-llm \
+TINY_LLM_MODEL=/home/shane/github/open-infra-ai/models/qwen2.5-0.5b-instruct-q4_k_m.gguf \
+PSERV_TOKENIZER_JSON=/home/shane/github/open-infra-ai/models/tokenizer.json \
   cargo test --features tiny-llm --test tiny_llm_text_e2e -- --nocapture
 ```
 

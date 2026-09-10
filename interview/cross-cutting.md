@@ -34,7 +34,7 @@ llama.cpp 已经把 GGUF 容器、多种量化格式、CUDA/Metal/CPU 后端、�
 
 Triton 的调度单位是 program，通常对应一个 CUDA block。你用 `tl.arange` 构造 tile，用 mask 挡住越界，用 `tl.dot` 做累加，用 `num_warps`/`num_stages` 做很粗的调参。开发速度来自不必手写 shared memory 的双缓冲索引和指令级调度。代价是对 bank conflict、warp 特化、TMA、精确 occupancy 的控制变弱。调试也更依赖「和 `torch.mm` 或 SDPA 差分过了」。本仓库 `tests/test_sgemm.py` 有 24 项对 `torch.mm`，形状包括 64 对齐、M=1、N=1 和非 2 幂 17×33×65，容差 rtol/atol=1e-2（E2）。三条融合算子各有独立 NumPy/PyTorch reference（E3）。这是 Triton 的正确用法：先锁输入契约和参考实现，再谈融合省几次 HBM。`fused_rmsnorm_rope` 在 (1,128,4096) 上是 **0.104 ms**，`fused_gated_mlp` silu 在 (1,128,4096,11264) 上是 **3.45 ms**（README 表，commit `ebf6c32+`）。3.45 ms 对应大约 10 TFLOPS，相对 RTX 3060 Laptop 的 FP16 理论峰值大约 46 TFLOPS，是练习实现，不是打榜数字。
 
-CUDA C++ 的调度单位是线程、warp、shared memory 和 `mma`。cuda-foundations 的 SGEMM 阶梯把 naive **0.58 TFLOPS** 推到 WMMA **1.09**，同时 **bank-conflict-free 掉到 0.66**、double-buffer 是 **0.68**，cuBLAS 是 **5.58**（E1）。这种「写了优化步骤反而变慢」在 Triton 里很难当教材留下来，因为你往往看不到那一次 padding 换来的占用变化。cuflash 的 online softmax、把 `grid.y=B*H` 展平以免超过 65535、FlashDecoding 按 KV 分块再 reduce，都是必须碰 launch 配置和数值稳定性的问题。Triton 的 FlashAttention 前向故意留在 triton-fused-ops 当参考，owner 是 cuflash（E6、E9）。tiny-llm 的 decode GEMM 更是纯 CUDA 访存：旧 kernel 读 `weight[k*N+col]`，lane 之间 stride 是 N；转置后读 `weight_t[col*K+k]`，stride 是 1（E15）。这类故事 Triton 写得出来，但你很难在面试里指着一条 PTX 级理由。
+CUDA C++ 的调度单位是线程、warp、shared memory 和 `mma`。cuda-foundations 的 SGEMM 阶梯把 naive **0.58 TFLOPS** 推到 WMMA **1.09**，同时 **bank-conflict-free 掉到 0.66**、double-buffer 是 **0.68**，cuBLAS 是 **5.58**（E1）。这种「写了优化步骤反而变慢」在 Triton 里很难当教材留下来，因为你往往看不到那一次 padding 换来的占用变化。cuflash 的 online softmax、把 `grid.y=B*H` 展平以免超过 65535、FlashDecoding 按 KV 分块再 reduce，都是必须碰 launch 配置和数值稳定性的问题。Triton 的 FlashAttention 前向故意留在 trifuse 当参考，owner 是 cuflash（E6、E9）。tiny-llm 的 decode GEMM 更是纯 CUDA 访存：旧 kernel 读 `weight[k*N+col]`，lane 之间 stride 是 N；转置后读 `weight_t[col*K+k]`，stride 是 1（E15）。这类故事 Triton 写得出来，但你很难在面试里指着一条 PTX 级理由。
 
 接入形态也不一样。推理框架要的是 `torch.ops.vllm.*` 这种命名空间，不是一个孤立的 `.cu`。所以 Triton 仓做了 `torch.library`：`triton_ops::sgemm`、`fused_rmsnorm_rope`、`fused_gated_mlp`。优先 `torch.library.triton_op`，否则 `custom_op + register_fake`（`1bbf5c8`，E5）。内部只调已有 kernel，不复制逻辑。CUDA 的 FA 走 C++ API 和 ctypes；tiny-llm 走自己的 C ABI。不要把 ctypes 教学绑定说成和 vLLM custom op 同一套机制。
 
@@ -42,7 +42,7 @@ Triton 3.x 的坑要主动提。TRIT-001 不是性能 bug，是 RoPE 排列。`r
 
 融合也不是默认正确。RMSNorm+RoPE 合成一次，是因为两者都是逐元素、同一行、中间结果不必回 HBM。把 lm_head 这种 N=151936 的 GEMM 和采样融合在一起，Triton 写得出来，但 tiny-llm 的 profiling 已经说明时间在访存形状，不在「少一次 launch」。autotuner 在本仓是基础设施，没有当成旗舰接到每个 wrapper 上；面试不把它说成 vLLM 级别的调参系统。删掉假 FP8 E4M3 也是同一纪律：名字先于实现时，Triton 的速度会把错误量化送进教程。SGEMM 的 24 项差分（含 17×33×65）就是用来挡住「融合了所以一定对」。没有对照表就不报 Triton 比教学 CUDA 更快。
 
-我实际在用的选型规则是三条。算子还在改公式、要对着 PyTorch 周更、需要进 `torch.compile` 图，用 Triton。已经用 microbench 证明瓶颈在 coalescing、图捕获、网格上限或训练反向，用 CUDA C++。同一算法需要两套实现时，Triton 当 oracle 或接入层，CUDA 当深度作品，禁止两套都自称生产最优。cuda-foundations 和 triton-fused-ops 并排存在，就是这条规则的物理形态。
+我实际在用的选型规则是三条。算子还在改公式、要对着 PyTorch 周更、需要进 `torch.compile` 图，用 Triton。已经用 microbench 证明瓶颈在 coalescing、图捕获、网格上限或训练反向，用 CUDA C++。同一算法需要两套实现时，Triton 当 oracle 或接入层，CUDA 当深度作品，禁止两套都自称生产最优。cuda-foundations 和 trifuse 并排存在，就是这条规则的物理形态。
 
 **追问**
 

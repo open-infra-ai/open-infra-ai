@@ -71,7 +71,7 @@ README 快照 commit 写成 `f897084`，命令 `--iters 10`；decode-optimizatio
 
 grid overflow smoke：测试名 `ForwardTest.GridYOverflowSmoke`（B*H=65536）。本次 freeze 含在 70 个执行通过的 ctest 里。
 
-## 5. triton-fused-ops
+## 5. trifuse
 
 来源：README「性能基准」，commit `ebf6c32+`，torch 2.5.1 / triton 3.1.0（README 原文；本机 venv 可能更新，数字仍以该表为准）。
 
@@ -88,7 +88,7 @@ SGEMM 差分：`tests/test_sgemm.py` 本次 freeze **24 passed**（4 shapes × f
 | 仓 | 结果 | 命令 |
 |----|------|------|
 | cuda-foundations | 0 failed / **209 collected**；**78 skipped**；131 执行 | `ctest --preset default` @ `44ac954` 源码 |
-| triton-fused-ops | **116 passed, 1 skipped** | `.venv/bin/python -m pytest -q` |
+| trifuse | **116 passed, 1 skipped** | `.venv/bin/python -m pytest -q` |
 | cuflash | **71 collected, 0 failed, 1 skipped**（pytorch comparison） | `ctest --preset release` |
 | tiny-llm | **174 passed, 1 skipped** / 175；skip=`SecondModelTest.*` | `tiny_llm_tests` + `TLLM_GGUF_TEST_MODEL` |
 | paged-serving | **218 passed**（无 `tiny-llm` feature）；e2e 用例 0 运行 | `cargo fmt/clippy/test` |

@@ -151,11 +151,11 @@
 3. interleaved 把 freqs 按 pairwise 插进相邻位置（repeat_interleave）。
 4. 两种“看起来都像 RoPE”，但位置编码的值不同，与 HF/HF 系列模型约定必须一致。TRIT-001 抓的正是排列不一致（E4）。
 
-**与本仓库数字对应**：`triton-fused-ops/triton_ops/reference/rmsnorm_rope.py:320-324`（concat 而非 repeat_interleave），修复 commit `b1bcdcb`；测试 `test_compute_rope.py`、`test_rmsnorm_rope.py`。
+**与本仓库数字对应**：`trifuse/triton_ops/reference/rmsnorm_rope.py:320-324`（concat 而非 repeat_interleave），修复 commit `b1bcdcb`；测试 `test_compute_rope.py`、`test_rmsnorm_rope.py`。
 
 **常见错误**：把 half-split 说成 interleaved；只和 kernel 内部 reference 比（共模，Q16）；在长上下文里位置 id 与 KV 槽错位。
 
-**可在现场打开**：`triton-fused-ops/triton_ops/reference/rmsnorm_rope.py` 与 `tests/test_compute_rope.py`；追问见 Q16/Q17。
+**可在现场打开**：`trifuse/triton_ops/reference/rmsnorm_rope.py` 与 `tests/test_compute_rope.py`；追问见 Q16/Q17。
 
 ## 10. KV cache 字节数公式
 

@@ -12,8 +12,8 @@
 | GPU | NVIDIA GeForce RTX 3060 Laptop GPU，6144 MiB |
 | 驱动 | 591.44 |
 | CUDA toolkit | nvcc 12.0.140（`Build cuda_12.0.r12.0/compiler.32267302_0`） |
-| 工作根目录 | `/home/shane/github/aicl` |
-| 模型（tiny-llm 门控测试） | `/home/shane/github/aicl/models/qwen2.5-0.5b-instruct-q4_k_m.gguf` |
+| 工作根目录 | `/home/shane/github/open-infra-ai` |
+| 模型（tiny-llm 门控测试） | `/home/shane/github/open-infra-ai/models/qwen2.5-0.5b-instruct-q4_k_m.gguf` |
 
 ## 2. 六仓 git 状态（测试结束后）
 
@@ -22,7 +22,7 @@
 | 仓库 | HEAD | 相对 origin | HEAD 上的 tag | 备注 |
 |------|------|-------------|---------------|------|
 | cuda-foundations | `38ccdcd` docs: record freeze ctest… | ahead 2 | （空；`phase-2-e` 在 HEAD~2） | 测试跑在 `44ac954`；`38ccdcd` 只改正 skip 表述 |
-| triton-fused-ops | `317347e` docs: check off GPU benchmark… | ahead 1 | （空；`phase-2-e` 在 HEAD~1） | pytest 与 ROADMAP 提交并行，未改测试代码 |
+| trifuse | `317347e` docs: check off GPU benchmark… | ahead 1 | （空；`phase-2-e` 在 HEAD~1） | pytest 与 ROADMAP 提交并行，未改测试代码 |
 | cuflash | `e0862b4` docs: check off completed ROADMAP… | ahead 1 | （空；`phase-2-e` 在 HEAD~1） | |
 | tiny-llm | `15001c5` docs: align ROADMAP and README… | ahead 1 | （空；`phase-2-e` 在 HEAD~1） | 测试带 `TLLM_GGUF_TEST_MODEL` |
 | paged-serving | `fb9d670` docs: mark paged KV strategy 1… | ahead 1 | （空；`phase-2-e` 在 HEAD~1） | 默认 `cargo test`，**未**开 `tiny-llm` feature |
@@ -44,7 +44,7 @@ cmake --preset default && cmake --build --preset default -j$(nproc) && ctest --p
 - 131 项实际执行并通过（01 模块与部分 03 测试在列）
 - 口径：CTest 把 skip 算进 “0 failed / 209”，**不能说 209 项都在 GPU 上跑过**。MASTER_PLAN 已记录 04 GPU skip 为既有环境现象；本次 skip 集合更大，原样记录。
 
-### 3.2 triton-fused-ops
+### 3.2 trifuse
 
 ```bash
 .venv/bin/python -m pytest -q
@@ -70,7 +70,7 @@ cmake --preset release && cmake --build --preset release -j$(nproc) && ctest --p
 
 ```bash
 cmake --build build -j$(nproc)
-TLLM_GGUF_TEST_MODEL=/home/shane/github/aicl/models/qwen2.5-0.5b-instruct-q4_k_m.gguf \
+TLLM_GGUF_TEST_MODEL=/home/shane/github/open-infra-ai/models/qwen2.5-0.5b-instruct-q4_k_m.gguf \
   ./build/tiny_llm_tests
 ```
 

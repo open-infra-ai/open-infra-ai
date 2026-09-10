@@ -16,14 +16,14 @@ I built a four-layer AI infra portfolio across five repos: CUDA GEMM teaching, T
 
 ```
 L1 Kernel 基础     cuda-foundations     CUDA C++ GEMM 阶梯与测量
-                   triton-fused-ops     同一批算子的 Triton 表达 + torch.library
+                   trifuse     同一批算子的 Triton 表达 + torch.library
 L2 Kernel 深度     cuflash         FlashAttention 前后向（WMMA / FlashDecoding）
 L3 Runtime         tiny-llm             GGUF → W8A16 → token；分页 KV 策略 1
 L4 Serving         paged-serving          调度 / BlockPool / OpenAI API；经 C ABI 调 tiny-llm
-Meta               aicl-lab             landing + 本面试证据包
+Meta               open-infra-ai         landing + 本面试证据包
 ```
 
-Landing：<https://github.com/open-infra-ai/aicl-lab>。五仓 `phase-2-e` 钉在「link portfolio」提交；其后有 ROADMAP 对齐的 docs commit。
+Landing：<https://github.com/open-infra-ai/open-infra-ai>。五仓 `phase-2-e` 钉在「link portfolio」提交；其后有 ROADMAP 对齐的 docs commit。
 
 **切仓原则（会被追问）**：一个算法一个 owner。FlashAttention → cuflash；量化 GEMM → tiny-llm；分页控制面 → paged-serving。跨仓只走窄 ABI（`tiny-llm/include/tiny_llm/ffi.h` ↔ `paged-serving/src/tiny_llm_ffi.rs`），不互相 include。教学仓不得被 runtime 依赖。
 

@@ -1,7 +1,7 @@
 # Kernel 岗位角色手册
 
 > Phase I6。目标岗位偏 **kernel / CUDA / Triton** 时的讲述顺序与重点。
-> 同一份材料重排：主推 cuflash + triton-fused-ops + cuda-foundations；tiny-llm 只讲转置优化与 microbench；paged-serving 一分钟带过。
+> 同一份材料重排：主推 cuflash + trifuse + cuda-foundations；tiny-llm 只讲转置优化与 microbench；paged-serving 一分钟带过。
 
 ## 一句话定位
 
@@ -28,8 +28,8 @@
 1. `cuflash › 1`：FA 前后向多精度差分 + grid.y 展平回归（E7）——先证明 kernel 正确性纪律。
 2. `cuflash › 2`：causal ±2% 负结果留文档（E8）——证明诚实。
 3. `cuflash › 3`：FlashDecoding Split-KV（E9）——证明 decode 方向的理解。
-4. `triton-fused-ops › 2`：TRIT-001 RoPE half-split 契约修复（E4）——证明能被审计抓到约定 bug。
-5. `triton-fused-ops › 3`：torch.library 三 op 注册、compile smoke 如实 skip（E5）——证明接入模式。
+4. `trifuse › 2`：TRIT-001 RoPE half-split 契约修复（E4）——证明能被审计抓到约定 bug。
+5. `trifuse › 3`：torch.library 三 op 注册、compile smoke 如实 skip（E5）——证明接入模式。
 6. `cuda-foundations › 1`：SGEMM 阶梯留负优化（E1）——证明教学也讲数字。
 7. `总览 › 2`：转置 M==1 GEMM 的 microbench（E15）——只作为 kernel 微观视角收尾，不展开 runtime。
 

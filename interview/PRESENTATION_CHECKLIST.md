@@ -1,6 +1,7 @@
 # 面试呈现清单
 
-Phase 3 本地交付核对。`phase-3-interview` tag 已推送（meta = `9e0b4f7`），五仓 `phase-3-docs`，六仓 ahead 0。本清单用于面试前核对，不代替实际操作。
+面试前核对清单，不代替实际操作。六仓 ahead 0，工作树干净。
+（`phase-3-docs` / `phase-3-interview` 是 Phase 3 的历史冻结 tag，已不指向各仓 HEAD。）
 
 ## GitHub profile 建议
 
@@ -10,8 +11,8 @@ Pinned 顺序（与讲述优先级一致）：
 2. [cuflash](https://github.com/open-infra-ai/cuflash) — kernel 深度
 3. [paged-serving](https://github.com/open-infra-ai/paged-serving) — serving 控制面
 4. [cuda-foundations](https://github.com/open-infra-ai/cuda-foundations) — L1 教学
-5. [triton-fused-ops](https://github.com/open-infra-ai/triton-fused-ops) — 同题异构 / torch.library
-6. [aicl-lab](https://github.com/open-infra-ai/aicl-lab) — landing + 本面试包
+5. [trifuse](https://github.com/open-infra-ai/trifuse) — 同题异构 / torch.library
+6. [open-infra-ai](https://github.com/open-infra-ai/open-infra-ai) — landing + 本面试包
 
 Landing 一句话：四层学习链，不是迷你 vLLM。
 
@@ -22,15 +23,15 @@ Landing 一句话：四层学习链，不是迷你 vLLM。
 | tiny-llm | TPOT 6.09/6.1；W8A16；策略 1；graphs 默认 | 「待 GPU」；比 llama.cpp 快且不提量化 |
 | paged-serving | 策略 1 默认；3 并发对齐；is/equals 诚实 | 3030 vs 5118；生产并发 |
 | cuflash | grid.y 修复；causal skip **负结果**；FlashDecoding | ±2% 当加速成功；LogicalHBM=物理带宽 |
-| triton-fused-ops | 三 op + torch.library；TRIT-001 | 假 FP8 E4M3；compile skip 当 pass |
+| trifuse | 三 op + torch.library；TRIT-001 | 假 FP8 E4M3；compile skip 当 pass |
 | cuda-foundations | 冻结；阶梯含更慢的 padding 步；04 预览 | 209/209 全执行；旧 slug 当现名 |
-| aicl-lab | 五仓地图 + Interview Evidence 链接 + tag 链 | 把五仓源码改动混入 meta、或把 `phase-3-docs`/`phase-3-interview` 链说反 |
+| open-infra-ai | 五仓地图 + Interview Evidence 链接 + tag 链 | 把五仓源码改动混入 meta、或把 `phase-3-docs`/`phase-3-interview` 链说反 |
 
 ## 面试前 24h 检查
 
 ```bash
-cd /home/shane/github/aicl
-for d in cuda-foundations triton-fused-ops cuflash tiny-llm paged-serving aicl-lab; do
+cd /home/shane/github/open-infra-ai
+for d in cuda-foundations trifuse cuflash tiny-llm paged-serving open-infra-ai; do
   (cd $d && echo "== $d ==" && git status -sb && git log --oneline -1 && git tag --points-at HEAD)
 done
 ```
@@ -40,7 +41,7 @@ done
 ```bash
 # 旗舰：tiny-llm 测试（需 TLLM_GGUF_TEST_MODEL）
 # paged-serving 默认 CI（不含 e2e）
-cd /home/shane/github/aicl/paged-serving && cargo test
+cd /home/shane/github/open-infra-ai/paged-serving && cargo test
 ```
 
 对照 [`FREEZE_AUDIT.md`](FREEZE_AUDIT.md) 的 skip 数，不要现场「再优化一下数字」。
