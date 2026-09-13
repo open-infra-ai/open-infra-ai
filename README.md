@@ -16,6 +16,7 @@
 | CUDA/Triton 基础与对照 | [cuda-foundations](https://github.com/open-infra-ai/cuda-foundations) + [trifuse](https://github.com/open-infra-ai/trifuse) | 优化阶梯、参考实现、差分测试、`torch.library` |
 | KV tiering 上游研究 | [kvtier](https://github.com/open-infra-ai/kvtier) | SGLang HiCache 数据流、W/E/R/P 实验脚手架与结果审计 |
 | 可追溯证据 | [`docs/evidence-index.md`](docs/evidence-index.md) | 结果包、复现入口、已知限制和尚待补齐的证据 |
+| 证据 artifact 生命周期 | [`docs/evidence-artifact-lifecycle.md`](docs/evidence-artifact-lifecycle.md) | Manifest schema、发布/过期状态、hash、claim 与 Agent 审计协议 |
 | 作品集审计与开发路线 | [`docs/portfolio-audit-and-development-roadmap.md`](docs/portfolio-audit-and-development-roadmap.md) | 项目分层、能力缺口、P0/P1/P2 改造与验收标准 |
 | 毕业与面试证据标准 | [`docs/portfolio-graduation-and-interview-proof.md`](docs/portfolio-graduation-and-interview-proof.md) | 简历声明、现场演示、追问边界和逐仓毕业门槛 |
 

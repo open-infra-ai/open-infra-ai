@@ -3,6 +3,10 @@
 本页只负责跨仓导航。原始数据、复现命令和限制由产生证据的技术仓维护，
 不在 meta 仓复制第二份结果。
 
+新正式结果包的最小 provenance、artifact hash、状态晋级和失效规则见
+[`evidence-artifact-lifecycle.md`](evidence-artifact-lifecycle.md)；
+机器可读约束见 [`evidence-manifest.schema.json`](evidence-manifest.schema.json)。
+
 作品集的跨仓审计、项目分层与后续 P0/P1/P2 开发验收见
 [`portfolio-audit-and-development-roadmap.md`](portfolio-audit-and-development-roadmap.md)。
 将证据安全地转化为简历声明、现场演示和逐仓面试答辩的门槛见
