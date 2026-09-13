@@ -3,6 +3,9 @@
 本页只负责跨仓导航。原始数据、复现命令和限制由产生证据的技术仓维护，
 不在 meta 仓复制第二份结果。
 
+作品集的跨仓审计、项目分层与后续 P0/P1/P2 开发验收见
+[`portfolio-audit-and-development-roadmap.md`](portfolio-audit-and-development-roadmap.md)。
+
 ## 证据层级
 
 1. **真实实验结果**：绑定 commit、模型/输入、硬件与软件环境，保留原始输出和汇总。
