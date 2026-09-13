@@ -7,7 +7,7 @@
 
 保留以下公开、稳定、跨项目内容：
 
-- 组织 landing 页、五个技术仓导航与状态注册表；
+- 组织 landing 页、六个技术仓导航与状态注册表；
 - `LEARNING_PATH.md` 组织级学习顺序；
 - `docs/cross-repo-contracts.md` 跨仓语义契约；
 - 可复现证据索引与仓库治理记录；
@@ -16,7 +16,7 @@
 不再新增活跃简历、投递状态、公司清单、每日打卡或上游评论草稿。历史档案不因边界调整
 而改写；它们记录的是当时事实。
 
-## 2. 五个技术仓：只承载可运行的技术作品
+## 2. 六个技术仓：只承载可运行的技术作品或可审计研究
 
 | 仓库 | 唯一主责 | 不承载 |
 |------|----------|--------|
@@ -25,11 +25,12 @@
 | `cuflash` | FlashAttention/FlashDecoding CUDA 专项深挖 | `tiny-llm` 的 generate 路径 |
 | `tiny-llm` | 真实权重加载、量化、decode、KV 与端到端推理加速 | HTTP 调度控制面 |
 | `paged-serving` | Paged KV、continuous batching、调度、HTTP/SSE 与 serving 评测 | 重复实现模型算子与权重加载 |
+| `kvtier` | SGLang HiCache/KV tiering 上游研究和可审计复现实验 | 自研生产 tiering engine 的虚假声明 |
 
 `tiny-llm` 与 `paged-serving` 只通过受测试的 C ABI 集成；`cuflash` 不接入
 `tiny-llm` generate 路径。技术仓名称已经被简历和证据引用，保持冻结，不做大规模重命名。
 
-## 3. 个人执行仓：`holtwood/ai-infra-interview-prep`
+## 3. 个人执行仓：`open-infra-ai/ai-infra-interview-prep`
 
 集中维护所有仍会快速变化的个人执行材料：
 
@@ -52,7 +53,8 @@
 
 - 旗舰系统：`tiny-llm + paged-serving`，分别作为数据面与控制面；
 - CUDA 专项深度：`cuflash`；
-- 基础与跨语言对照：`cuda-foundations`、`trifuse`。
+- 基础与跨语言对照：`cuda-foundations`、`trifuse`；
+- 上游研究选修：`kvtier`。
 
-五仓共同组成能力链，但简历不要把五仓平铺成五个同等重要项目。旗舰系统讲深，
-`cuflash` 根据 CUDA 岗位作为专项证据，基础与对照仓只在技能或 GitHub 导航中出现。
+六个技术仓共同组成能力链，但简历不要把六仓平铺成六个同等重要项目。旗舰系统讲深，
+`cuflash` 根据 CUDA 岗位作为专项证据，基础、对照与研究仓只在技能或 GitHub 导航中出现。

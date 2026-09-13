@@ -1,0 +1,509 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/open-infra-ai/open-infra-ai/master/docs/evidence-manifest.schema.json",
+  "title": "open-infra-ai evidence manifest",
+  "description": "Cross-repository provenance and claim boundary for a correctness, profiling, benchmark, integration, or serving evidence package.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "evidence_id",
+    "status",
+    "evidence_level",
+    "kind",
+    "repository",
+    "environment",
+    "subject",
+    "workload",
+    "protocol",
+    "correctness",
+    "artifacts",
+    "metrics",
+    "limitations",
+    "claims"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "evidence_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]+$"
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "candidate",
+        "verified",
+        "published",
+        "stale",
+        "revoked",
+        "blocked",
+        "not_converged"
+      ]
+    },
+    "evidence_level": {
+      "enum": [
+        "E0",
+        "E1",
+        "E2",
+        "E3",
+        "E4",
+        "E5"
+      ]
+    },
+    "kind": {
+      "enum": [
+        "correctness",
+        "sanitizer",
+        "benchmark",
+        "profiling",
+        "integration",
+        "serving"
+      ]
+    },
+    "created_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "repository": {
+      "$ref": "#/definitions/repository"
+    },
+    "environment": {
+      "$ref": "#/definitions/environment"
+    },
+    "subject": {
+      "$ref": "#/definitions/subject"
+    },
+    "workload": {
+      "type": "object",
+      "description": "Project-specific semantic workload. Preserve exact model, dtype, quantization, shapes, request distribution, and seed when applicable.",
+      "additionalProperties": true
+    },
+    "protocol": {
+      "$ref": "#/definitions/protocol"
+    },
+    "correctness": {
+      "$ref": "#/definitions/correctness"
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/artifact"
+      }
+    },
+    "metrics": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/metric"
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/claim"
+      }
+    },
+    "review": {
+      "$ref": "#/definitions/review"
+    },
+    "replacement_evidence_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]+$"
+    },
+    "extensions": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "definitions": {
+    "repository": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "url",
+        "commit",
+        "dirty"
+      ],
+      "properties": {
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "branch": {
+          "type": "string",
+          "minLength": 1
+        },
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "dirty": {
+          "type": "boolean"
+        },
+        "diff_artifact": {
+          "type": "string",
+          "minLength": 1
+        },
+        "related_repositories": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "url",
+              "commit"
+            ],
+            "properties": {
+              "url": {
+                "type": "string",
+                "format": "uri"
+              },
+              "commit": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{40}$"
+              },
+              "role": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "os",
+        "gpus",
+        "toolchain"
+      ],
+      "properties": {
+        "os": {
+          "type": "string",
+          "minLength": 1
+        },
+        "cpu": {
+          "type": "string",
+          "minLength": 1
+        },
+        "gpus": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "compute_capability": {
+                "type": "string",
+                "minLength": 1
+              },
+              "memory_bytes": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "power_limit_watts": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "clock_policy": {
+                "type": "string",
+                "minLength": 1
+              },
+              "mig": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "driver": {
+          "type": "string",
+          "minLength": 1
+        },
+        "cuda": {
+          "type": "string",
+          "minLength": 1
+        },
+        "toolchain": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "implementation",
+        "comparison_key",
+        "timing_boundary"
+      ],
+      "properties": {
+        "implementation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "baseline": {
+          "type": "string",
+          "minLength": 1
+        },
+        "comparison_key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "timing_boundary": {
+          "enum": [
+            "not_applicable",
+            "kernel_only",
+            "operator",
+            "end_to_end"
+          ]
+        }
+      }
+    },
+    "protocol": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "commands"
+      ],
+      "properties": {
+        "commands": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "command",
+              "exit_code"
+            ],
+            "properties": {
+              "command": {
+                "type": "string",
+                "minLength": 1
+              },
+              "exit_code": {
+                "type": "integer"
+              },
+              "started_at_utc": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        },
+        "warmup": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "repetitions": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "seed": {
+          "type": "integer"
+        },
+        "synchronization": {
+          "type": "string",
+          "minLength": 1
+        },
+        "convergence_rule": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "correctness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "required",
+        "status"
+      ],
+      "properties": {
+        "required": {
+          "type": "boolean"
+        },
+        "status": {
+          "enum": [
+            "passed",
+            "failed",
+            "blocked",
+            "not_run",
+            "not_applicable"
+          ]
+        },
+        "artifact": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reference": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role",
+        "path",
+        "media_type"
+      ],
+      "properties": {
+        "role": {
+          "enum": [
+            "raw",
+            "summary",
+            "report",
+            "log",
+            "correctness",
+            "sanitizer",
+            "profiler",
+            "plot",
+            "diff"
+          ]
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "media_type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "metric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "unit",
+        "aggregation",
+        "value"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "aggregation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value": {
+          "type": "number"
+        },
+        "sample_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "cv": {
+          "type": "number",
+          "minimum": 0
+        },
+        "converged": {
+          "type": "boolean"
+        }
+      }
+    },
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "text"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "allowed",
+            "prohibited"
+          ]
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scope": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision",
+        "reviewed_at_utc"
+      ],
+      "properties": {
+        "decision": {
+          "enum": [
+            "approved",
+            "changes_requested",
+            "rejected"
+          ]
+        },
+        "reviewed_at_utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "reviewer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
