@@ -14,8 +14,10 @@
 | 端到端 LLM Serving | [tiny-llm](https://github.com/open-infra-ai/tiny-llm) + [paged-serving](https://github.com/open-infra-ai/paged-serving) | 真实权重、W8A16、Paged KV、continuous batching、C ABI、HTTP/SSE |
 | CUDA kernel 深挖 | [cuflash](https://github.com/open-infra-ai/cuflash) | online softmax、Tensor Core、FlashDecoding、数值与性能边界 |
 | CUDA/Triton 基础与对照 | [cuda-foundations](https://github.com/open-infra-ai/cuda-foundations) + [trifuse](https://github.com/open-infra-ai/trifuse) | 优化阶梯、参考实现、差分测试、`torch.library` |
+| KV tiering 上游研究 | [kvtier](https://github.com/open-infra-ai/kvtier) | SGLang HiCache 数据流、W/E/R/P 实验脚手架与结果审计 |
 | 可追溯证据 | [`docs/evidence-index.md`](docs/evidence-index.md) | 结果包、复现入口、已知限制和尚待补齐的证据 |
 | 作品集审计与开发路线 | [`docs/portfolio-audit-and-development-roadmap.md`](docs/portfolio-audit-and-development-roadmap.md) | 项目分层、能力缺口、P0/P1/P2 改造与验收标准 |
+| 毕业与面试证据标准 | [`docs/portfolio-graduation-and-interview-proof.md`](docs/portfolio-graduation-and-interview-proof.md) | 简历声明、现场演示、追问边界和逐仓毕业门槛 |
 
 ## 作品集架构
 
@@ -26,6 +28,7 @@
 
 Kernel 深挖：cuflash（独立作品，不接入 tiny-llm generate）
 基础对照：cuda-foundations · trifuse
+上游研究：kvtier（不接入旗舰 runtime）
 ```
 
 `tiny-llm` 和 `paged-serving` 是同一旗舰系统的数据面与控制面；
@@ -44,6 +47,7 @@ Kernel 深挖：cuflash（独立作品，不接入 tiny-llm generate）
 | 深挖 | [cuflash](https://github.com/open-infra-ai/cuflash) | CUDA C++ FlashAttention 前后向与 FlashDecoding | stable |
 | 旗舰数据面 | [tiny-llm](https://github.com/open-infra-ai/tiny-llm) | 真实权重加载、量化、decode、KV 与 C ABI | active |
 | 旗舰控制面 | [paged-serving](https://github.com/open-infra-ai/paged-serving) | Paged KV、continuous batching、HTTP/SSE 与 serving 评测 | active |
+| 上游研究 | [kvtier](https://github.com/open-infra-ai/kvtier) | SGLang HiCache/KV tiering 研究与可审计复现实验 | active |
 
 **状态语义**：`active` = 学习/演进中；`stable` = 作品完成，只修正确性 bug 与文档；
 `archived` = 不再维护。状态以本表为唯一权威注册表，与各仓 README 状态行、
@@ -53,7 +57,8 @@ GitHub topics 三处同步。
 
 1. **准备系统/Serving 面试**：`paged-serving → C ABI → tiny-llm`，按一条请求生命周期阅读。
 2. **准备 CUDA kernel 面试**：先看 `cuflash`，再用 `trifuse` 解释 Triton/CUDA 取舍。
-3. **从基础完整学习**：按 `cuda-foundations → trifuse → cuflash → tiny-llm → paged-serving`。
+3. **从基础完整学习**：按 `cuda-foundations → trifuse → cuflash → tiny-llm → paged-serving`；
+   `kvtier` 作为 KV offloading 上游研究选修。
 
 完整方法论（优化循环、不变量测试、阶段完成标准）见本仓
 [`LEARNING_PATH.md`](LEARNING_PATH.md)——组织级导航的唯一权威入口。
@@ -113,7 +118,7 @@ GitHub topics 三处同步。
 ## 求职与面试执行
 
 活跃的 12 周计划、简历草稿、岗位清单、投递模板与上游贡献练习已迁到个人执行仓
-[`holtwood/ai-infra-interview-prep`](https://github.com/holtwood/ai-infra-interview-prep)。
+[`open-infra-ai/ai-infra-interview-prep`](https://github.com/open-infra-ai/ai-infra-interview-prep)。
 本组织只承载可复现的公开技术作品和跨仓契约，不再混入随求职进程频繁变化的私人材料。
 
 ## 档案区

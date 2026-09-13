@@ -5,6 +5,8 @@
 
 作品集的跨仓审计、项目分层与后续 P0/P1/P2 开发验收见
 [`portfolio-audit-and-development-roadmap.md`](portfolio-audit-and-development-roadmap.md)。
+将证据安全地转化为简历声明、现场演示和逐仓面试答辩的门槛见
+[`portfolio-graduation-and-interview-proof.md`](portfolio-graduation-and-interview-proof.md)。
 
 ## 证据层级
 
@@ -23,6 +25,7 @@
 | [cuflash](https://github.com/open-infra-ai/cuflash) | [benchmark 口径](https://github.com/open-infra-ai/cuflash/blob/master/docs/performance/benchmarks.md) · [causal 边界块优化快照](https://github.com/open-infra-ai/cuflash/blob/master/docs/performance/causal-boundary-skip.md) | 指定 RTX 3060 快照与该优化的形状边界 | 不同 GPU 上的通用加速比或生产库等价性 |
 | [trifuse](https://github.com/open-infra-ai/trifuse) | [README 验证和 benchmark 边界](https://github.com/open-infra-ai/trifuse#%E9%AA%8C%E8%AF%81) | Triton kernel 与参考实现的数值对照及记录的本机快照 | 跨 GPU 性能普适性 |
 | [cuda-foundations](https://github.com/open-infra-ai/cuda-foundations) | [RTX 3060 实测页](https://github.com/open-infra-ai/cuda-foundations/blob/master/docs/en/benchmarks/rtx3060-laptop-2026-08-17.md) | 教学 kernel 的本机优化阶梯和与 cuBLAS 的差距 | 生产算子库或推理系统性能 |
+| [kvtier](https://github.com/open-infra-ai/kvtier) | [repro-31600 实验入口](https://github.com/open-infra-ai/kvtier/tree/main/bench/repro-31600) · [项目边界](https://github.com/open-infra-ai/kvtier/blob/main/README.md) | W/E/R/P workload、server snapshot、结果 schema/validator 和离线测试脚手架 | 当前没有真实 GPU 回载性能结果，也不证明已自研 HiCache/tiering engine |
 
 ## 旗舰系统当前缺口
 
