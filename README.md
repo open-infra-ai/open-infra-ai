@@ -19,6 +19,7 @@
 | 证据 artifact 生命周期 | [`docs/evidence-artifact-lifecycle.md`](docs/evidence-artifact-lifecycle.md) | Manifest schema、发布/过期状态、hash、claim 与 Agent 审计协议 |
 | 作品集审计与开发路线 | [`docs/portfolio-audit-and-development-roadmap.md`](docs/portfolio-audit-and-development-roadmap.md) | 项目分层、能力缺口、P0/P1/P2 改造与验收标准 |
 | 毕业与面试证据标准 | [`docs/portfolio-graduation-and-interview-proof.md`](docs/portfolio-graduation-and-interview-proof.md) | 简历声明、现场演示、追问边界和逐仓毕业门槛 |
+| 七仓系统与面试地图 | [`docs/system-integration-and-interview-map.md`](docs/system-integration-and-interview-map.md) | 构建依赖、请求链路、阶段成果、demo 与面试追问 |
 
 ## 作品集架构
 
