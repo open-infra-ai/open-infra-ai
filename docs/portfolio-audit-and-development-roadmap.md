@@ -82,7 +82,7 @@
 
 ### 辅助证据
 
-- [`kvtier`](https://github.com/open-infra-ai/kvtier)：KV offload 源码研究、实验编排和
+- `kvtier`（私有孵化器，未公开故不挂链接）：KV offload 源码研究、实验编排和
   telemetry 门禁；在产生真实 GPU 结果和至少一项 runtime 优化前不作为简历主项目。
 - 本仓：状态、证据与跨仓契约入口，不作为独立技术项目计数。
 

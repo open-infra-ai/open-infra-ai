@@ -34,6 +34,7 @@ meta 仓 README 注册表、各仓 README 状态行、GitHub topics。三面各�
 检查方法：meta `README.md` 状态注册表 ↔ 各仓 README「状态」行 ↔
 `gh repo view <repo> --json repositoryTopics`。2026-09-27 实测发现
 `cuda-foundations` 的 GitHub topics 缺少状态词（注册表与 README 为
-`stable`），为本规则的进行中漂移项。另注意 meta 注册表目前仍把私有仓
-`kvtier` 列为 `active` 并挂了公开链接——与
-[孵化仓隔离](2026-09-10-kvtier-incubator-isolation.md) 冲突，待处置。
+`stable`），为本规则的进行中漂移项。meta 注册表曾把私有仓 `kvtier` 列为
+`active` 并挂公开链接（对外 404），已于 2026-09-27 移除注册表行并改为
+文字标注私有，与 [孵化仓隔离](2026-09-10-kvtier-incubator-isolation.md)
+恢复一致。

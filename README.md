@@ -14,7 +14,7 @@
 | 端到端 LLM Serving | [tiny-llm](https://github.com/open-infra-ai/tiny-llm) + [paged-serving](https://github.com/open-infra-ai/paged-serving) | 真实权重、W8A16、Paged KV、continuous batching、C ABI、HTTP/SSE |
 | CUDA kernel 深挖 | [cuflash](https://github.com/open-infra-ai/cuflash) | online softmax、Tensor Core、FlashDecoding、数值与性能边界 |
 | CUDA/Triton 基础与对照 | [cuda-foundations](https://github.com/open-infra-ai/cuda-foundations) + [trifuse](https://github.com/open-infra-ai/trifuse) | 优化阶梯、参考实现、差分测试、`torch.library` |
-| KV tiering 上游研究 | [kvtier](https://github.com/open-infra-ai/kvtier) | SGLang HiCache 数据流、W/E/R/P 实验脚手架与结果审计 |
+| KV tiering 上游研究 | `kvtier`（私有研究孵化器，达公开门槛前不挂链接） | SGLang HiCache 数据流、W/E/R/P 实验脚手架与结果审计 |
 | 可追溯证据 | [`docs/evidence-index.md`](docs/evidence-index.md) | 结果包、复现入口、已知限制和尚待补齐的证据 |
 | 证据 artifact 生命周期 | [`docs/evidence-artifact-lifecycle.md`](docs/evidence-artifact-lifecycle.md) | Manifest schema、发布/过期状态、hash、claim 与 Agent 审计协议 |
 | 作品集审计与开发路线 | [`docs/portfolio-audit-and-development-roadmap.md`](docs/portfolio-audit-and-development-roadmap.md) | 项目分层、能力缺口、P0/P1/P2 改造与验收标准 |
@@ -49,7 +49,9 @@ Kernel 深挖：cuflash（独立作品，不接入 tiny-llm generate）
 | 深挖 | [cuflash](https://github.com/open-infra-ai/cuflash) | CUDA C++ FlashAttention 前后向与 FlashDecoding | stable |
 | 旗舰数据面 | [tiny-llm](https://github.com/open-infra-ai/tiny-llm) | 真实权重加载、量化、decode、KV 与 C ABI | active |
 | 旗舰控制面 | [paged-serving](https://github.com/open-infra-ai/paged-serving) | Paged KV、continuous batching、HTTP/SSE 与 serving 评测 | active |
-| 上游研究 | [kvtier](https://github.com/open-infra-ai/kvtier) | SGLang HiCache/KV tiering 研究与可审计复现实验 | active |
+
+`kvtier`（KV tiering 上游研究）为私有研究孵化器，不进入本注册表；
+达公开门槛后另行登记，届时同批补 topics 与状态行。
 
 **状态语义**：`active` = 学习/演进中；`stable` = 作品完成，只修正确性 bug 与文档；
 `archived` = 不再维护。状态以本表为唯一权威注册表，与各仓 README 状态行、
