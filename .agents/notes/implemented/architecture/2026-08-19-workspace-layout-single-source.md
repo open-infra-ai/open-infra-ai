@@ -34,6 +34,10 @@ Status: implemented
 
 ## Verification
 
+技术事实与个人执行状态的解释见
+[live 证据与面试状态笔记](../process/2026-10-04-live-evidence-and-interview-status.md)；
+公开技术路线与个人求职日程按 `docs/repository-boundaries.md` 分别维护。
+
 根目录无 `.git`；`open-infra-ai/` 含 `LEARNING_PATH.md`、`docs/`、`archive/plans/`；
 根 `changelog/2026-08-19-workspace-governance.md` 与 `2026-08-21-org-reorg.md`
 记录本次收口与 stub 删除。

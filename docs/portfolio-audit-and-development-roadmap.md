@@ -1,6 +1,7 @@
 # AI Infra 作品集审计与技术开发路线
 
 > 审计日期：2026-09-13  
+> 当前事实复核：2026-10-04；历史实验仍以其原始日期和 commit 引用。
 > 范围：`cuda-foundations`、`cuflash`、`trifuse`、`tiny-llm`、`paged-serving`、
 > `kvtier` 与本组织总仓。  
 > 本文是跨仓的稳定技术判断与开发优先级；具体性能数字仍以各技术仓中的 clean commit、
@@ -17,15 +18,16 @@
 
 但它们目前证明的是：
 
-1. 能把 kernel、Runtime、KV Cache、调度和 HTTP/SSE 串成真实闭环；
-2. 能建立正确性测试、资源不变量和基础 benchmark；
-3. 能诚实记录负结果与适用边界。
+1. 仓库存在 kernel、Runtime、KV Cache、调度和 HTTP/SSE 的真实闭环；
+2. 正确性测试、资源不变量和部分原始 benchmark 可以定位；
+3. 负结果与适用边界有记录。上述工程证据不自动证明本人能独立解释或现场实现，
+   个人能力以执行仓的闭卷诊断和有评分模拟为准。
 
 它们还不能证明：
 
 - 生产级 vLLM / TensorRT-LLM 等价实现；
 - FA2/FA3、Hopper TMA/WGMMA 或 Tensor Core INT8 的成熟实现；
-- 真正的 direct paged attention 或完整 ragged batch layer execution；
+- 完整 ragged batch layer execution，或 direct paged attention 的端到端 Serving 收益；
 - 多机多卡、Tensor Parallel、故障恢复等分布式经验；
 - 跨 GPU、跨模型、跨引擎都成立的性能优势；
 - 高级或 Staff 级 AI Infra 资历。
@@ -47,14 +49,16 @@
 这条主线证明：
 
 - GGUF、量化、Tokenizer、Transformer、KV Cache、采样和 CUDA Graph；
-- C ABI、调度状态机、Paged KV block accounting、背压、取消和 SSE；
+- C ABI、调度状态机、Paged KV block accounting、准入/429、取消入口和 SSE；
 - 从请求进入到 token 流出的端到端状态变化；
 - Runtime 正确性与 Serving 资源生命周期。
 
 面试时必须主动说明：
 
 - 当前为单模型、单 GPU；
-- Paged KV 策略仍会 scatter/gather 到连续 scratch；
+- direct paged decode 与 split-KV 已实现并有 kernel 级原始结果；默认仍为 legacy
+  gather 路径、split-KV 关闭，prefill 保留 gather；
+- SSE/fan-in 仍有无界通道；主动取消的 PR #23 尚未合入，不能称完整有界背压或取消保障；
 - 调度层有 continuous batching，但核心 Transformer layer 仍主要逐序列执行；
 - 没有分布式执行和生产 SLO。
 
@@ -90,26 +94,26 @@
 
 | 仓库 | 当前价值 | 主要硬伤 | 建议 |
 |------|----------|----------|------|
-| `tiny-llm` | 最强数据面证据；真实覆盖模型加载、W8A16、Transformer、KV、Graph、C ABI | GPU/真实模型测试未成为稳定门禁；无完整 batch、direct paged attention、多 GPU 和可消费 profiler 报告 | 旗舰主打 |
-| `paged-serving` | 调度、资源不变量、背压、取消、SSE、metrics 与负载实验是真实实现 | 调度 batch 不等于 fused GPU batch；缺抢占、prefix cache、chunked prefill、分布式与稳定 SLO | 与 `tiny-llm` 联合主打 |
+| `tiny-llm` | 真实模型、W8A16、Graph、C ABI；direct paged/split-KV 的实现与 kernel 结果已存在 | GPU/真实模型持续门禁、完整 layer batch、多 GPU、端到端 direct A/B 与可打开 profiler 包仍有缺口 | 旗舰主打，不重复实现 direct kernel |
+| `paged-serving` | 调度、资源不变量、准入/429、取消入口、SSE、metrics 和正式负载结果 | 主动取消 PR #23 待合入；无界事件队列；调度 batch 不等于 fused GPU batch，未证明稳定 SLO | 与 `tiny-llm` 联合主打 |
 | `cuflash` | online-softmax forward、WMMA、backward、Split-KV 有源码和追问价值 | GPU CI 与 profiler 证据不足；decode workspace 的并发/stream 安全需强化；不是 FA2/FA3 | Kernel 岗第二旗舰 |
-| `trifuse` | Triton kernel 和 `torch.library` 集成真实存在 | Gated MLP GEMM/FLOPs 与计时口径需统一；缺公平 baseline、raw artifact 和 profiler | 与 `cuflash` 合并展示 |
+| `trifuse` | Triton kernel 和 `torch.library`；两投影指标与正确性拒绝计时有回归测试 | 尚缺逐次 raw timing/provenance、公平 baseline 和 profiler；不引用缺原始样本的旧延迟 | 与 `cuflash` 合并展示 |
 | `cuda-foundations` | 适合证明 CUDA 基础、优化阶梯和负结果纪律 | 高级术语中存在 placeholder/fallback；系统深度不足 | 学习档案，不占主项目位 |
 | `kvtier` | 实验污染控制、上游阅读和 KV offload 方法论有价值 | 缺真实 GPU 结果、token oracle、核心实现改动和闭环优化 | 研究辅助，完成结果后再升级 |
 | 总仓 | 证据治理与跨仓导航 | 本身没有新增数据面实现 | 只作入口 |
 
-## 4. 当前能力矩阵
+## 4. 仓库证据矩阵（不是本人能力评分）
 
-| 能力 | 当前强度 | 已有证据 | 下一层关键缺口 |
-|------|---------:|----------|----------------|
-| CUDA / Triton Kernel | 7/10 | online softmax、WMMA、Split-KV、W8A16、融合算子、custom op | 架构特化、direct paged attention、持续 GPU 门禁 |
-| GPU 性能分析 | 5/10 | CUDA Event、warmup、A/B、raw JSONL、负结果 | ncu/nsys、roofline、stall/occupancy/带宽归因 |
-| LLM Runtime | 7/10 | GGUF → Transformer → KV → sampling → Graph → C ABI | 通用模型、真正 layer batching、多 GPU、成熟 workspace 合约 |
-| KV Cache | 6/10 | 连续/分页 KV、block pool/table、资源回收 | kernel 直接读页、prefix cache、preemption、并发压力 |
-| Serving | 6/10 | 调度、准入、429、取消、SSE、metrics、loadgen | chunked prefill、稳定 SLO、多副本、完整观测 |
-| 分布式系统 | 1/10 | 主要为理论和接口边界 | NCCL、TP/PP、路由、故障恢复 |
-| 测试与工程 | 6/10 | reference、属性/边界测试、资源不变量、CI | GPU 强制门禁、sanitizer/fuzz、兼容矩阵 |
-| 可复现 benchmark | 5/10 | 部分项目有环境、commit、模型 hash 和 raw data | 统一 schema、公平 baseline、跨架构与统计收敛 |
+| 能力 | 已有证据 | 下一层关键缺口 |
+|------|----------|----------------|
+| CUDA / Triton Kernel | online softmax、WMMA、Split-KV、W8A16、融合算子、custom op | 架构特化、持续 GPU 门禁 |
+| GPU 性能分析 | CUDA Event、配对 A/B、raw JSONL；9 月 kernel 报告含 Nsight 表格 | 可打开的 raw profiler 包、端到端 timeline 和归因复核 |
+| LLM Runtime | GGUF → Transformer → KV → sampling → Graph → C ABI | 第二模型、真正 layer batching、多 GPU、workspace 合约 |
+| KV Cache | 连续/分页 KV、direct paged decode、split-KV、资源回收 | 默认路径晋级依据、prefix cache、preemption、并发压力 |
+| Serving | 调度、准入/429、SSE、metrics、21-run closed/Poisson 结果 | 主动取消合入与有界背压、稳定 SLO、完整观测 |
+| 分布式系统 | 理论和接口边界 | 真实 NCCL、TP/PP、路由与故障恢复实验 |
+| 测试与工程 | reference、属性/边界测试、资源不变量、CI | GPU 强制门禁、sanitizer/fuzz、兼容矩阵 |
+| 可复现 benchmark | 部分项目有精确 commit、模型 hash、raw 和重算工具 | 公平外部 baseline、跨架构与统计收敛 |
 
 ## 5. 开发原则
 
@@ -133,6 +137,10 @@
 P0 完成前，不应继续扩大功能面。
 
 ### P0.1 统一术语、源码和性能口径
+
+已落实的局部项：`trifuse` 两次 GEMM/FLOPs、无 down projection、墙钟均值与
+正确性失败拒绝计时；`tiny-llm` v1/v2 raw 汇总 CLI。未完成各仓全部术语与 artifact
+审计前，P0.1 整体保持未完成。
 
 重点：
 
@@ -168,6 +176,9 @@ P0 完成前，不应继续扩大功能面。
 
 ### P0.3 修复构建与环境契约
 
+`paged-serving` 声明 Rust 1.88，以锁定依赖在 1.88.0 检查全部默认目标并运行测试；
+CI 有独立 MSRV job。此项不替代 CUDA FFI 与其他仓环境矩阵。
+
 验收：
 
 - `paged-serving` 的 MSRV 声明、lockfile 与 CI 一致；
@@ -196,10 +207,12 @@ P0 完成前，不应继续扩大功能面。
 
 ## 7. P1：只做一个深改造，再建立性能闭环
 
-### P1.1 默认首选：direct paged attention
+### P1.1 已有 direct paged/split-KV：复核集成与端到端收益
 
-目标：attention kernel 直接消费 block table 和页池，不再将完整 K/V gather 到连续
-scratch 后计算。
+实现、oracle、Transformer/FFI 接入与 kernel 三路 A/B 已存在，入口见
+[`evidence-index.md`](evidence-index.md)。不从零重写 kernel，不因 kernel 加速自动
+改变默认路径。剩余工作是持续 GPU/Sanitizer 门禁、固定模型的集成复核和配对
+端到端 A/B；以下是剩余验收目标，不是已取得结果。
 
 正确性验收：
 
@@ -218,7 +231,7 @@ scratch 后计算。
 
 ### P1.2 Kernel 岗替代主线：`cuflash` 可重入 workspace
 
-若主投 CUDA Kernel，可先于 direct paged attention 完成：
+若主投 CUDA Kernel，可作为下一条深改造：
 
 - 移除进程级 static decode scratch；
 - 使用调用方 workspace 或 stream-ordered allocator；
@@ -361,7 +374,9 @@ Kernel：
 
 ### 里程碑 4：一个深改造
 
-默认做 direct paged attention；Kernel 岗优先时做 `cuflash` workspace/stream 安全。
+综合/Serving 默认先复核 `paged-serving` 主动取消 PR #23，再完成有界背压与失败回收；
+不能重复开一套取消实现。Runtime 路线复核已有 direct/split-KV 的集成和端到端 A/B；
+Kernel 岗优先时选 `cuflash` workspace/stream 安全。只选一条，不在本轮可信度整改中扩展。
 
 退出条件：正确性、Sanitizer、性能、回退和边界全部有记录。
 
@@ -398,6 +413,7 @@ Kernel：
 
 - 单 GPU、学习型 Runtime / Serving；
 - GGUF、W8A16、KV、CUDA Graph、C ABI、调度、SSE；
+- direct paged decode 与 split-KV，限定为已有实现和记录矩阵内的 kernel 实验；
 - CUDA/Triton online softmax、WMMA、Split-KV 和 custom op；
 - 在明确硬件、模型和 workload 下的已归档数字。
 
@@ -405,7 +421,7 @@ Kernel：
 
 - production-grade；
 - distributed inference；
-- direct PagedAttention；
+- direct/split-KV 已带来端到端 TPOT、TTFT 或 Serving 吞吐改善；
 - FA2/FA3；
 - Tensor Core INT8；
 - Hopper TMA/WGMMA；

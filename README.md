@@ -84,8 +84,9 @@ GitHub topics 三处同步。
   五组配对 CUDA Graph A/B 中，TPOT 8.322→**5.225 ms/token**（-37.2%），decode
   吞吐 120.168→**191.384 tok/s**（+59.3%）；10 个进程原始 JSONL、模型哈希和
   [完整限制](https://github.com/open-infra-ai/tiny-llm/blob/master/docs/performance/results/2026-08-23-cuda-graphs-ab.md)
-  已归档，TTFT 不作改善声明。当前 **193 项测试通过**；分页 KV（策略 1）与连续 KV
-  逐 token 差分一致。
+  已归档，TTFT 不作改善声明。**193 项测试是 2026-08-23 快照**，不是当前测试数量。
+  direct paged decode / split-KV 已实现并有 [RTX 5070 Ti kernel 原始结果](https://github.com/open-infra-ai/tiny-llm/blob/master/docs/performance/results/2026-09-15-rtx5070ti-splitkv.md)
+  与 raw 重算工具；默认仍为 legacy、split 关闭，kernel 数字不外推 TPOT/Serving 收益。
 - **paged-serving**：**3 并发分页请求 e2e 与 llama.cpp greedy 对齐**（请求 1 全序列
   严格一致；请求 2 的 `equals`/`is` 为 W8A16 vs Q4_K_M 量化 argmax 边界翻转，
   已诚实记录为"前缀一致 + EOS 终止 + 分歧注释"，不伪造全序列一致）。真实 CUDA
@@ -98,16 +99,17 @@ GitHub topics 三处同步。
   或生产成熟度。
 - **cuflash**：FlashAttention 前后向 FP32/FP16/BF16，FP16/BF16 前向接 WMMA；
   修复 grid.y 65535 越界（B*H>65535 回归测试）并加入 causal 边界块跳过优化；
-  RTX 3060 Laptop 当前 **81/81 项测试通过**（可选 PyTorch 集成 1 项跳过）。
+  RTX 3060 Laptop **2026-08-23 快照 81/81 项测试通过**（可选 PyTorch 集成 1 项跳过）。
 - **trifuse**：Triton SGEMM + `torch.library`（`torch.ops.trifuse.*`）
   注册三个自定义算子；CPU-only **57 passed / 66 skipped**，RTX 3060 Laptop
-  **123/123 passed**。
+  **123/123 passed**（2026-08-23 快照）；Gated MLP 是 gate/up 两投影，无 down
+  projection。缺少逐次原始样本的旧性能表不作为证据。
 - **cuda-foundations**：SGEMM 与推理组件教学阶梯；RTX 3060 Laptop 当前
-  **261/261 项测试通过**。旧名审计快照见 `docs/organization-audit/`。
+  **2026-08-23 快照 261/261 项测试通过**。旧名审计快照见 `docs/organization-audit/`。
 
-> 除明确更新的 paged-serving 2026-09-04 / 2026-09-07 结果外，以上是 **2026-08-23 本地验证快照**。
-> 性能数字仍以各技术仓的结果文件、硬件、commit 与复现命令为准；测试数量只表示当前
-> 验证面，不直接等价于项目质量。
+> 测试数是注明日期的历史快照；Serving 与 DPA/split-KV 另按其结果日期引用。
+> 性能以技术仓 raw、硬件、commit 与命令为准；源码、测试和实验不自动证明本人
+> 面试能力，个人诊断与模拟记录由执行仓维护。
 
 ## 面试展示优先级
 

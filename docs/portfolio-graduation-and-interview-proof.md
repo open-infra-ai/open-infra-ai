@@ -10,8 +10,9 @@ commit、结果包和 [`evidence-index.md`](evidence-index.md) 为准。
 
 1. **不要再增加新项目。** 当前作品集已经覆盖 CUDA、Triton、Attention、LLM runtime、
    KV Cache、Rust serving 和上游 KV tiering。新增第八个仓库的收益远低于补齐当前证据。
-2. **只选一个深改造。** 默认选择 `tiny-llm` direct paged decode attention；若目标更偏
-   kernel，则选择 `cuflash` 可重入 workspace/stream safety。两项同时开工会稀释证据。
+2. **只选一个深改造。** direct paged/split-KV 已实现，不从零重做；综合/Serving 默认
+   先复核主动取消 PR #23，再关闭有界背压与失败回收。Kernel 路线选 `cuflash`
+   workspace/stream safety，Runtime 路线做集成与端到端 A/B，不并行扩展三条线。
 3. **正确性比漂亮数字优先。** GPU case 真正执行、独立 reference、sanitizer、失败路径和
    raw artifact，比一次较大的 speedup 更能通过面试追问。
 4. **旗舰叙事只保留两条。**
@@ -195,6 +196,8 @@ E5 → 端到端 workload + failure injection + 公平 baseline
 
 - 能加载记录范围内的 GGUF/量化模型并完成单 GPU 推理；
 - 有连续 KV 和 paged KV storage/control path；
+- direct paged decode 与 split-KV 有实现、oracle、集成测试和 kernel 原始结果；
+- 默认 legacy、split 关闭，prefill 保留 gather，尚无 direct 的端到端 Serving 收益；
 - CUDA Graph A/B 有绑定 commit、模型和 raw data 的历史证据；
 - C ABI 支持 paged-serving 同进程调用。
 
@@ -210,9 +213,9 @@ E5 → 端到端 workload + failure injection + 公平 baseline
 1. GGUF/量化支持矩阵和第二模型；
 2. 不依赖外部模型的 paged/contiguous synthetic oracle；
 3. 不依赖私有 GGUF 的 CUDA Graph correctness；
-4. direct paged decode kernel；
-5. Transformer/FFI 集成和 legacy fallback；
-6. 长上下文三路 A/B。
+4. 复核已有 direct/split-KV kernel 的当前 GPU 与 Sanitizer 门禁；
+5. 复核已有 Transformer/FFI 集成和 legacy fallback，不重复实现；
+6. kernel 三路 A/B 已有，补固定模型的配对端到端 A/B 与 raw profiler 包。
 
 面试官应能追问：
 
@@ -305,7 +308,7 @@ HTTP request
   → Rust `repr(C)` mirror
   → tiny-llm C ABI allocate/step/free
   → Transformer layer
-  → KV scatter/gather 或 future direct paged decode
+  → KV scatter + legacy gather / opt-in direct paged decode（可选 split-KV）
   → GPU logits/argmax
   → token/text postprocess
   → SSE/unary response
@@ -386,7 +389,7 @@ HTTP request
 1. 先说两条旗舰主线，不逐仓报菜名。
 2. 展示组织 README 的架构和证据索引。
 3. 选择一个真实结果，只说硬件、workload、观察和限制。
-4. 主动说明一个未完成边界，例如当前 paged path 尚需 direct compute。
+4. 主动说明一个未完成边界，例如 direct kernel 结果不证明 Serving 加速，或有界背压仍待补。
 
 ### 7.2 10 分钟
 
