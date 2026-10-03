@@ -11,7 +11,7 @@ commit、结果包和 [`evidence-index.md`](evidence-index.md) 为准。
 1. **不要再增加新项目。** 当前作品集已经覆盖 CUDA、Triton、Attention、LLM runtime、
    KV Cache、Rust serving 和上游 KV tiering。新增第八个仓库的收益远低于补齐当前证据。
 2. **只选一个深改造。** direct paged/split-KV 已实现，不从零重做；综合/Serving 默认
-   先复核主动取消 PR #23，再关闭有界背压与失败回收。Kernel 路线选 `cuflash`
+   先评审已有整改分支的取消/有界队列，再补完整指标与真实 backend/网络回收。Kernel 路线选 `cuflash`
    workspace/stream safety，Runtime 路线做集成与端到端 A/B，不并行扩展三条线。
 3. **正确性比漂亮数字优先。** GPU case 真正执行、独立 reference、sanitizer、失败路径和
    raw artifact，比一次较大的 speedup 更能通过面试追问。
@@ -110,6 +110,9 @@ E5 → 端到端 workload + failure injection + 公平 baseline
 - 将 FP32 wrapper 的 allocation/conversion 时间称为纯 Tensor Core kernel 时间。
 
 毕业前最高价值补强：
+
+取消与有界队列的 CPU 验收已在整改分支落地，见
+[证据索引](evidence-index.md#整改分支的控制面回归)；下面是完整毕业门槛，不是全部待从零实现。
 
 1. GPU workflow 拒绝 zero-test/unexpected skip；
 2. ragged `M/N/K`、NaN/Inf 和 alpha/beta correctness；
@@ -389,7 +392,7 @@ HTTP request
 1. 先说两条旗舰主线，不逐仓报菜名。
 2. 展示组织 README 的架构和证据索引。
 3. 选择一个真实结果，只说硬件、workload、观察和限制。
-4. 主动说明一个未完成边界，例如 direct kernel 结果不证明 Serving 加速，或有界背压仍待补。
+4. 主动说明一个未完成边界，例如 direct kernel 结果不证明 Serving 加速，或有界队列的 CPU 回归不证明真实网络/CUDA 下的生产保障。
 
 ### 7.2 10 分钟
 

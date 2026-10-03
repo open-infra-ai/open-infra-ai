@@ -25,12 +25,21 @@
 | 仓库 | 可审计入口 | 能证明什么 | 不能证明什么 |
 |------|--------------|--------------|----------------|
 | [tiny-llm](https://github.com/open-infra-ai/tiny-llm) | [CUDA Graphs A/B 报告](https://github.com/open-infra-ai/tiny-llm/blob/master/docs/performance/results/2026-08-23-cuda-graphs-ab.md) · [summary JSON](https://github.com/open-infra-ai/tiny-llm/blob/master/docs/performance/results/data/2026-08-23-cuda-graphs-ab.summary.json) · [raw JSONL](https://github.com/open-infra-ai/tiny-llm/blob/master/docs/performance/results/data/2026-08-23-cuda-graphs-ab.raw.jsonl) | 报告所述硬件、模型、shape 和 decode 设置下的配对 A/B | 其他 GPU、模型、长上下文或生产 Serving 性能 |
-| tiny-llm paged attention | [9/14 三路 DPA](https://github.com/open-infra-ai/tiny-llm/blob/master/docs/performance/results/2026-09-14-rtx5070ti-dpa.md) · [9/15 split-KV](https://github.com/open-infra-ai/tiny-llm/blob/master/docs/performance/results/2026-09-15-rtx5070ti-splitkv.md) · [raw 重算工具](https://github.com/open-infra-ai/tiny-llm/blob/master/scripts/summarize_dpa.py) | RTX 5070 Ti、固定 GQA 与 shape 的 kernel 取址/分片比较；含正确性、原始计时、回退和未收敛记录 | TPOT/TTFT/Serving 收益、通用最优 split；Nsight 表格不能替代未归档的 profiler 原始包 |
+| tiny-llm paged attention | [9/14 三路 DPA](https://github.com/open-infra-ai/tiny-llm/blob/master/docs/performance/results/2026-09-14-rtx5070ti-dpa.md) · [9/15 split-KV](https://github.com/open-infra-ai/tiny-llm/blob/master/docs/performance/results/2026-09-15-rtx5070ti-splitkv.md) · [raw 重算工具](https://github.com/open-infra-ai/tiny-llm/blob/b9cbdf922dcfaf0dfc8c704bd285b4b04e757f51/scripts/summarize_dpa.py) | RTX 5070 Ti、固定 GQA 与 shape 的 kernel 取址/分片比较；含正确性、原始计时、回退和未收敛记录 | TPOT/TTFT/Serving 收益、通用最优 split；Nsight 表格不能替代未归档的 profiler 原始包 |
 | [paged-serving](https://github.com/open-infra-ai/paged-serving) | [P1 历史基线](https://github.com/open-infra-ai/paged-serving/tree/master/benchmarks/serving/results/2026-09-04-RTX3060Laptop-paged-serving) · [P2 流式矩阵](https://github.com/open-infra-ai/paged-serving/tree/master/benchmarks/serving/results/2026-09-04-RTX3060Laptop-paged-serving-p2-streaming) · [批量末端后处理 canary](https://github.com/open-infra-ai/paged-serving/tree/master/benchmarks/serving/results/2026-09-05-RTX3060Laptop-paged-serving-p2-batch-postprocess-canary) · [当前正式矩阵](https://github.com/open-infra-ai/paged-serving/tree/master/benchmarks/serving/results/2026-09-07-RTX3060Laptop-paged-serving-p2-batch-postprocess-streaming) · [评测入口](https://github.com/open-infra-ai/paged-serving/tree/master/benchmarks/serving) | 绑定 RTX 3060 Laptop、模型 SHA-256、双仓 commit、原始请求与报告的真实 CUDA closed-loop/Poisson 观察；当前 21-run 矩阵验证当前提交上的首文本 TTFT、Poisson seed、成功率与 429 边界 | 跨 GPU/模型/引擎的通用容量或生产 SLO；当前 c2/c8 与三档 Poisson 仍有未收敛 TTFT p95，且没有配对基线，不能形成批量末端后处理的速度比值；canary 为 `n=1`、无预热，不能作性能结论 |
 | [cuflash](https://github.com/open-infra-ai/cuflash) | [benchmark 口径](https://github.com/open-infra-ai/cuflash/blob/master/docs/performance/benchmarks.md) · [causal 边界块优化快照](https://github.com/open-infra-ai/cuflash/blob/master/docs/performance/causal-boundary-skip.md) | 指定 RTX 3060 快照与该优化的形状边界 | 不同 GPU 上的通用加速比或生产库等价性 |
-| [trifuse](https://github.com/open-infra-ai/trifuse) | [README 验证和 benchmark 边界](https://github.com/open-infra-ai/trifuse#%E9%AA%8C%E8%AF%81) | 数值对照；两投影指标模型、正确性失败拒绝计时的 CPU 回归 | 无逐次原始计时包，不能引用旧延迟/TFLOPS 或跨 GPU 性能优势 |
+| [trifuse](https://github.com/open-infra-ai/trifuse) | [README 验证和 benchmark 边界](https://github.com/open-infra-ai/trifuse/blob/00eddd7887ea6628de61db3f532d6a669274be96/README.md#验证) | 数值对照；整改分支的两投影指标模型、正确性失败拒绝计时的 CPU 回归 | 无逐次原始计时包，不能引用旧延迟/TFLOPS 或跨 GPU 性能优势 |
 | [cuda-foundations](https://github.com/open-infra-ai/cuda-foundations) | [RTX 3060 实测页](https://github.com/open-infra-ai/cuda-foundations/blob/master/docs/en/benchmarks/rtx3060-laptop-2026-08-17.md) | 教学 kernel 的本机优化阶梯和与 cuBLAS 的差距 | 生产算子库或推理系统性能 |
 | `kvtier`（私有孵化器，未公开故不挂链接） | `bench/repro-31600/` 实验入口（仓内路径） | W/E/R/P workload、server snapshot、结果 schema/validator 和离线测试脚手架 | 当前没有真实 GPU 回载性能结果，也不证明已自研 HiCache/tiering engine |
+
+### 整改分支的控制面回归
+
+[`paged-serving@59d90c8`](https://github.com/open-infra-ai/paged-serving/commit/59d90c84aa0ea849322c18d3c741f8f9eef34dc9)
+复用 PR #23 的取消实现，加入有界文本 mailbox、独立终态和无转发任务的多候选合并。
+Rust 1.88 本地通过 255 个默认测试与 17 个 doc tests；24 个服务内联测试和 45 个
+HTTP/SSE 测试重复 10 轮通过。[实现与测试边界](https://github.com/open-infra-ai/paged-serving/blob/59d90c84aa0ea849322c18d3c741f8f9eef34dc9/.agents/notes/implemented/feature/2026-10-04-bounded-events-and-cancellation.md)
+覆盖无文本取消、慢消费者、成功排空、末步投递失败和资源回基线。这是 CPU 控制面证据，
+不是新的 CUDA/Serving 性能包；默认分支尚未合入，独立取消计数和真实网络压力仍待补。
 
 ## 旗舰系统当前缺口
 
@@ -45,7 +54,8 @@
 - direct/split-KV 的已有结果是 kernel 级；默认 legacy、split 关闭，不能据此宣称
   Serving 或整个模型加速；
 - 主动取消 [PR #23](https://github.com/open-infra-ai/paged-serving/pull/23) 在 2026-10-04
-  复核为 OPEN（head `25811e35`）；无界 SSE/fan-in 队列与完整失败回收仍需单独关闭；
+  复核为 OPEN（head `25811e35`）；整改分支已有取消/有界队列 CPU 回归，尚未合入默认
+  分支，真实 CUDA 回收和网络压力仍需验证；
 - 当前 tiny-llm FFI 的 Transformer layer forward 仍逐序列执行；正常 greedy 的末端已改为
   GPU batch final RMSNorm / LM head / argmax 与一次 batch token 回传，但 logprobs 仍走主机
   logits 路径，不能把调度 batch 当作 fused compute batch；当前矩阵没有配对基线，不能将
