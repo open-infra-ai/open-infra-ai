@@ -86,9 +86,11 @@ token 吞吐的部分重复。36 个标准库测试通过，5 个存量包的 66
 - 尚无 llama-server/vLLM 的同模型、同上下文、同工作负载对照；
 - direct/split-KV 的已有结果是 kernel 级；默认 legacy、split 关闭，不能据此宣称
   Serving 或整个模型加速；
-- 主动取消 [PR #23](https://github.com/open-infra-ai/paged-serving/pull/23) 在 2026-10-04
-  复核为 OPEN（head `25811e35`）；整改分支已有取消/有界队列/指标 CPU 回归，尚未合入默认
-  分支，真实 CUDA 回收和网络压力仍需验证；
+- 取消/有界队列/指标与结果门禁通过独立代理审阅后，已由
+  [PR #24](https://github.com/open-infra-ai/paged-serving/pull/24) 合入默认分支
+  （2026-10-05 北京时间，merge `e60a315`）。真实 CPU TCP 回归与文本 EOF/终态竞态
+  修复已有证据；原生 GPU 登记/显存回收和网络负载调优仍需验证。较早的
+  [PR #23](https://github.com/open-infra-ai/paged-serving/pull/23) 保留，不是本批整合入口；
 - 当前 tiny-llm FFI 的 Transformer layer forward 仍逐序列执行；正常 greedy 的末端已改为
   GPU batch final RMSNorm / LM head / argmax 与一次 batch token 回传，但 logprobs 仍走主机
   logits 路径，不能把调度 batch 当作 fused compute batch；当前矩阵没有配对基线，不能将

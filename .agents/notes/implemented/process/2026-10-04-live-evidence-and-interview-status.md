@@ -18,6 +18,10 @@ direct/split-KV 按实现、kernel 实验、端到端缺口分层；主动取消
 [历史冻结笔记](2026-09-10-immutable-historical-records.md)仍约束归档，原始实验与
 历史计划不改写。上述笔记不被改写为不同决定。
 
+本批的独立审阅、默认分支集成与授权范围由
+[固定提交集成](2026-10-05-reviewed-batch-integration.md)记录；下方早期提交的验证
+事实保留原样，不据其“未合并”阶段描述推断当前 PR 状态。
+
 ## Alternatives considered
 
 把所有路线重新集中到 meta 便于一处浏览，但会混入高频变化的私人求职记录，与已有
