@@ -22,6 +22,10 @@ kvtier）统一接入 write-notes-like-deepseek 体系：
   各仓 `AGENTS.md` 写入笔记纪律，有 CONTRIBUTING.md 的仓补一条要求。
 - 本批同时把已在 changelog / 契约文档中生效的决策回写为 implemented 笔记。
 
+[归档预检](../bug-fix/2026-10-04-archive-preflight.md)部分细化归档 CLI 的输入门禁，
+[完整交付命令](2026-10-04-delivered-note-commands.md)收窄可运行入口；两者不替代
+笔记归属、分类和跨仓治理决定。
+
 ## Alternatives considered
 
 - **继续只靠 CHANGELOG + 治理散文** — 零新机制最强；但 changelog 记「做了什么」
