@@ -1,6 +1,6 @@
 # 七仓系统搭建关系、集成路径与面试证据地图
 
-更新时间：2026-09-13。
+更新时间：2026-10-04（实验按原始日期引用）。
 
 本文回答三个问题：
 
@@ -238,7 +238,9 @@ CUDA-P0-001..003
 
 ### Phase C：旗舰数据面
 
-目标：从“分页存储 + gather 到连续 scratch”升级为真实 direct paged decode。
+现状：independent oracle、direct paged decode、split-KV 与 Transformer/FFI 接入已存在，
+9/14–9/15 有 kernel 三路原始结果，见 [证据索引](evidence-index.md)。默认仍是 legacy，
+split 关闭。以下是实现的依赖链，不是待从零执行的任务列表。
 
 顺序：
 
@@ -247,7 +249,7 @@ TLLM-P0-002 independent paged/contiguous oracle
   → G0–G8 direct-paged design review
   → TLLM-P0-004 kernel
   → TLLM-P0-005 Transformer + C ABI
-  → TLLM-P1-001 long-context A/B
+  → TLLM-P1-001 kernel A/B 已有；端到端配对 A/B 与 raw profiler 包待补
 ```
 
 完成后必须能够回答：
@@ -403,7 +405,7 @@ same Q/K/V + mask + dtype + shape
 
 1. **问题**：单卡 LLM Serving 的延迟和显存受 KV、decode 和调度共同影响；
 2. **架构**：Rust 控制面与 C++/CUDA 数据面分离；
-3. **深改造**：从 gather-to-contiguous 改为 direct paged decode；
+3. **深改造**：讲清已有 direct/split-KV 与 legacy 默认的区别，不把 opt-in kernel 当默认；
 4. **正确性**：independent oracle、non-divisible/GQA/mask、sanitizer；
 5. **可靠性**：cancel、disconnect、backpressure、资源回基线；
 6. **性能**：TTFT/TPOT/吞吐/尾延迟/显存 + Nsight；
