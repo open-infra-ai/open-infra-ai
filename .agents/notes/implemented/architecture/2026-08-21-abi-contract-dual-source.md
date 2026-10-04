@@ -38,3 +38,9 @@ tiny-llm（C++ 数据面）与 paged-serving（Rust 控制面）经同进程 C A
 `paged-serving` 布局守卫测试（`size_of::<TinyLlmConfig>() == 36`）；契约条目见
 `docs/cross-repo-contracts.md` §10.1；2026-08-23 changelog 记录了 logprobs
 缓冲区契约澄清（收紧校验，不改签名布局）。
+
+## Deferred
+
+[真实后端登记观察提案](../../proposed/architecture/2026-10-04-backend-sequence-observation.md)
+描述 pending 的只读查询，不是已落地 ABI；实现前仍须联合批准双源契约，不能由测试
+中的逻辑利用率或 Rust shadow 登记替代原生状态。
