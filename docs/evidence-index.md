@@ -52,6 +52,17 @@ HTTP/SSE 测试重复 10 轮通过。[指标单位与兼容性](https://github.c
 新增用例验证 CPU 控制面，不新增 TCP 故障注入、CUDA 回收或性能数据；完整测试中的
 既有 loadgen TCP/SSE 回归仍通过，不能据此称新取消/背压实现已完成真实网络压力验收。
 
+[第四批 `paged-serving@69dafbe`](https://github.com/open-infra-ai/paged-serving/commit/69dafbe9e4f726fa8f5b472666e4679945b516b3)
+补齐真实 loadgen 二进制到 JSONL/summary 落盘的 CLI 回归，修复预热推进测量 RNG 和
+测量输入顺序的问题。Poisson 使用绝对 deadline；原始请求分别记录计划时间与客户端
+dispatch，目标到达率不等于服务端实际到达率。
+[执行口径与验证](https://github.com/open-infra-ai/paged-serving/blob/69dafbe9e4f726fa8f5b472666e4679945b516b3/.agents/notes/implemented/testing/2026-10-04-loadgen-cli-reproducibility.md)
+包含 264 个默认测试与 17 个 doc tests 本地通过，4 个 CLI 用例重复 10 轮，60 个子进程
+通过。50% token coverage 的 tok/s 保持 null；100% coverage 按 measurement wall
+计算。历史结果没有补写新字段，21-run 正式包结构校验仍通过；不作为新的 GPU 性能结论。
+该提交的 [CI](https://github.com/open-infra-ai/paged-serving/actions/runs/37172586197)
+在 2026-10-04 完成，Rust 1.88 MSRV 与 stable 检查均通过，head 对应 `69dafbe`。
+
 ## 旗舰系统当前缺口
 
 `tiny-llm + paged-serving` 已有跨语言正确性链路及多份真实 CUDA serving 结果包；
