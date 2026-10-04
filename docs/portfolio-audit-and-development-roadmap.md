@@ -59,8 +59,9 @@
 - direct paged decode 与 split-KV 已实现并有 kernel 级原始结果；默认仍为 legacy
   gather 路径、split-KV 关闭，prefill 保留 gather；
 - 默认分支仍有无界事件队列，PR #23 尚未合入；整改分支
-  [`59d90c8`](https://github.com/open-infra-ai/paged-serving/commit/59d90c84aa0ea849322c18d3c741f8f9eef34dc9)
-  已复用主动取消并补有界 mailbox/带外终态、直接拉取式多候选合并，新增 25 个 CPU 测试；
+  [`3039093`](https://github.com/open-infra-ai/paged-serving/commit/3039093ddc2fb6ddcab9508e4024bc84a61816c7)
+  已复用主动取消并补有界 mailbox/带外终态、多候选合并和类型化指标，260 个默认测试与
+  17 个 doc tests 本地通过，HTTP 错误按请求去重、不乘候选数；
   未验证真实 CUDA 取消/网络压力，不称生产保障；
 - 调度层有 continuous batching，但核心 Transformer layer 仍主要逐序列执行；
 - 没有分布式执行和生产 SLO。
@@ -98,7 +99,7 @@
 | 仓库 | 当前价值 | 主要硬伤 | 建议 |
 |------|----------|----------|------|
 | `tiny-llm` | 真实模型、W8A16、Graph、C ABI；direct paged/split-KV 的实现与 kernel 结果已存在 | GPU/真实模型持续门禁、完整 layer batch、多 GPU、端到端 direct A/B 与可打开 profiler 包仍有缺口 | 旗舰主打，不重复实现 direct kernel |
-| `paged-serving` | 调度、资源不变量、准入/429、SSE、正式负载结果；整改分支已有主动取消和有界文本队列回归 | 整改分支尚未合入；独立取消计数、完整错误统计、真实 backend/网络验证待补；调度 batch 不等于 fused GPU batch | 与 `tiny-llm` 联合主打 |
+| `paged-serving` | 调度、资源不变量、准入/429、SSE、正式负载结果；整改分支已有取消、背压与类型化指标 CPU 回归 | 整改分支尚未合入；真实 backend/网络故障、容量调优与持续观测待补；调度 batch 不等于 fused GPU batch | 与 `tiny-llm` 联合主打 |
 | `cuflash` | online-softmax forward、WMMA、backward、Split-KV 有源码和追问价值 | GPU CI 与 profiler 证据不足；decode workspace 的并发/stream 安全需强化；不是 FA2/FA3 | Kernel 岗第二旗舰 |
 | `trifuse` | Triton kernel 和 `torch.library`；两投影指标与正确性拒绝计时有回归测试 | 尚缺逐次 raw timing/provenance、公平 baseline 和 profiler；不引用缺原始样本的旧延迟 | 与 `cuflash` 合并展示 |
 | `cuda-foundations` | 适合证明 CUDA 基础、优化阶梯和负结果纪律 | 高级术语中存在 placeholder/fallback；系统深度不足 | 学习档案，不占主项目位 |
@@ -113,7 +114,7 @@
 | GPU 性能分析 | CUDA Event、配对 A/B、raw JSONL；9 月 kernel 报告含 Nsight 表格 | 可打开的 raw profiler 包、端到端 timeline 和归因复核 |
 | LLM Runtime | GGUF → Transformer → KV → sampling → Graph → C ABI | 第二模型、真正 layer batching、多 GPU、workspace 合约 |
 | KV Cache | 连续/分页 KV、direct paged decode、split-KV、资源回收 | 默认路径晋级依据、prefix cache、preemption、并发压力 |
-| Serving | 调度、准入/429、SSE、21-run closed/Poisson 结果；整改分支取消/有界队列 CPU 回归 | 整改合入、真实 CUDA/网络回收、稳定 SLO、完整观测 |
+| Serving | 调度、准入/429、SSE、21-run closed/Poisson 结果；整改分支取消/有界队列/指标 CPU 回归 | 整改合入、真实 CUDA/网络回收、稳定 SLO、负载期持续观测 |
 | 分布式系统 | 理论和接口边界 | 真实 NCCL、TP/PP、路由与故障恢复实验 |
 | 测试与工程 | reference、属性/边界测试、资源不变量、CI | GPU 强制门禁、sanitizer/fuzz、兼容矩阵 |
 | 可复现 benchmark | 部分项目有精确 commit、模型 hash、raw 和重算工具 | 公平外部 baseline、跨架构与统计收敛 |
@@ -377,8 +378,8 @@ Kernel：
 
 ### 里程碑 4：一个深改造
 
-综合/Serving 已在整改分支复用 PR #23，完成有界文本队列与 CPU 失败回收；
-下一步评审该分支与默认分支的差异，补完整指标和真实 backend/网络验证，不重写取消。
+综合/Serving 已在整改分支复用 PR #23，完成有界文本队列、CPU 失败回收与指标分类；
+下一步评审该分支与默认分支的差异，补真实 HTTP/SSE 故障与 CUDA 回收，不重写已验收部分。
 Runtime 路线复核已有 direct/split-KV 的集成和端到端 A/B；
 Kernel 岗优先时选 `cuflash` workspace/stream 安全。只选一条，不在本轮可信度整改中扩展。
 

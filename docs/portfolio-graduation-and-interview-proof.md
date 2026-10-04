@@ -11,7 +11,7 @@ commit、结果包和 [`evidence-index.md`](evidence-index.md) 为准。
 1. **不要再增加新项目。** 当前作品集已经覆盖 CUDA、Triton、Attention、LLM runtime、
    KV Cache、Rust serving 和上游 KV tiering。新增第八个仓库的收益远低于补齐当前证据。
 2. **只选一个深改造。** direct paged/split-KV 已实现，不从零重做；综合/Serving 默认
-   先评审已有整改分支的取消/有界队列，再补完整指标与真实 backend/网络回收。Kernel 路线选 `cuflash`
+   先评审已有整改分支的取消/有界队列/指标，再补真实 backend/网络回收。Kernel 路线选 `cuflash`
    workspace/stream safety，Runtime 路线做集成与端到端 A/B，不并行扩展三条线。
 3. **正确性比漂亮数字优先。** GPU case 真正执行、独立 reference、sanitizer、失败路径和
    raw artifact，比一次较大的 speedup 更能通过面试追问。
@@ -110,9 +110,6 @@ E5 → 端到端 workload + failure injection + 公平 baseline
 - 将 FP32 wrapper 的 allocation/conversion 时间称为纯 Tensor Core kernel 时间。
 
 毕业前最高价值补强：
-
-取消与有界队列的 CPU 验收已在整改分支落地，见
-[证据索引](evidence-index.md#整改分支的控制面回归)；下面是完整毕业门槛，不是全部待从零实现。
 
 1. GPU workflow 拒绝 zero-test/unexpected skip；
 2. ragged `M/N/K`、NaN/Inf 和 alpha/beta correctness；
@@ -249,9 +246,13 @@ E5 → 端到端 workload + failure injection + 公平 baseline
 
 毕业前最高价值补强：
 
-1. consumer ownership 驱动的主动 cancellation；
-2. SSE 和 `n>1` fan-in 有界背压；
-3. 指标生命周期数值测试；
+以下是完整验收门槛，不是待从零开发清单。前 3 项已在整改分支通过 CPU 回归，见
+[证据索引](evidence-index.md#整改分支的控制面回归)；默认分支尚未合入，
+下一步从真实 HTTP/SSE 故障与 CUDA 回收验证进入。
+
+1. consumer ownership 驱动的主动 cancellation（CPU 回归已有）；
+2. SSE 和 `n>1` fan-in 有界背压（CPU 回归已有）；
+3. 类型化取消与按 HTTP 请求去重的指标生命周期测试（CPU 回归已有）；
 4. loadgen 真实 HTTP/SSE failure tests；
 5. tiny-llm feature 的非 skip GPU lane；
 6. `/metrics` sampling 和 cancel/HOL/fairness workload；

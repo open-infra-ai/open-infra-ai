@@ -34,12 +34,23 @@
 
 ### 整改分支的控制面回归
 
-[`paged-serving@59d90c8`](https://github.com/open-infra-ai/paged-serving/commit/59d90c84aa0ea849322c18d3c741f8f9eef34dc9)
+[第二批 `paged-serving@59d90c8`](https://github.com/open-infra-ai/paged-serving/commit/59d90c84aa0ea849322c18d3c741f8f9eef34dc9)
 复用 PR #23 的取消实现，加入有界文本 mailbox、独立终态和无转发任务的多候选合并。
 Rust 1.88 本地通过 255 个默认测试与 17 个 doc tests；24 个服务内联测试和 45 个
 HTTP/SSE 测试重复 10 轮通过。[实现与测试边界](https://github.com/open-infra-ai/paged-serving/blob/59d90c84aa0ea849322c18d3c741f8f9eef34dc9/.agents/notes/implemented/feature/2026-10-04-bounded-events-and-cancellation.md)
 覆盖无文本取消、慢消费者、成功排空、末步投递失败和资源回基线。这是 CPU 控制面证据，
-不是新的 CUDA/Serving 性能包；默认分支尚未合入，独立取消计数和真实网络压力仍待补。
+不是新的 CUDA/Serving 性能包；默认分支尚未合入，真实网络压力仍待补。
+
+[第三批 `paged-serving@3039093`](https://github.com/open-infra-ai/paged-serving/commit/3039093ddc2fb6ddcab9508e4024bc84a61816c7)
+实现类型化取消和按候选的独立计数，JSON/准入/后端/SSE 错误按 HTTP 请求去重，
+包括未读取 body 的后端失败；慢消费者溢出属于失败，末步溢出不改引擎已成功的事实。
+Rust 1.88 本地通过 260 个默认测试与 17 个 doc tests，25 个服务内联与 48 个
+HTTP/SSE 测试重复 10 轮通过。[指标单位与兼容性](https://github.com/open-infra-ai/paged-serving/blob/3039093ddc2fb6ddcab9508e4024bc84a61816c7/.agents/notes/implemented/bug-fix/2026-10-04-typed-cancellation-and-metrics.md)
+明确 Rust source-breaking change，以及取消保持 500 信封但不计 HTTP errors。
+该提交的 [CI](https://github.com/open-infra-ai/paged-serving/actions/runs/37170403585)
+在 2026-10-04 完成，Rust 1.88 MSRV 与 stable 检查均通过。
+新增用例验证 CPU 控制面，不新增 TCP 故障注入、CUDA 回收或性能数据；完整测试中的
+既有 loadgen TCP/SSE 回归仍通过，不能据此称新取消/背压实现已完成真实网络压力验收。
 
 ## 旗舰系统当前缺口
 
@@ -54,7 +65,7 @@ HTTP/SSE 测试重复 10 轮通过。[实现与测试边界](https://github.com/
 - direct/split-KV 的已有结果是 kernel 级；默认 legacy、split 关闭，不能据此宣称
   Serving 或整个模型加速；
 - 主动取消 [PR #23](https://github.com/open-infra-ai/paged-serving/pull/23) 在 2026-10-04
-  复核为 OPEN（head `25811e35`）；整改分支已有取消/有界队列 CPU 回归，尚未合入默认
+  复核为 OPEN（head `25811e35`）；整改分支已有取消/有界队列/指标 CPU 回归，尚未合入默认
   分支，真实 CUDA 回收和网络压力仍需验证；
 - 当前 tiny-llm FFI 的 Transformer layer forward 仍逐序列执行；正常 greedy 的末端已改为
   GPU batch final RMSNorm / LM head / argmax 与一次 batch token 回传，但 logprobs 仍走主机
