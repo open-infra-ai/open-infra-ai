@@ -63,6 +63,17 @@ dispatch，目标到达率不等于服务端实际到达率。
 该提交的 [CI](https://github.com/open-infra-ai/paged-serving/actions/runs/37172586197)
 在 2026-10-04 完成，Rust 1.88 MSRV 与 stable 检查均通过，head 对应 `69dafbe`。
 
+[第五批 `paged-serving@a7fef1e`](https://github.com/open-infra-ai/paged-serving/commit/a7fef1e523132fe5e52bf22141afdc97db53b682)
+联合重算原始请求、summary 与 metadata；绘图拒绝不兼容系列，也不只平均有可信
+token 吞吐的部分重复。36 个标准库测试通过，5 个存量包的 66 个 run 只读重验通过；
+三个正式包满足正式门槛，两个 canary 保持基础校验。
+[校验规则与限制](https://github.com/open-infra-ai/paged-serving/blob/a7fef1e523132fe5e52bf22141afdc97db53b682/.agents/notes/implemented/testing/2026-10-04-serving-result-semantics.md)
+区分数据矛盾和 `non_converged`；9/7 的 c2/c8、三档 Poisson 未收敛与 83 个 429
+完整保留，核心 CSV 均值与历史记录一致。新增图表只写临时目录，历史 raw/报告/图未改。
+这是数据内部一致性与引用门禁，不是新的性能实验，不证明真实 CUDA 取消回收或生产 SLO。
+该提交的 [CI](https://github.com/open-infra-ai/paged-serving/actions/runs/37187094976)
+在 2026-10-04 完成，`serving-evidence`、Rust 1.88 MSRV 和 stable 检查均通过。
+
 ## 旗舰系统当前缺口
 
 `tiny-llm + paged-serving` 已有跨语言正确性链路及多份真实 CUDA serving 结果包；

@@ -114,7 +114,7 @@
 | GPU 性能分析 | CUDA Event、配对 A/B、raw JSONL；9 月 kernel 报告含 Nsight 表格 | 可打开的 raw profiler 包、端到端 timeline 和归因复核 |
 | LLM Runtime | GGUF → Transformer → KV → sampling → Graph → C ABI | 第二模型、真正 layer batching、多 GPU、workspace 合约 |
 | KV Cache | 连续/分页 KV、direct paged decode、split-KV、资源回收 | 默认路径晋级依据、prefix cache、preemption、并发压力 |
-| Serving | 调度、准入/429、SSE、21-run 结果；整改分支取消/背压/指标及真实 loadgen CLI 落盘回归 | 整改合入、结果包语义校验、真实 CUDA/网络回收、稳定 SLO、持续观测 |
+| Serving | 调度、准入/429、SSE、21-run 结果；整改分支取消/背压/指标、CLI 与结果语义回归 | 独立评审与整改合入、真实后端门禁、CUDA/网络回收、稳定 SLO、持续观测 |
 | 分布式系统 | 理论和接口边界 | 真实 NCCL、TP/PP、路由与故障恢复实验 |
 | 测试与工程 | reference、属性/边界测试、资源不变量、CI | GPU 强制门禁、sanitizer/fuzz、兼容矩阵 |
 | 可复现 benchmark | 部分项目有精确 commit、模型 hash、raw 和重算工具 | 公平外部 baseline、跨架构与统计收敛 |
@@ -379,8 +379,9 @@ Kernel：
 ### 里程碑 4：一个深改造
 
 综合/Serving 已在整改分支复用 PR #23，完成有界文本队列、CPU 失败回收与指标分类；
-CLI 到结果文件的本地 TCP/SSE 回归也已有证据。下一步评审分支差异、补结果包语义
-校验和真实 CUDA/服务端网络回收，不重写已验收部分，不自动合入默认分支。
+CLI/TCP 与结果语义回归也已有证据，历史未收敛与负结果完整保留。下一步独立评审
+分支差异、设计真实后端非 skip 门禁并验证 CUDA/服务端网络回收；不重写已验收部分，
+不自动合入默认分支。
 Runtime 路线复核已有 direct/split-KV 的集成和端到端 A/B；
 Kernel 岗优先时选 `cuflash` workspace/stream 安全。只选一条，不在本轮可信度整改中扩展。
 

@@ -248,12 +248,13 @@ E5 → 端到端 workload + failure injection + 公平 baseline
 
 以下是完整验收门槛，不是待从零开发清单。前 3 项已有 CPU 回归，第 4 项有真实 CLI/TCP 回归，见
 [证据索引](evidence-index.md#整改分支的控制面回归)；默认分支尚未合入，
-下一步补结果包语义校验与真实 CUDA/服务端网络回收。
+结果语义与收敛审计也有整改分支自动验收证据；下一步独立评审、真实后端非 skip
+门禁与 CUDA/服务端网络回收，不能据校验通过宣称稳定 SLO。
 
 1. consumer ownership 驱动的主动 cancellation（CPU 回归已有）；
 2. SSE 和 `n>1` fan-in 有界背压（CPU 回归已有）；
 3. 类型化取消与按 HTTP 请求去重的指标生命周期测试（CPU 回归已有）；
-4. loadgen 真实 HTTP/SSE failure 与 CLI 结果落盘（本地 TCP 回归已有）；
+4. loadgen 真实 HTTP/SSE failure、CLI 落盘与结果语义审计（本地 TCP/离线回归已有）；
 5. tiny-llm feature 的非 skip GPU lane；
 6. `/metrics` sampling 和 cancel/HOL/fairness workload；
 7. 三引擎公平矩阵。
