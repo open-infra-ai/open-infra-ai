@@ -8,3 +8,8 @@
   并补记 radar / cpp-guide 两个此前零覆盖仓的登记。
 - 新增决策笔记 `implemented/process/2026-10-25-portfolio-reconciliation.md`，
   记录「组织 vs 个人账号」的保留判断与三项归属决策。
+- README 完成证据摘要由过期快照刷新为可验证的当前 CI 口径：tiny-llm
+  **252/252**（2026-10-19）、paged-serving cargo **615 项**（2026-10-04）、
+  cuflash RapidCheck **81/81** 与常规 **71/71**（2026-10-19）、trifuse
+  CI 档 **65 passed / 66 skipped**（2026-10-19）、cpp-guide **119/119**
+  （2026-10-25）；cuda-foundations 的 CI 仅 CPU 构建冒烟，GPU 快照口径保留。

@@ -88,7 +88,7 @@ GitHub topics 三处同步。
   五组配对 CUDA Graph A/B 中，TPOT 8.322→**5.225 ms/token**（-37.2%），decode
   吞吐 120.168→**191.384 tok/s**（+59.3%）；10 个进程原始 JSONL、模型哈希和
   [完整限制](https://github.com/open-infra-ai/tiny-llm/blob/master/docs/performance/results/2026-08-23-cuda-graphs-ab.md)
-  已归档，TTFT 不作改善声明。**193 项测试是 2026-08-23 快照**，不是当前测试数量。
+  已归档，TTFT 不作改善声明。CI（CPU，2026-10-19）：**252/252 测试通过**。
   direct paged decode / split-KV 已实现并有 [RTX 5070 Ti kernel 原始结果](https://github.com/open-infra-ai/tiny-llm/blob/master/docs/performance/results/2026-09-15-rtx5070ti-splitkv.md)
   与 raw 重算工具；默认仍为 legacy、split 关闭，kernel 数字不外推 TPOT/Serving 收益。
 - **paged-serving**：**3 并发分页请求 e2e 与 llama.cpp greedy 对齐**（请求 1 全序列
@@ -100,19 +100,23 @@ GitHub topics 三处同步。
   后处理后又有 [当前 21-run 正式矩阵](https://github.com/open-infra-ai/paged-serving/tree/master/benchmarks/serving/results/2026-09-07-RTX3060Laptop-paged-serving-p2-batch-postprocess-streaming)：
   closed-loop 全部成功，Poisson 0.64 / 1.28 req/s 仍有 429，c2/c8 与三档 Poisson 的
   TTFT p95 未通过 10% 收敛门槛。两包没有配对基线，不能写成速度提升、稳定 SLO、通用容量
-  或生产成熟度。
+  或生产成熟度。CI（2026-10-04）：cargo **615 项测试通过**。
 - **cuflash**：FlashAttention 前后向 FP32/FP16/BF16，FP16/BF16 前向接 WMMA；
   修复 grid.y 65535 越界（B*H>65535 回归测试）并加入 causal 边界块跳过优化；
-  RTX 3060 Laptop **2026-08-23 快照 81/81 项测试通过**（可选 PyTorch 集成 1 项跳过）。
+  RTX 3060 Laptop **2026-08-23 快照 81/81 项测试通过**（可选 PyTorch 集成 1 项跳过）；
+  CI（CPU，2026-10-19）：RapidCheck 套件 **81/81**、常规套件 **71/71**。
 - **trifuse**：Triton SGEMM + `torch.library`（`torch.ops.trifuse.*`）
-  注册三个自定义算子；CPU-only **57 passed / 66 skipped**，RTX 3060 Laptop
-  **123/123 passed**（2026-08-23 快照）；Gated MLP 是 gate/up 两投影，无 down
+  注册三个自定义算子；CI（CPU，2026-10-19，hypothesis ci 档）
+  **65 passed / 66 skipped**；RTX 3060 Laptop **123/123 passed**
+  （2026-08-23 GPU 快照）；Gated MLP 是 gate/up 两投影，无 down
   projection。缺少逐次原始样本的旧性能表不作为证据。
 - **cuda-foundations**：SGEMM 与推理组件教学阶梯；RTX 3060 Laptop 当前
-  **2026-08-23 快照 261/261 项测试通过**。旧名审计快照见 `docs/organization-audit/`。
+  **2026-08-23 快照 261/261 项测试通过**（CI 仅 CPU 构建冒烟，无 GPU 测试，
+  故保持 GPU 快照口径）。旧名审计快照见 `docs/organization-audit/`。
 - **cpp-high-performance-guide**：C++20 教学阶梯（9 个模块）；GTest/RapidCheck 与
-  Google Benchmark 由 CI 门禁（debug/release + asan/tsan/ubsan 预设），性能结论以
-  可复跑基准为准，不维护归档结果表。
+  Google Benchmark 由 CI 门禁（debug/release + asan/tsan/ubsan 预设；
+  2026-10-25 CI **119/119 测试通过**），性能结论以可复跑基准为准，不维护归档
+  结果表。
 
 > 测试数是注明日期的历史快照；Serving 与 DPA/split-KV 另按其结果日期引用。
 > 性能以技术仓 raw、硬件、commit 与命令为准；源码、测试和实验不自动证明本人
