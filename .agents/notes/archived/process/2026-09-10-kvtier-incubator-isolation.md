@@ -1,6 +1,7 @@
 # Agent Note: kvtier 孵化仓隔离
 
 Status: implemented
+Archived: 2026-10-25
 
 ## Problem
 
@@ -11,7 +12,7 @@ Status: implemented
 ## Decision
 
 `kvtier` 不进入公开状态注册表，不适用
-[链接唯一写法与命名冻结](2026-08-21-canonical-org-identity.md) 两条规则；
+[链接唯一写法与命名冻结](../../implemented/process/2026-08-21-canonical-org-identity.md) 两条规则；
 工作区地图中标注为私有孵化器。达到其 README 公开门槛（真实 GPU 实验 +
 可复现固定 + 至少一个外部可验证的上游结果 + 清理个人痕迹）后，另立变更记录
 再转公开。

@@ -30,7 +30,7 @@
 | [cuflash](https://github.com/open-infra-ai/cuflash) | [benchmark 口径](https://github.com/open-infra-ai/cuflash/blob/master/docs/performance/benchmarks.md) · [causal 边界块优化快照](https://github.com/open-infra-ai/cuflash/blob/master/docs/performance/causal-boundary-skip.md) | 指定 RTX 3060 快照与该优化的形状边界 | 不同 GPU 上的通用加速比或生产库等价性 |
 | [trifuse](https://github.com/open-infra-ai/trifuse) | [README 验证和 benchmark 边界](https://github.com/open-infra-ai/trifuse/blob/00eddd7887ea6628de61db3f532d6a669274be96/README.md#验证) | 数值对照；整改分支的两投影指标模型、正确性失败拒绝计时的 CPU 回归 | 无逐次原始计时包，不能引用旧延迟/TFLOPS 或跨 GPU 性能优势 |
 | [cuda-foundations](https://github.com/open-infra-ai/cuda-foundations) | [RTX 3060 实测页](https://github.com/open-infra-ai/cuda-foundations/blob/master/docs/en/benchmarks/rtx3060-laptop-2026-08-17.md) | 教学 kernel 的本机优化阶梯和与 cuBLAS 的差距 | 生产算子库或推理系统性能 |
-| `kvtier`（私有孵化器，未公开故不挂链接） | `bench/repro-31600/` 实验入口（仓内路径） | W/E/R/P workload、server snapshot、结果 schema/validator 和离线测试脚手架 | 当前没有真实 GPU 回载性能结果，也不证明已自研 HiCache/tiering engine |
+|  [kvtier](https://github.com/open-infra-ai/kvtier)（公开孵化，2026-10-25 入册 active；尚无审计结果包） | `bench/repro-31600/` 实验入口（仓内路径） | W/E/R/P workload、server snapshot、结果 schema/validator 和离线测试脚手架 | 当前没有真实 GPU 回载性能结果，也不证明已自研 HiCache/tiering engine |
 
 ### 整改分支的控制面回归
 
