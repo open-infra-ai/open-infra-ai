@@ -7,7 +7,7 @@
 
 保留以下公开、稳定、跨项目内容：
 
-- 组织 landing 页、六个技术仓导航与状态注册表；
+- 组织 landing 页、七个技术仓导航与状态注册表；
 - `LEARNING_PATH.md` 组织级学习顺序；
 - `docs/cross-repo-contracts.md` 跨仓语义契约；
 - 可复现证据索引与仓库治理记录；
@@ -16,11 +16,12 @@
 不再新增活跃简历、投递状态、公司清单、每日打卡或上游评论草稿。历史档案不因边界调整
 而改写；它们记录的是当时事实。
 
-## 2. 六个技术仓：只承载可运行的技术作品或可审计研究
+## 2. 七个技术仓：只承载可运行的技术作品或可审计研究
 
 | 仓库 | 唯一主责 | 不承载 |
 |------|----------|--------|
 | `cuda-foundations` | CUDA 基础、SGEMM 阶梯、通用推理组件教学 | 完整推理引擎、求职计划 |
+| `cpp-high-performance-guide` | C++20 高性能工程教学：内存、SIMD、并发、NUMA、GEMM 案例 | GPU/CUDA 内容、求职计划 |
 | `trifuse` | Triton 算子与 `torch.library` 集成对照 | CUDA 专项实现的重复副本 |
 | `cuflash` | FlashAttention/FlashDecoding CUDA 专项深挖 | `tiny-llm` 的 generate 路径 |
 | `tiny-llm` | 真实权重加载、量化、decode、KV 与端到端推理加速 | HTTP 调度控制面 |
@@ -30,17 +31,20 @@
 `tiny-llm` 与 `paged-serving` 只通过受测试的 C ABI 集成；`cuflash` 不接入
 `tiny-llm` generate 路径。技术仓名称已经被简历和证据引用，保持冻结，不做大规模重命名。
 
-## 3. 个人执行仓：`open-infra-ai/ai-infra-interview-prep`
+## 3. 个人执行仓：`holtwood/ai-infra-interview-prep`（个人私有仓）
 
-集中维护所有仍会快速变化的个人执行材料：
+集中维护所有仍会快速变化的个人执行材料（2026-10-25 自本组织迁回个人账号并转为私有）：
 
 - 12 周学习与求职路线、能力矩阵、每周复盘；
 - 脱敏简历草稿、目标公司清单、投递模板；
 - 面试问题矩阵与讲述练习；
 - 上游 issue 筛选脚本、复现器和评论/PR 草稿。
 
-真实联系方式、联系人、内推关系、薪资和投递状态只放 Git 忽略的 `.local` 文件，不提交到
-公开仓库。
+真实联系方式、联系人、内推关系、薪资和投递状态只放 Git 忽略的 `.local` 文件，不提交到仓库。
+
+组织内另有两个私有仓不进入公开注册表：`kvtier`（研究孵化，见治理规则 6）与
+`ai-infra-radar`（生态机会扫描与人工 triage 工作台，2026-10-25 起每日扫描暂停，
+恢复 triage 时再启用 cron）。
 
 ## 4. 上游社区贡献：以上游仓库为最终证据
 
@@ -54,7 +58,8 @@
 - 旗舰系统：`tiny-llm + paged-serving`，分别作为数据面与控制面；
 - CUDA 专项深度：`cuflash`；
 - 基础与跨语言对照：`cuda-foundations`、`trifuse`；
+- CPU 侧 C++ 教学线：`cpp-high-performance-guide`（只在技能或 GitHub 导航中出现）；
 - 上游研究选修：`kvtier`。
 
-六个技术仓共同组成能力链，但简历不要把六仓平铺成六个同等重要项目。旗舰系统讲深，
+七个技术仓共同组成能力链，但简历不要把七仓平铺成七个同等重要项目。旗舰系统讲深，
 `cuflash` 根据 CUDA 岗位作为专项证据，基础、对照与研究仓只在技能或 GitHub 导航中出现。

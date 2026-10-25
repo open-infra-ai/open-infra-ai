@@ -14,6 +14,7 @@
 | 端到端 LLM Serving | [tiny-llm](https://github.com/open-infra-ai/tiny-llm) + [paged-serving](https://github.com/open-infra-ai/paged-serving) | 真实权重、W8A16、Paged KV、continuous batching、C ABI、HTTP/SSE |
 | CUDA kernel 深挖 | [cuflash](https://github.com/open-infra-ai/cuflash) | online softmax、Tensor Core、FlashDecoding、数值与性能边界 |
 | CUDA/Triton 基础与对照 | [cuda-foundations](https://github.com/open-infra-ai/cuda-foundations) + [trifuse](https://github.com/open-infra-ai/trifuse) | 优化阶梯、参考实现、差分测试、`torch.library` |
+| C++ 高性能工程 | [cpp-high-performance-guide](https://github.com/open-infra-ai/cpp-high-performance-guide) | C++20 教学阶梯：内存/SIMD/并发/NUMA/GEMM 与可复跑基准 |
 | KV tiering 上游研究 | `kvtier`（私有研究孵化器，达公开门槛前不挂链接） | SGLang HiCache 数据流、W/E/R/P 实验脚手架与结果审计 |
 | 可追溯证据 | [`docs/evidence-index.md`](docs/evidence-index.md) | 结果包、复现入口、已知限制和尚待补齐的证据 |
 | 证据 artifact 生命周期 | [`docs/evidence-artifact-lifecycle.md`](docs/evidence-artifact-lifecycle.md) | Manifest schema、发布/过期状态、hash、claim 与 Agent 审计协议 |
@@ -30,6 +31,7 @@
 
 Kernel 深挖：cuflash（独立作品，不接入 tiny-llm generate）
 基础对照：cuda-foundations · trifuse
+CPU 侧教学：cpp-high-performance-guide（独立于 GPU 线，不进入旗舰链路）
 上游研究：kvtier（不接入旗舰 runtime）
 ```
 
@@ -45,6 +47,7 @@ Kernel 深挖：cuflash（独立作品，不接入 tiny-llm generate）
 | 角色 | 仓库 | 唯一主责 | 状态 |
 |------|------|----------|------|
 | 基础 | [cuda-foundations](https://github.com/open-infra-ai/cuda-foundations) | 从 SGEMM 到可复用推理组件的 CUDA 工程学习路径 | stable |
+| 基础（CPU 侧） | [cpp-high-performance-guide](https://github.com/open-infra-ai/cpp-high-performance-guide) | C++20 高性能工程教学：内存、SIMD、并发、NUMA 与 GEMM 案例 | stable |
 | 对照 | [trifuse](https://github.com/open-infra-ai/trifuse) | Triton 算子与 `torch.library` 集成 | stable |
 | 深挖 | [cuflash](https://github.com/open-infra-ai/cuflash) | CUDA C++ FlashAttention 前后向与 FlashDecoding | stable |
 | 旗舰数据面 | [tiny-llm](https://github.com/open-infra-ai/tiny-llm) | 真实权重加载、量化、decode、KV 与 C ABI | active |
@@ -62,7 +65,8 @@ GitHub topics 三处同步。
 1. **准备系统/Serving 面试**：`paged-serving → C ABI → tiny-llm`，按一条请求生命周期阅读。
 2. **准备 CUDA kernel 面试**：先看 `cuflash`，再用 `trifuse` 解释 Triton/CUDA 取舍。
 3. **从基础完整学习**：按 `cuda-foundations → trifuse → cuflash → tiny-llm → paged-serving`；
-   `kvtier` 作为 KV offloading 上游研究选修。
+   `kvtier` 作为 KV offloading 上游研究选修；CPU 侧 C++ 性能工程另有并行基础线
+   `cpp-high-performance-guide`。
 
 完整方法论（优化循环、不变量测试、阶段完成标准）见本仓
 [`LEARNING_PATH.md`](LEARNING_PATH.md)——组织级导航的唯一权威入口。
@@ -106,6 +110,9 @@ GitHub topics 三处同步。
   projection。缺少逐次原始样本的旧性能表不作为证据。
 - **cuda-foundations**：SGEMM 与推理组件教学阶梯；RTX 3060 Laptop 当前
   **2026-08-23 快照 261/261 项测试通过**。旧名审计快照见 `docs/organization-audit/`。
+- **cpp-high-performance-guide**：C++20 教学阶梯（9 个模块）；GTest/RapidCheck 与
+  Google Benchmark 由 CI 门禁（debug/release + asan/tsan/ubsan 预设），性能结论以
+  可复跑基准为准，不维护归档结果表。
 
 > 测试数是注明日期的历史快照；Serving 与 DPA/split-KV 另按其结果日期引用。
 > 性能以技术仓 raw、硬件、commit 与命令为准；源码、测试和实验不自动证明本人
@@ -123,9 +130,9 @@ GitHub topics 三处同步。
 
 ## 求职与面试执行
 
-活跃的 12 周计划、简历草稿、岗位清单、投递模板与上游贡献练习已迁到个人执行仓
-[`open-infra-ai/ai-infra-interview-prep`](https://github.com/open-infra-ai/ai-infra-interview-prep)。
-本组织只承载可复现的公开技术作品和跨仓契约，不再混入随求职进程频繁变化的私人材料。
+求职执行材料（12 周计划、简历草稿、岗位清单、投递模板与上游贡献练习）维护在
+个人私有仓 `holtwood/ai-infra-interview-prep`（2026-10-25 自本组织迁出并转为私有，
+不再对外公开链接）。本组织只承载可复现的公开技术作品和跨仓契约。
 
 ## 档案区
 

@@ -8,11 +8,12 @@
 2. 从空环境开始，应该以什么顺序构建、验证和集成？
 3. 每个阶段完成后，面试时可以证明什么，不能夸大成什么？
 
-逐仓任务 ID、允许文件、验收命令和 Agent 停止条件由
-[`P0_P1_AGENT_BACKLOG.md`](https://github.com/open-infra-ai/ai-infra-interview-prep/blob/main/P0_P1_AGENT_BACKLOG.md)
-维护；L3/L4 设计门禁由
-[`L3_L4_DESIGN_REVIEW_PACKAGES.md`](https://github.com/open-infra-ai/ai-infra-interview-prep/blob/main/L3_L4_DESIGN_REVIEW_PACKAGES.md)
-维护。本文只定义稳定的跨仓架构和证据关系，不复制任务实现细节。
+逐仓任务 ID、允许文件、验收命令和 Agent 停止条件由个人私有执行仓
+`holtwood/ai-infra-interview-prep` 的 `P0_P1_AGENT_BACKLOG.md` 维护；L3/L4 设计
+门禁由同仓 `L3_L4_DESIGN_REVIEW_PACKAGES.md` 维护（该仓 2026-10-25 自组织迁出
+并转为私有，外部不可见）。本文只定义稳定的跨仓架构和证据关系，不复制任务实现
+细节。本文的「七仓」指本系统集成范围内的仓库；`cpp-high-performance-guide`
+（2026-10-25 入册的 CPU 侧教学仓）独立于本系统图，不改变集成与证据关系。
 
 ---
 
