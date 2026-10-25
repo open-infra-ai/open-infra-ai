@@ -14,8 +14,10 @@ Status: implemented
 1. 用户可见链接一律写 `github.com/open-infra-ai/{repo}` 与
    `open-infra-ai.github.io/{repo}/`（小写组织名，与真实 remote 一致）。
 2. 技术仓名冻结：`tiny-llm` / `cuflash` / `paged-serving` / `trifuse` /
-   `cuda-foundations`——已被简历与证据材料引用。meta 仓与组织同名，
-   组织改名时同批改名。
+   `cuda-foundations`——已被简历与证据材料引用；2026-10-25 增补
+   `cpp-high-performance-guide` 与 `kvtier`（入册即挂公开链接，见
+   [kvtier 与 radar 转公开](2026-10-25-kvtier-radar-publication.md)）。
+   meta 仓与组织同名，组织改名时同批改名。
 3. 豁免保护历史叙述（审计快照、CHANGELOG 历史条目、archive/plans、interview/
    中的旧名），功能性内容（命令、路径、URL）随改名同步维护——边界见
    [历史记录不可改写](2026-09-10-immutable-historical-records.md)。
@@ -30,8 +32,9 @@ Status: implemented
 ## Consequences
 
 - **收益**：公开身份稳定，链接可机械检查（搜索旧组织名即可发现违规）。
-- **代价**：未来的任何改名都是跨仓、跨外部材料的批量操作；`kvtier` 在孵化期
-  不适用本冻结（见 [孵化仓隔离](2026-09-10-kvtier-incubator-isolation.md)）。
+- **代价**：未来的任何改名都是跨仓、跨外部材料的批量操作；`kvtier` 曾在
+  孵化期不适用本冻结（见 [孵化仓隔离历史快照](../../archived/process/2026-09-10-kvtier-incubator-isolation.md)），
+  2026-10-25 转公开入册后并入冻结清单。
 
 ## Verification
 
