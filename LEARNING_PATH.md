@@ -2,7 +2,7 @@
 
 这份路线只服务一个目标：用少量互补项目建立可解释、可验证的 AI Infra 能力链。不要同时铺开所有仓库；每一阶段先完成一个能运行、能测量、能说明取舍的闭环，再进入下一阶段。
 
-## 五个项目的职责
+## 五个主仓的职责（GPU 学习主线）
 
 | 阶段 | 主仓 | 需要掌握的能力 | 完成证据 |
 |---|---|---|---|
@@ -13,6 +13,11 @@
 | 5. Serving 控制面 | `paged-serving` | Paged KV、continuous batching、限流、取消、指标 | 分页 KV 已启用：`tiny-llm` 策略 1（block_tables）3 并发 e2e 与 llama.cpp 逐 token 对齐 + 资源守恒（`paged-serving/tests/tiny_llm_text_e2e.rs::qwen2_three_concurrent_paged_requests_match_llama_cpp`） |
 
 建议按表格顺序推进。前两阶段是基础；后三阶段分别形成 kernel、runtime、serving 方向的作品证据。
+
+主线之外另有两个仓：`cpp-high-performance-guide` 是 CPU 侧 C++ 性能工程的
+并行基础线（内存/SIMD/并发/NUMA/GEMM，stable），可与阶段 1–2 并行使用；
+`kvtier` 是 KV tiering 上游研究选修（SGLang HiCache 复现实验与上游贡献，
+active，尚无完成审计的 GPU 结果包）。两者不改变上表主线顺序。
 
 > ⚠️ **教学预览**：`cuda-foundations` 的 [04-inference-engine](https://github.com/open-infra-ai/cuda-foundations/blob/master/04-inference-engine/README.md)
 > 是 `tiny-llm` 的简化预习版（教学预览，**非独立作品**），用于演示 kernel/内存/流如何
