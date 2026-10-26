@@ -54,10 +54,10 @@ CPU 侧教学：cpp-high-performance-guide（独立于 GPU 线，不进入旗舰
 | 旗舰控制面 | [paged-serving](https://github.com/open-infra-ai/paged-serving) | Paged KV、continuous batching、HTTP/SSE 与 serving 评测 | active |
 | 上游研究 | [kvtier](https://github.com/open-infra-ai/kvtier) | SGLang HiCache/KV tiering 上游研究与可审计复现实验 | active |
 
-`kvtier` 于 2026-10-25 经所有者裁定提前公开并入册（`active`）：尚无完成
-审计的 GPU 结果包、亦无已合入的上游 PR，完成审计前不作为简历主项目（见其
-README「公开门槛与现状」）。`ai-infra-radar` 为公开生态工作台
-（daily-scan 暂停中），按定位不列入本注册表。
+`kvtier` 于 2026-10-25 经所有者裁定提前公开并入册（`active`）：2026-10-26
+已有一份经审计的单卡 L2 回载结果包，但尚无已合入的上游 PR；单卡、单模型结果
+不代表通用性能，仍不作为简历主项目（见其 README「公开门槛与现状」）。
+`ai-infra-radar` 为公开生态工作台（daily-scan 暂停中），按定位不列入本注册表。
 
 **状态语义**：`active` = 学习/演进中；`stable` = 作品完成，只修正确性 bug 与文档；
 `archived` = 不再维护。状态以本表为唯一权威注册表，与各仓 README 状态行、
@@ -91,8 +91,11 @@ GitHub topics 三处同步。
   五组配对 CUDA Graph A/B 中，TPOT 8.322→**5.225 ms/token**（-37.2%），decode
   吞吐 120.168→**191.384 tok/s**（+59.3%）；10 个进程原始 JSONL、模型哈希和
   [完整限制](https://github.com/open-infra-ai/tiny-llm/blob/master/docs/performance/results/2026-08-23-cuda-graphs-ab.md)
-  已归档，TTFT 不作改善声明。CI（CPU，2026-10-19）：**252/252 测试通过**。
-  direct paged decode / split-KV 已实现并有 [RTX 5070 Ti kernel 原始结果](https://github.com/open-infra-ai/tiny-llm/blob/master/docs/performance/results/2026-09-15-rtx5070ti-splitkv.md)
+  已归档，TTFT 不作改善声明。2026-10-26 RTX 3060 Laptop 本地门禁以两种真实
+  GGUF 模型达到 **252/252 通过、0 skip**，并归档
+  [ncu decode 归因与汇总 CSV](https://github.com/open-infra-ai/tiny-llm/blob/master/docs/performance/results/2026-10-26-ncu-decode-profile.md)；
+  前者不是远端持续 GPU CI，后者不代替完整 timeline。direct paged decode /
+  split-KV 已实现并有 [RTX 5070 Ti kernel 原始结果](https://github.com/open-infra-ai/tiny-llm/blob/master/docs/performance/results/2026-09-15-rtx5070ti-splitkv.md)
   与 raw 重算工具；默认仍为 legacy、split 关闭，kernel 数字不外推 TPOT/Serving 收益。
 - **paged-serving**：**3 并发分页请求 e2e 与 llama.cpp greedy 对齐**（请求 1 全序列
   严格一致；请求 2 的 `equals`/`is` 为 W8A16 vs Q4_K_M 量化 argmax 边界翻转，
@@ -103,7 +106,8 @@ GitHub topics 三处同步。
   后处理后又有 [当前 21-run 正式矩阵](https://github.com/open-infra-ai/paged-serving/tree/master/benchmarks/serving/results/2026-09-07-RTX3060Laptop-paged-serving-p2-batch-postprocess-streaming)：
   closed-loop 全部成功，Poisson 0.64 / 1.28 req/s 仍有 429，c2/c8 与三档 Poisson 的
   TTFT p95 未通过 10% 收敛门槛。两包没有配对基线，不能写成速度提升、稳定 SLO、通用容量
-  或生产成熟度。CI（2026-10-04）：cargo **615 项测试通过**。
+  或生产成熟度。CI（2026-10-04）：cargo **615 项测试通过**；2026-10-26 真实
+  tiny-llm 后端本地测试 **8/8 通过、0 ignored**，不替代持续 GPU CI 或网络故障验证。
 - **cuflash**：FlashAttention 前后向 FP32/FP16/BF16，FP16/BF16 前向接 WMMA；
   修复 grid.y 65535 越界（B*H>65535 回归测试）并加入 causal 边界块跳过优化；
   RTX 3060 Laptop **2026-08-23 快照 81/81 项测试通过**（可选 PyTorch 集成 1 项跳过）；
@@ -117,9 +121,15 @@ GitHub topics 三处同步。
   **2026-08-23 快照 261/261 项测试通过**（CI 仅 CPU 构建冒烟，无 GPU 测试，
   故保持 GPU 快照口径）。旧名审计快照见 `docs/organization-audit/`。
 - **cpp-high-performance-guide**：C++20 教学阶梯（9 个模块）；GTest/RapidCheck
-  由 CI 门禁（格式、GCC debug 与 asan/tsan/ubsan 预设；2026-10-25 CI
-  **119/119 测试通过**），release 预设与 Google Benchmark 由本地命令验证；
-  性能结论以可复跑基准为准，不维护归档结果表。
+  由 CI 门禁（格式、GCC debug/release 与 asan/tsan/ubsan 预设；2026-10-25 CI
+  **119/119 测试通过**），Google Benchmark 随 release 构建编译，基准运行仍由
+  本地命令执行；性能结论以可复跑基准为准，不维护归档结果表。
+- **kvtier**：SGLang HiCache 上游研究与 W/E/R/P 可审计实验；2026-10-26 在
+  WSL2/RTX 3060 Laptop、Qwen2.5-0.5B 上完成 6 轮单卡 L2 回载基线，逐请求
+  host 命中与 counter 交叉验证通过，配对 R/P TTFT 比中位数 **0.215**。
+  [结果包](https://github.com/open-infra-ai/kvtier/blob/master/bench/repro-31600/evidence/2026-10-26-wsl2-l2-baseline/README.md)
+  固定上游 commit、模型与补丁 hash，并保留失败结果和 WSL2 指针根因；该结果
+  不代表 #31600 复现、自研 tiering engine、多卡/L3 或跨模型/GPU 性能。
 
 > 测试数是注明日期的历史快照；Serving 与 DPA/split-KV 另按其结果日期引用。
 > 性能以技术仓 raw、硬件、commit 与命令为准；源码、测试和实验不自动证明本人

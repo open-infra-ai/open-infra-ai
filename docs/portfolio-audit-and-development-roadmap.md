@@ -57,7 +57,7 @@
 
 面试时必须主动说明：
 
-- 当前为单模型、单 GPU；
+- 当前为单 GPU；两种真实 GGUF 模型只构成本地正确性证据，不代表完整架构兼容矩阵；
 - direct paged decode 与 split-KV 已实现并有 kernel 级原始结果；默认仍为 legacy
   gather 路径、split-KV 关闭，prefill 保留 gather；
 - 默认分支已通过 [PR #24](https://github.com/open-infra-ai/paged-serving/pull/24)
@@ -94,7 +94,9 @@
 ### 辅助证据
 
 - `kvtier`（[公开孵化](https://github.com/open-infra-ai/kvtier)，2026-10-25 入册 active）：KV offload 源码研究、实验编排和
-  telemetry 门禁；在产生真实 GPU 结果和至少一项 runtime 优化前不作为简历主项目。
+  telemetry 门禁；2026-10-26 已有一份经审计的单卡 L2 回载基线与 WSL2 host
+  指针根因证据。结果限于单模型、本地补丁和 6 轮配对，不作为简历主项目或通用
+  性能声明。
 - `cpp-high-performance-guide`（2026-10-25 入册 stable）：CPU 侧 C++20 性能工程
   教学线，独立于 GPU 旗舰与系统集成图；以可复跑基准和 sanitizer/CI 门禁为证据，
   不与 GPU 线争夺叙事中心。
@@ -104,13 +106,13 @@
 
 | 仓库 | 当前价值 | 主要硬伤 | 建议 |
 |------|----------|----------|------|
-| `tiny-llm` | 真实模型、W8A16、Graph、C ABI；direct paged/split-KV 的实现与 kernel 结果已存在 | GPU/真实模型持续门禁、完整 layer batch、多 GPU、端到端 direct A/B 与可打开 profiler 包仍有缺口 | 旗舰主打，不重复实现 direct kernel |
-| `paged-serving` | 调度、资源不变量、准入/429、SSE、正式负载结果；取消、背压与类型化指标已随 PR #24 合入 master | 真实 backend/网络故障、容量调优与持续观测待补；调度 batch 不等于 fused GPU batch | 与 `tiny-llm` 联合主打 |
-| `cpp-high-performance-guide` | 9 个 C++20 教学模块；CMake preset、GTest/RapidCheck 与 Google Benchmark；CI 覆盖格式、debug 与 asan/tsan/ubsan | 跨平台/编译器矩阵、基准方差元数据与 profiler 原始包待补；CPU 微基准不代表 GPU 或端到端收益 | CPU 侧教学线，不占旗舰叙事 |
+| `tiny-llm` | 真实模型、W8A16、Graph、C ABI；direct paged/split-KV 已有 kernel 结果；两种模型本地 GPU 门禁 252/252、0 skip，decode 有 ncu 归因 | 持续 GPU/Sanitizer 门禁、完整 layer batch、多 GPU、端到端 direct A/B、可打开 profiler 报告与 nsys timeline 仍有缺口 | 旗舰主打，不重复实现 direct kernel |
+| `paged-serving` | 调度、资源不变量、准入/429、SSE、正式负载结果；取消、背压与类型化指标已随 PR #24 合入 master；真实后端本地测试 8/8、0 ignored | 持续真实 backend 门禁、网络故障、容量调优与持续观测待补；调度 batch 不等于 fused GPU batch | 与 `tiny-llm` 联合主打 |
+| `cpp-high-performance-guide` | 9 个 C++20 教学模块；CMake preset、GTest/RapidCheck 与 Google Benchmark；CI 覆盖格式、GCC debug/release 与 asan/tsan/ubsan | 跨平台/编译器矩阵、基准方差元数据与 profiler 原始包待补；CPU 微基准不代表 GPU 或端到端收益 | CPU 侧教学线，不占旗舰叙事 |
 | `cuflash` | online-softmax forward、WMMA、backward、Split-KV 有源码和追问价值 | GPU CI 与 profiler 证据不足；decode workspace 的并发/stream 安全需强化；不是 FA2/FA3 | Kernel 岗第二旗舰 |
 | `trifuse` | Triton kernel 和 `torch.library`；两投影指标与正确性拒绝计时有回归测试 | 尚缺逐次 raw timing/provenance、公平 baseline 和 profiler；不引用缺原始样本的旧延迟 | 与 `cuflash` 合并展示 |
 | `cuda-foundations` | 适合证明 CUDA 基础、优化阶梯和负结果纪律 | 高级术语中存在 placeholder/fallback；系统深度不足 | 学习档案，不占主项目位 |
-| `kvtier` | 实验污染控制、上游阅读和 KV offload 方法论有价值 | 缺真实 GPU 结果、token oracle、核心实现改动和闭环优化 | 研究辅助，完成结果后再升级 |
+| `kvtier` | 实验污染控制、上游阅读、CPU-only CI；单卡 L2 回载结果有逐请求 host 命中、counter 与审计证据 | 跨 IO/KV dtype、硬件/模型泛化、核心实现改动和闭环优化仍缺；本地未合入上游补丁不是自有 runtime 优化 | 研究辅助，保留 active 与单包边界 |
 | 总仓 | 证据治理与跨仓导航 | 本身没有新增数据面实现 | 只作入口 |
 
 ## 4. 仓库证据矩阵（不是本人能力评分）
@@ -118,13 +120,13 @@
 | 能力 | 已有证据 | 下一层关键缺口 |
 |------|----------|----------------|
 | CUDA / Triton Kernel | online softmax、WMMA、Split-KV、W8A16、融合算子、custom op | 架构特化、持续 GPU 门禁 |
-| GPU 性能分析 | CUDA Event、配对 A/B、raw JSONL；9 月 kernel 报告含 Nsight 表格 | 可打开的 raw profiler 包、端到端 timeline 和归因复核 |
-| LLM Runtime | GGUF → Transformer → KV → sampling → Graph → C ABI | 第二模型、真正 layer batching、多 GPU、workspace 合约 |
-| KV Cache | 连续/分页 KV、direct paged decode、split-KV、资源回收 | 默认路径晋级依据、prefix cache、preemption、并发压力 |
-| Serving | 调度、准入/429、SSE、21-run 结果；取消/背压/指标、CLI 与结果语义回归已合入 master | 真实后端门禁、CUDA/网络回收、稳定 SLO、持续观测 |
+| GPU 性能分析 | CUDA Event、配对 A/B、raw JSONL；tiny-llm decode 有 ncu 报告与汇总 CSV | 可打开的 profiler 原始报告、端到端 timeline、更多采样窗口和归因复核 |
+| LLM Runtime | GGUF → Transformer → KV → sampling → Graph → C ABI；两个真实模型与不同 GQA 几何的本地非 skip 门禁 | 真正 layer batching、多 GPU、workspace 合约、跨架构/Sanitizer |
+| KV Cache | 连续/分页 KV、direct paged decode、split-KV、资源回收；kvtier 单卡 L2 回载有逐请求与 counter 证据 | 默认路径晋级依据、prefix cache、preemption、并发压力、kvtier 配置矩阵 |
+| Serving | 调度、准入/429、SSE、21-run 结果；取消/背压/指标、CLI 与结果语义回归已合入 master；真实后端本地 8/8 | 持续真实后端门禁、CUDA/网络回收、稳定 SLO、持续观测 |
 | 分布式系统 | 理论和接口边界 | 真实 NCCL、TP/PP、路由与故障恢复实验 |
-| 测试与工程 | reference、属性/边界测试、资源不变量、CI | GPU 强制门禁、sanitizer/fuzz、兼容矩阵 |
-| 可复现 benchmark | 部分项目有精确 commit、模型 hash、raw 和重算工具 | 公平外部 baseline、跨架构与统计收敛 |
+| 测试与工程 | reference、属性/边界测试、资源不变量、CI；tiny-llm 与 paged-serving 有本地真实 GPU 非 skip 证据 | 持续 GPU 强制门禁、sanitizer/fuzz、兼容矩阵 |
+| 可复现 benchmark | 部分项目有精确 commit、模型 hash、raw 和重算工具；kvtier 基线保留成功与失败包 | 公平外部 baseline、跨架构与统计收敛 |
 
 ## 5. 开发原则
 
@@ -184,6 +186,11 @@ P0 完成前，不应继续扩大功能面。
 - 连续 20 次主干 GPU workflow 无非预期 skip；
 - artifact 包含 commit、dirty 状态、GPU、driver、CUDA、编译器、模型 hash 和日志；
 - 连续/分页 KV、Graph on/off、三并发后端路径在固定 token 集上 0 非预期 mismatch。
+
+2026-10-26 已有两份本地快照：tiny-llm 使用两种真实模型达到 252/252、0 skip，
+paged-serving 真实 tiny-llm 后端达到 8/8、0 ignored。它们证明本次环境执行了
+目标路径，但未建立远端持续 GPU workflow，也未完成 Sanitizer 或连续 20 次验收，
+因此 P0.2 整体仍未退出。
 
 ### P0.3 修复构建与环境契约
 
@@ -261,6 +268,11 @@ CI 有独立 MSRV job。此项不替代 CUDA FFI 与其他仓环境矩阵。
 
 每次先用 Nsight Systems 判断“时间花在哪里”，再用 Nsight Compute 判断
 “某个 kernel 为什么慢”。
+
+2026-10-26 tiny-llm 已归档固定模型无 Graph decode 的 ncu 报告与汇总 CSV，
+支持量化 matmul 为主耗时、LM head 接近 DRAM 带宽上限的局部归因。该报告只有
+约 11 个 layer-step 的采样窗口；nsys importer 不可用，未生成 `.nsys-rep`，
+也没有可打开的 `.ncu-rep`，因此本节五项分析与 timeline 验收尚未完成。
 
 至少分析五个核心点：
 
@@ -373,6 +385,9 @@ Kernel：
 - release 跨架构矩阵；
 - 固定模型和 artifact schema。
 
+2026-10-26 已完成 tiny-llm 两模型 252/252、0 skip 与 paged-serving 真实后端
+8/8、0 ignored 的本地快照；持续 workflow、Sanitizer 和跨架构矩阵仍待补。
+
 退出条件：至少 20 次连续成功，0 非预期 skip。
 
 ### 里程碑 3：首份 profiler 包
@@ -381,15 +396,19 @@ Kernel：
 - ncu 分析五个 kernel；
 - 保存原始报告和 counter 解释。
 
+2026-10-26 已有 tiny-llm decode ncu 报告与汇总 CSV，可解释局部采样窗口的
+matmul/LM head 瓶颈；nsys timeline、可打开原始报告和五类核心点覆盖仍未完成。
+
 退出条件：能用证据解释瓶颈，而不是只报总耗时。
 
 ### 里程碑 4：一个深改造
 
 综合/Serving 的整改已通过 PR #24 合入默认分支，包含有界文本队列、取消、CPU
 失败回收与指标分类；CLI/TCP 与结果语义回归也已有证据，历史未收敛与负结果完整
-保留。下一步设计真实后端非 skip 门禁并验证 CUDA/服务端网络回收；不重写已验收部分。
-Runtime 路线复核已有 direct/split-KV 的集成和端到端 A/B；
-Kernel 岗优先时选 `cuflash` workspace/stream 安全。只选一条，不在本轮可信度整改中扩展。
+保留。2026-10-26 真实后端本地门禁已通过，下一步验证持续 GPU 门禁和 CUDA/服务端
+网络回收；不重写已验收部分。Runtime 路线复核已有 direct/split-KV 的集成和端到端
+A/B；Kernel 岗优先时选 `cuflash` workspace/stream 安全。只选一条，不在本轮可信度
+整改中扩展。
 
 退出条件：正确性、Sanitizer、性能、回退和边界全部有记录。
 

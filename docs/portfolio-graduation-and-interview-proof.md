@@ -12,8 +12,9 @@ commit、结果包和 [`evidence-index.md`](evidence-index.md) 为准。
    KV Cache、Rust serving、上游 KV tiering 和 CPU 侧 C++ 性能工程。新增第八个技术仓的
    收益远低于补齐当前证据。
 2. **只选一个深改造。** direct paged/split-KV 已实现，不从零重做；综合/Serving 的取消、
-   有界队列与指标整改已随 PR #24 合入，下一步只补真实 backend/网络回收。Kernel 路线选
-   `cuflash` workspace/stream safety，Runtime 路线做集成与端到端 A/B，不并行扩展三条线。
+   有界队列与指标整改已随 PR #24 合入，真实 backend 本地门禁已通过，下一步补持续
+   GPU 门禁和 CUDA/网络回收。Kernel 路线选 `cuflash` workspace/stream safety，
+   Runtime 路线做集成与端到端 A/B，不并行扩展三条线。
 3. **正确性比漂亮数字优先。** GPU case 真正执行、独立 reference、sanitizer、失败路径和
    raw artifact，比一次较大的 speedup 更能通过面试追问。
 4. **旗舰叙事只保留两条。**
@@ -196,28 +197,35 @@ E5 → 端到端 workload + failure injection + 公平 baseline
 
 当前安全说法：
 
-- 能加载记录范围内的 GGUF/量化模型并完成单 GPU 推理；
+- 能加载记录范围内的 GGUF/量化模型并完成单 GPU 推理；2026-10-26 本地门禁在
+  RTX 3060 Laptop 上用 Qwen2.5-0.5B 与 SmolLM2-360M 两个真实模型达到
+  252/252 通过、0 skip；
 - 有连续 KV 和 paged KV storage/control path；
 - direct paged decode 与 split-KV 有实现、oracle、集成测试和 kernel 原始结果；
 - 默认 legacy、split 关闭，prefill 保留 gather，尚无 direct 的端到端 Serving 收益；
 - CUDA Graph A/B 有绑定 commit、模型和 raw data 的历史证据；
+- 固定模型无 Graph decode 已有 ncu 汇总与归因，量化 matmul 和 LM head 的瓶颈
+  结论只适用于记录窗口；
 - C ABI 支持 paged-serving 同进程调用。
 
 禁止说法：
 
 - 当前 paged scatter/gather 路径是 direct PagedAttention；
 - W8A16 是 Tensor Core INT8，除非对应 kernel 和 dispatch 有证据；
-- 一个真实模型通过意味着所有 GGUF 架构/量化都兼容；
-- CUDA Graph 的 TPOT 观察自动代表 TTFT 或 serving 吞吐提升。
+- 两个真实模型通过意味着所有 GGUF 架构/量化都兼容；
+- CUDA Graph 的 TPOT 观察自动代表 TTFT 或 serving 吞吐提升；
+- ncu 的局部采样与推算等于完整端到端 timeline 或精确 TPOT 分解。
 
 毕业前最高价值补强：
 
-1. GGUF/量化支持矩阵和第二模型；
+1. ~~GGUF/量化支持矩阵和第二模型~~（2026-10-26 已完成两种模型、两种 GQA
+   几何的非 skip 本地门禁；支持矩阵仍以 README 列出的类型为限）；
 2. 不依赖外部模型的 paged/contiguous synthetic oracle；
 3. 不依赖私有 GGUF 的 CUDA Graph correctness；
 4. 复核已有 direct/split-KV kernel 的当前 GPU 与 Sanitizer 门禁；
 5. 复核已有 Transformer/FFI 集成和 legacy fallback，不重复实现；
-6. kernel 三路 A/B 已有，补固定模型的配对端到端 A/B 与 raw profiler 包。
+6. 固定模型的配对端到端 direct A/B；补可打开的 profiler 原始报告与 nsys
+   timeline（2026-10-26 已有 ncu 报告和汇总 CSV，尚不满足这两项）。
 
 面试官应能追问：
 
@@ -251,13 +259,15 @@ E5 → 端到端 workload + failure injection + 公平 baseline
 以下是完整验收门槛，不是待从零开发清单。前 3 项已有 CPU 回归，第 4 项有真实 CLI/TCP
 回归，并已随 PR #24 合入默认分支（merge `e60a315`），见
 [证据索引](evidence-index.md#整改分支的控制面回归)；结果语义与收敛审计已有自动验收证据。
-下一步是真实后端非 skip 门禁与 CUDA/服务端网络回收，不能据校验通过宣称稳定 SLO。
+2026-10-26 真实 tiny-llm 后端本地测试 8/8 通过、0 ignored；下一步是持续 GPU
+门禁与 CUDA/服务端网络回收，不能据本地测试或结果校验宣称稳定 SLO。
 
 1. consumer ownership 驱动的主动 cancellation（CPU 回归已有）；
 2. SSE 和 `n>1` fan-in 有界背压（CPU 回归已有）；
 3. 类型化取消与按 HTTP 请求去重的指标生命周期测试（CPU 回归已有）；
 4. loadgen 真实 HTTP/SSE failure、CLI 落盘与结果语义审计（本地 TCP/离线回归已有）；
-5. tiny-llm feature 的非 skip GPU lane；
+5. ~~tiny-llm feature 的非 skip GPU lane~~（2026-10-26 本地真实后端 8/8、0
+   ignored；持续 GPU CI 仍未建立）；
 6. `/metrics` sampling 和 cancel/HOL/fairness workload；
 7. 三引擎公平矩阵。
 
@@ -271,29 +281,35 @@ E5 → 端到端 workload + failure injection + 公平 baseline
 
 ### 4.6 `kvtier`
 
-**角色**：上游阅读、复现和可审计实验脚手架，不是自研 HiCache engine。
+**角色**：上游阅读、复现和可审计实验，不是自研 HiCache engine。
 
 当前安全说法：
 
 - 研究并定位 SGLang HiCache/KV tiering 数据流；
 - 提供 W/E/R/P workload、server snapshot、counter/cache validation 和结果审计；
-- 当前真实 GPU benchmark 尚未完成，因此保留为实验脚手架。
+- 2026-10-26 在 WSL2/RTX 3060 Laptop、Qwen2.5-0.5B 上完成 6 轮单卡 L2
+  回载基线：逐请求 host 命中与 counter 交叉验证通过，配对 R/P TTFT 比中位数
+  为 0.215；
+- 复现并定位了 WSL2 上 registered host/device 指针不恒等导致的回载崩溃；
+  使用归档的上游未合入 PR 局部补丁后完成实验，补丁来源与 hash 均可审计。
 
 禁止说法：
 
-- 自研了完整 KV tiering；
+- 自研了完整 KV tiering，或把本地上游补丁称为已合入贡献；
 - run 末全局 counter 增加就证明每个 R 都从 host 正确回载；
 - 固定 sleep 证明 backup 已完成；
-- 单卡 L2 脚本等价于多卡、L3、speculative decoding 或 #31600 完整复现。
+- 单卡 L2 结果等价于多卡、L3、speculative decoding 或 #31600 完整复现；
+- 将单次 0.5B、禁用 CUDA Graph 的 TTFT 外推到其他模型、GPU 或默认配置。
 
 毕业前最高价值补强：
 
-1. pinned upstream commit 和 symbols 的复核日期；
-2. schema v2 provenance；
-3. per-phase host reload correctness；
-4. CPU-only CI；
-5. 一个真实 GPU 单卡 L2 baseline；
-6. IO backend/KV dtype 矩阵；
+1. ~~pinned upstream commit 和 symbols 的复核日期~~（已固定并记录）；
+2. ~~schema v2 provenance~~（结果包含 commit、模型、硬件、参数与 hash）；
+3. ~~per-phase host reload correctness~~（6/6 R 请求 host 命中 4223/4224，
+   P 请求冷启动，counter 与 load-back 字节数交叉验证）；
+4. ~~CPU-only CI~~（2026-10-26 已加入离线测试 job；远端执行待后续推送确认）；
+5. ~~一个真实 GPU 单卡 L2 baseline~~（2026-10-26 已完成并审计，限制见上）；
+6. IO backend/KV dtype 矩阵，以及上游补丁合入后的复跑；
 7. 多卡/L3 只保留 design-only，直到资源批准。
 
 面试官应能追问：
@@ -313,7 +329,8 @@ E5 → 端到端 workload + failure injection + 公平 baseline
 - 9 个模块覆盖 CMake、内存/缓存、现代 C++、SIMD、并发/无锁、MPI、I/O、CPU 微架构
   与 GEMM 案例；
 - 示例、GTest/RapidCheck 测试和 Google Benchmark 可由 CMake preset 构建与运行；
-- CI 覆盖格式检查、GCC debug 与 asan/tsan/ubsan；2026-10-25 记录 119/119 测试通过。
+- CI 覆盖格式检查、GCC debug/release 与 asan/tsan/ubsan；2026-10-26 本地
+  release 预设 119/119 通过，release 档已纳入 CI（2026-10-26 起）。
 
 禁止说法：
 
@@ -323,7 +340,8 @@ E5 → 端到端 workload + failure injection + 公平 baseline
 
 毕业前最高价值补强：
 
-1. release 预设纳入 CI（当前文档给出本地命令，workflow 只跑 debug 与 sanitizer）；
+1. ~~release 预设纳入 CI~~（2026-10-26 已加入 GCC release job，benchmark label
+   由 test preset 排除；本地同预设 119/119 通过）；
 2. 基准记录 CPU 型号、编译器、频率/功耗与统计方差，并保留 raw 输出；
 3. x86/ARM 与 GCC/Clang 兼容矩阵，避免 SIMD/内建假设只在一个平台成立；
 4. 至少一个用 perf/VTune 的 profiler 归因案例；
