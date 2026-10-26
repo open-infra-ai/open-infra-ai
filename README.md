@@ -20,7 +20,7 @@
 | 证据 artifact 生命周期 | [`docs/evidence-artifact-lifecycle.md`](docs/evidence-artifact-lifecycle.md) | Manifest schema、发布/过期状态、hash、claim 与 Agent 审计协议 |
 | 作品集审计与开发路线 | [`docs/portfolio-audit-and-development-roadmap.md`](docs/portfolio-audit-and-development-roadmap.md) | 项目分层、能力缺口、P0/P1/P2 改造与验收标准 |
 | 毕业与面试证据标准 | [`docs/portfolio-graduation-and-interview-proof.md`](docs/portfolio-graduation-and-interview-proof.md) | 简历声明、现场演示、追问边界和逐仓毕业门槛 |
-| 七仓系统与面试地图 | [`docs/system-integration-and-interview-map.md`](docs/system-integration-and-interview-map.md) | 构建依赖、请求链路、阶段成果、demo 与面试追问 |
+| 系统集成地图（六技术仓 + 治理仓） | [`docs/system-integration-and-interview-map.md`](docs/system-integration-and-interview-map.md) | 构建依赖、请求链路、阶段成果、demo 与面试追问 |
 
 ## 作品集架构
 
@@ -116,10 +116,10 @@ GitHub topics 三处同步。
 - **cuda-foundations**：SGEMM 与推理组件教学阶梯；RTX 3060 Laptop 当前
   **2026-08-23 快照 261/261 项测试通过**（CI 仅 CPU 构建冒烟，无 GPU 测试，
   故保持 GPU 快照口径）。旧名审计快照见 `docs/organization-audit/`。
-- **cpp-high-performance-guide**：C++20 教学阶梯（9 个模块）；GTest/RapidCheck 与
-  Google Benchmark 由 CI 门禁（debug/release + asan/tsan/ubsan 预设；
-  2026-10-25 CI **119/119 测试通过**），性能结论以可复跑基准为准，不维护归档
-  结果表。
+- **cpp-high-performance-guide**：C++20 教学阶梯（9 个模块）；GTest/RapidCheck
+  由 CI 门禁（格式、GCC debug 与 asan/tsan/ubsan 预设；2026-10-25 CI
+  **119/119 测试通过**），release 预设与 Google Benchmark 由本地命令验证；
+  性能结论以可复跑基准为准，不维护归档结果表。
 
 > 测试数是注明日期的历史快照；Serving 与 DPA/split-KV 另按其结果日期引用。
 > 性能以技术仓 raw、硬件、commit 与命令为准；源码、测试和实验不自动证明本人

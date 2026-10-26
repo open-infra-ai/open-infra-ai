@@ -39,7 +39,7 @@
 Rust 1.88 本地通过 255 个默认测试与 17 个 doc tests；24 个服务内联测试和 45 个
 HTTP/SSE 测试重复 10 轮通过。[实现与测试边界](https://github.com/open-infra-ai/paged-serving/blob/59d90c84aa0ea849322c18d3c741f8f9eef34dc9/.agents/notes/implemented/feature/2026-10-04-bounded-events-and-cancellation.md)
 覆盖无文本取消、慢消费者、成功排空、末步投递失败和资源回基线。这是 CPU 控制面证据，
-不是新的 CUDA/Serving 性能包；默认分支尚未合入，真实网络压力仍待补。
+不是新的 CUDA/Serving 性能包；该批已随 PR #24 合入默认分支，真实网络压力仍待补。
 
 [第三批 `paged-serving@3039093`](https://github.com/open-infra-ai/paged-serving/commit/3039093ddc2fb6ddcab9508e4024bc84a61816c7)
 实现类型化取消和按候选的独立计数，JSON/准入/后端/SSE 错误按 HTTP 请求去重，
@@ -90,7 +90,8 @@ token 吞吐的部分重复。36 个标准库测试通过，5 个存量包的 66
   [PR #24](https://github.com/open-infra-ai/paged-serving/pull/24) 合入默认分支
   （2026-10-05 北京时间，merge `e60a315`）。真实 CPU TCP 回归与文本 EOF/终态竞态
   修复已有证据；原生 GPU 登记/显存回收和网络负载调优仍需验证。较早的
-  [PR #23](https://github.com/open-infra-ai/paged-serving/pull/23) 保留，不是本批整合入口；
+  [PR #23](https://github.com/open-infra-ai/paged-serving/pull/23) 已于 2026-10-25
+  以 superseded 关闭，master 实现为准；
 - 当前 tiny-llm FFI 的 Transformer layer forward 仍逐序列执行；正常 greedy 的末端已改为
   GPU batch final RMSNorm / LM head / argmax 与一次 batch token 回传，但 logprobs 仍走主机
   logits 路径，不能把调度 batch 当作 fused compute batch；当前矩阵没有配对基线，不能将

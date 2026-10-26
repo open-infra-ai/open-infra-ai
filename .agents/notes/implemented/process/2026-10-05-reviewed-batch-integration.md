@@ -44,7 +44,7 @@ CUDA 基础仓旧测试对 AGENTS.md 的全面禁令也与现行约定对齐，�
 | cuflash | [#13](https://github.com/open-infra-ai/cuflash/pull/13) | 已合并，merge 2054b71 |
 | cuda-foundations | [#16](https://github.com/open-infra-ai/cuda-foundations/pull/16) | 已合并，merge 8143f08 |
 | meta | [#3](https://github.com/open-infra-ai/open-infra-ai/pull/3) | 本笔记随该 PR 交付，最终状态以 PR 元数据为准 |
-| 面试准备仓 | [#10](https://github.com/open-infra-ai/ai-infra-interview-prep/pull/10) | 同步技术仓真实合并状态，最终状态以 PR 元数据为准 |
+| 面试准备仓 | `holtwood/ai-infra-interview-prep` #10（私有仓，2026-10-25 迁出组织） | 同步技术仓真实合并状态，最终状态以 PR 元数据为准 |
 
 技术仓的合并提交已经逐项核验。meta 与准备仓分别交付本记录和任务入口，不预写
 自身尚未发生的合并 SHA；准备仓没有远端 CI，使用独立审阅与本地链接、计划一致性

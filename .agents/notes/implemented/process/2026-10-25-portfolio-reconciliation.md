@@ -23,6 +23,8 @@ Status: implemented
    求职执行材料；边界文档第 3 节改指个人私有仓。
 4. `ai-infra-radar` 登记为组织私有工作台（不进公开注册表），每日扫描 cron 暂停
    （2026-10-05 后无人工 triage，自动化产出无人消费），恢复 triage 时再启用。
+   同日第三批改为转公开：radar 公开但仍不进注册表，daily-scan 维持暂停，见
+   [2026-10-25-kvtier-radar-publication.md](2026-10-25-kvtier-radar-publication.md)。
 5. 恢复双 changelog 记录本批变更，并补记此前三次未记录的治理事件。
 
 ## Alternatives considered

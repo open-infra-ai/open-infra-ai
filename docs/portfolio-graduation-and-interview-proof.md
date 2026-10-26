@@ -9,17 +9,19 @@ commit、结果包和 [`evidence-index.md`](evidence-index.md) 为准。
 ## 1. 最重要的结论
 
 1. **不要再增加新项目。** 当前作品集已经覆盖 CUDA、Triton、Attention、LLM runtime、
-   KV Cache、Rust serving 和上游 KV tiering。新增第八个仓库的收益远低于补齐当前证据。
-2. **只选一个深改造。** direct paged/split-KV 已实现，不从零重做；综合/Serving 默认
-   先评审已有整改分支的取消/有界队列/指标，再补真实 backend/网络回收。Kernel 路线选 `cuflash`
-   workspace/stream safety，Runtime 路线做集成与端到端 A/B，不并行扩展三条线。
+   KV Cache、Rust serving、上游 KV tiering 和 CPU 侧 C++ 性能工程。新增第八个技术仓的
+   收益远低于补齐当前证据。
+2. **只选一个深改造。** direct paged/split-KV 已实现，不从零重做；综合/Serving 的取消、
+   有界队列与指标整改已随 PR #24 合入，下一步只补真实 backend/网络回收。Kernel 路线选
+   `cuflash` workspace/stream safety，Runtime 路线做集成与端到端 A/B，不并行扩展三条线。
 3. **正确性比漂亮数字优先。** GPU case 真正执行、独立 reference、sanitizer、失败路径和
    raw artifact，比一次较大的 speedup 更能通过面试追问。
 4. **旗舰叙事只保留两条。**
    - `tiny-llm + paged-serving`：从 HTTP 请求到 CUDA decode 的系统链路。
    - `cuflash + trifuse`：从算法、数值到 CUDA/Triton 工程取舍。
 5. **辅助仓不争夺主叙事。** `cuda-foundations` 证明基础和优化方法；`kvtier` 证明上游
-   研究与实验能力，不包装成自研生产系统。
+   研究与实验能力；`cpp-high-performance-guide` 是独立的 CPU 侧教学线。三者都不包装成
+   旗舰系统或生产服务。
 
 ## 2. 证据等级
 
@@ -91,7 +93,7 @@ E5 → 端到端 workload + failure injection + 公平 baseline
 - 对生产成熟度、跨硬件泛化和未完成路线不夸大；
 - 能明确回答“为什么不用成熟库”和“这个练习项目的学习价值在哪里”。
 
-## 4. 六仓毕业矩阵
+## 4. 技术仓毕业矩阵（七仓）
 
 ### 4.1 `cuda-foundations`
 
@@ -246,10 +248,10 @@ E5 → 端到端 workload + failure injection + 公平 baseline
 
 毕业前最高价值补强：
 
-以下是完整验收门槛，不是待从零开发清单。前 3 项已有 CPU 回归，第 4 项有真实 CLI/TCP 回归，见
-[证据索引](evidence-index.md#整改分支的控制面回归)；默认分支尚未合入，
-结果语义与收敛审计也有整改分支自动验收证据；下一步独立评审、真实后端非 skip
-门禁与 CUDA/服务端网络回收，不能据校验通过宣称稳定 SLO。
+以下是完整验收门槛，不是待从零开发清单。前 3 项已有 CPU 回归，第 4 项有真实 CLI/TCP
+回归，并已随 PR #24 合入默认分支（merge `e60a315`），见
+[证据索引](evidence-index.md#整改分支的控制面回归)；结果语义与收敛审计已有自动验收证据。
+下一步是真实后端非 skip 门禁与 CUDA/服务端网络回收，不能据校验通过宣称稳定 SLO。
 
 1. consumer ownership 驱动的主动 cancellation（CPU 回归已有）；
 2. SSE 和 `n>1` fan-in 有界背压（CPU 回归已有）；
@@ -300,6 +302,40 @@ E5 → 端到端 workload + failure injection + 公平 baseline
 - L2 host DRAM、L3 storage 的延迟和带宽瓶颈分别是什么？
 - eviction、prefetch、load-back 如何与 compute overlap？
 - 为什么复现上游 issue 仍然有工程价值？
+
+### 4.7 `cpp-high-performance-guide`
+
+**角色**：CPU 侧 C++20 性能工程教学线，独立于 GPU 旗舰与系统集成图，不作为 serving
+或 runtime 证据。
+
+当前安全说法：
+
+- 9 个模块覆盖 CMake、内存/缓存、现代 C++、SIMD、并发/无锁、MPI、I/O、CPU 微架构
+  与 GEMM 案例；
+- 示例、GTest/RapidCheck 测试和 Google Benchmark 可由 CMake preset 构建与运行；
+- CI 覆盖格式检查、GCC debug 与 asan/tsan/ubsan；2026-10-25 记录 119/119 测试通过。
+
+禁止说法：
+
+- 生产级 GEMM/数值库，或性能超过 cuBLAS/成熟 SIMD 库；
+- 微基准加速比等于端到端业务收益，或跨 CPU 型号/编译器普遍成立；
+- CPU 教学线证明 GPU/CUDA 或 LLM serving 能力。
+
+毕业前最高价值补强：
+
+1. release 预设纳入 CI（当前文档给出本地命令，workflow 只跑 debug 与 sanitizer）；
+2. 基准记录 CPU 型号、编译器、频率/功耗与统计方差，并保留 raw 输出；
+3. x86/ARM 与 GCC/Clang 兼容矩阵，避免 SIMD/内建假设只在一个平台成立；
+4. 至少一个用 perf/VTune 的 profiler 归因案例；
+5. 控制示例与文档的重复和过期数字，保持 9 模块边界。
+
+面试官应能追问：
+
+- false sharing 如何从 perf 计数器与数据结构布局定位？
+- 自动向量化、intrinsics 与 SIMD 封装各自的适用边界？
+- NUMA 首次触碰与线程亲和如何改变带宽/延迟？
+- 无锁队列的 memory order 假设如何测试与反证？
+- Google Benchmark 的 warmup、重复次数与方差如何处理？
 
 ## 5. 旗舰系统证据链
 
